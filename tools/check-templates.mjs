@@ -1,0 +1,302 @@
+// Phase 2 exit check for panel/templates.
+// 1. Source rules: one root, data-template matches the file, slots are blank.
+// 2. Fidelity: fill each template, strip it, and compare to its source. Mutations must be caught.
+// 3. Accessibility (axe) in light and dark, for every template alone and in composed screens.
+// 4. Phone width: no horizontal overflow at 400px.
+
+import { chromium } from "playwright";
+import { readFileSync, readdirSync, mkdirSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join, basename } from "node:path";
+import { serve } from "./lib/serve.mjs";
+
+const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const outDir = join(root, "tools/out");
+mkdirSync(outDir, { recursive: true });
+
+const groups = { shell: "", screens: "screen-", fields: "field-" };
+const sources = {};
+const files = {};
+for (const [group, prefix] of Object.entries(groups)) {
+  for (const file of readdirSync(join(root, "panel/templates", group)).filter((f) => f.endsWith(".html"))) {
+    let name = prefix + basename(file, ".html");
+    if (name === "screen-create-dialog") name = "screen-create";
+    if (name === "screen-empty") name = "empty";
+    if (name === "screen-error") name = "error";
+    sources[name] = readFileSync(join(root, "panel/templates", group, file), "utf8");
+    files[name] = `${group}/${file}`;
+  }
+}
+
+const sprite = readFileSync(join(root, "panel/design-system/icons.svg"), "utf8");
+writeFileSync(
+  join(outDir, "harness.html"),
+  `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Panel template check</title>
+<link rel="stylesheet" href="/panel/design-system/tokens.css"><link rel="stylesheet" href="/panel/design-system/components.css">
+<script src="/tools/lib/fidelity.js"></script></head><body class="pn" style="margin:0">${sprite}<div id="stage"></div></body></html>`,
+);
+
+const axeSource = readFileSync(join(root, "node_modules/axe-core/axe.min.js"), "utf8");
+const server = serve(root);
+const browser = await chromium.launch();
+const failures = [];
+const log = [];
+const fail = (msg) => failures.push(msg);
+
+async function openHarness(colorScheme = "light", width = 1280) {
+  const context = await browser.newContext({ colorScheme, viewport: { width, height: 900 } });
+  const page = await context.newPage();
+  const errors = [];
+  page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto(`${server.url}/tools/out/harness.html`);
+  await page.addScriptTag({ content: axeSource });
+  return { page, context, errors };
+}
+
+// Runs inside the page: builds a scenario from templates and returns the root element's selector.
+function buildInPage({ sources, scenario }) {
+  const F = window.PanelFidelity;
+  const stage = document.getElementById("stage");
+  stage.innerHTML = "";
+
+  function make(name, ctx = {}, children = {}) {
+    const el = F.parseTemplate(sources[name]);
+    F.fill(el, ctx);
+    for (const [slot, kids] of Object.entries(children)) {
+      const container = el.matches(`[data-slot-children="${slot}"]`) ? el : el.querySelector(`[data-slot-children="${slot}"]`);
+      for (const kid of [].concat(kids)) container.appendChild(typeof kid === "function" ? kid(el) : kid);
+    }
+    if (name === "field-custom") {
+      const label = el.querySelector(".pn-label");
+      const input = document.createElement("input");
+      input.className = "pn-input";
+      input.type = "text";
+      input.readOnly = true;
+      input.value = "6 min";
+      input.setAttribute("aria-labelledby", label.id);
+      el.querySelector('[data-slot-children="control"]').appendChild(input);
+    }
+    return el;
+  }
+  const button = (text, variant) => {
+    const b = document.createElement("button");
+    b.className = "pn-button";
+    b.type = "button";
+    if (variant) b.dataset.variant = variant;
+    b.textContent = text;
+    return b;
+  };
+  const wrapMain = (el) => {
+    const main = document.createElement("main");
+    main.style.padding = "1.5rem";
+    if (el.matches(".pn-field")) {
+      const grid = document.createElement("div");
+      grid.className = "pn-grid";
+      grid.appendChild(el);
+      main.appendChild(grid);
+    } else main.appendChild(el);
+    return main;
+  };
+  const fieldNames = Object.keys(sources).filter((n) => n.startsWith("field-"));
+  const allFields = () => fieldNames.map((n, i) => make(n, { width: ["1/1", "1/2", "1/2", "1/3", "2/3", "1/3"][i % 6] }));
+  const page = (screen, extra = {}) =>
+    make("layout", {}, {
+      nav: make("nav", {}, { account: make("account") }),
+      header: make("header"),
+      screen,
+      savebar: extra.savebar ?? [],
+    });
+
+  const s = scenario;
+  let rootEl;
+  if (s.kind === "alone") {
+    const el = make(s.name, { state: s.state ?? "ready", error: s.fieldState === "error" ? "Sample error message" : "" });
+    if (s.fieldState === "error") el.querySelectorAll("input, textarea, select").forEach((c) => c.setAttribute("aria-invalid", "true"));
+    if (s.fieldState === "disabled") el.querySelectorAll("input, textarea, select, button").forEach((c) => c.setAttribute("disabled", ""));
+    if (s.name === "field-custom" && s.fieldState === "error") el.querySelector(".pn-field-controls input").setAttribute("aria-invalid", "true");
+    rootEl = ["layout", "screen-login"].includes(s.name) ? el : wrapMain(el);
+    if (el.localName === "dialog") el.setAttribute("open", ""), el.setAttribute("data-static", "");
+    stage.appendChild(rootEl);
+  } else if (s.kind === "item") {
+    rootEl = page(make("screen-item", { state: s.state ?? "ready" }, { fields: allFields(), empty: make("empty"), error: make("error", {}, { actions: button("Try again") }) }), { savebar: make("savebar", { saveState: s.saveState ?? "dirty" }) });
+    stage.appendChild(rootEl);
+  } else if (s.kind === "collection") {
+    rootEl = page(make("screen-collection", { state: s.state }, { empty: make("empty", {}, { actions: button("New post", "primary") }), error: make("error", {}, { actions: button("Try again") }) }));
+    stage.appendChild(rootEl);
+  } else if (s.kind === "home") {
+    rootEl = page(make("screen-home", { state: "ready" }, { empty: make("empty"), error: make("error") }));
+    stage.appendChild(rootEl);
+  } else if (s.kind === "singleton") {
+    rootEl = page(make("screen-singleton", { state: "ready" }, { fields: ["field-text", "field-textarea", "field-toggle"].map((n) => make(n, { width: "1/1" })), error: make("error") }), { savebar: make("savebar", { saveState: "clean" }) });
+    stage.appendChild(rootEl);
+  } else if (s.kind === "system-error") {
+    rootEl = page(make("error", {}, { actions: button("Go home") }));
+    stage.appendChild(rootEl);
+  } else if (s.kind === "login") {
+    rootEl = make("screen-login", {}, { methods: button("Continue with Google", "primary") });
+    stage.appendChild(rootEl);
+  } else if (s.kind === "modal") {
+    rootEl = page(make("screen-item", { state: "ready" }, { fields: [make("field-text"), make("field-markdown")], empty: make("empty"), error: make("error") }));
+    stage.appendChild(rootEl);
+    const body = s.name === "screen-slide-over" ? { body: make("field-textarea", { width: "1/1" }) } : s.name === "screen-create" ? { fields: [make("field-text", { width: "1/1" }), make("field-slug", { width: "1/1" })] } : {};
+    const dialog = make(s.name, {}, body);
+    rootEl.querySelector('[data-slot-children="dialogs"]').appendChild(dialog);
+    dialog.showModal();
+  }
+  return F.checkDocument(stage, sources);
+}
+
+async function runAxe(page, isFragment) {
+  return page.evaluate(async (isFragment) => {
+    const rules = isFragment ? { "page-has-heading-one": { enabled: false } } : {};
+    const r = await window.axe.run(document.getElementById("stage"), { rules, resultTypes: ["violations"] });
+    return r.violations.map((v) => `${v.id}: ${v.help} — ${v.nodes.slice(0, 3).map((n) => n.target.join(" ") + " :: " + n.failureSummary.split("\n").slice(1).join(" ").trim()).join(" | ")}`);
+  }, isFragment);
+}
+
+async function overflowAt400(page) {
+  await page.setViewportSize({ width: 400, height: 900 });
+  await page.waitForTimeout(50);
+  return page.evaluate(() => {
+    const w = document.documentElement.clientWidth;
+    const over = [...document.querySelectorAll("#stage *")].filter((e) => {
+      const r = e.getBoundingClientRect();
+      return r.width > 0 && r.right > w + 0.5 && getComputedStyle(e).position !== "fixed";
+    });
+    return { px: document.documentElement.scrollWidth - w, offenders: over.slice(0, 3).map((e) => e.className || e.localName) };
+  });
+}
+
+// 1. Source rules
+for (const [name, html] of Object.entries(sources)) {
+  const { page, context } = await openHarness();
+  const problems = await page.evaluate(({ html, name }) => {
+    const out = [];
+    let el;
+    try {
+      el = window.PanelFidelity.parseTemplate(html);
+    } catch (e) {
+      return [e.message];
+    }
+    if (el.getAttribute("data-template") !== name) out.push(`data-template is "${el.getAttribute("data-template")}", expected "${name}"`);
+    const all = [el, ...el.querySelectorAll("*")];
+    for (const n of all) {
+      if ((n.hasAttribute("data-slot") || n.hasAttribute("data-slot-children")) && n.childNodes.length) out.push(`slot ${n.getAttribute("data-slot") || n.getAttribute("data-slot-children")} is not empty`);
+      for (const pair of (n.getAttribute("data-slot-attr") || "").split(/\s+/).filter(Boolean)) {
+        const attr = pair.split(":")[0];
+        if (!n.hasAttribute(attr)) out.push(`data-slot-attr names "${attr}" but the element has no such attribute`);
+        else if (n.getAttribute(attr) !== "") out.push(`slot attribute ${attr} is not blank`);
+      }
+      if (n.hasAttribute("data-slot-repeat") && n.children.length !== 1) out.push(`repeat ${n.getAttribute("data-slot-repeat")} must hold exactly one unit`);
+      if (n.hasAttribute("style") && n !== el) out.push("inline style attribute in a template");
+    }
+    return out;
+  }, { html, name });
+  problems.forEach((p) => fail(`[source] ${files[name]}: ${p}`));
+  log.push(`[source] ${files[name]}: ${problems.length ? "FAIL" : "ok"}`);
+  await context.close();
+}
+
+// 2. Fidelity round trip and mutation detection
+{
+  const { page, context } = await openHarness();
+  const results = await page.evaluate((sources) => {
+    const F = window.PanelFidelity;
+    const out = [];
+    for (const [name, html] of Object.entries(sources)) {
+      const src = F.normalize(F.parseTemplate(html));
+      const filled = F.fill(F.parseTemplate(html));
+      const roundTrip = F.compare(src, F.normalize(filled));
+      const mutations = {
+        "class renamed": (el) => {
+          const t = el.querySelector("[class]") || el;
+          t.setAttribute("class", t.getAttribute("class") + " extra");
+        },
+        "element removed": (el) => el.lastElementChild.remove(),
+        "element added": (el) => el.appendChild(document.createElement("div")),
+        "fixed attribute changed": (el) => {
+          const t = [el, ...el.querySelectorAll("*")].find((n) => [...n.attributes].some((a) => !a.name.startsWith("data-slot") && a.name !== "class" && !(n.getAttribute("data-slot-attr") || "").includes(a.name + ":")));
+          const a = [...t.attributes].find((a) => !a.name.startsWith("data-slot") && a.name !== "class" && !(t.getAttribute("data-slot-attr") || "").includes(a.name + ":"));
+          t.setAttribute(a.name, a.value + "x");
+        },
+      };
+      const repeatHost = filled.matches("[data-slot-repeat]") ? filled : filled.querySelector("[data-slot-repeat]");
+      if (repeatHost) mutations["repeat unit changed"] = (el) => {
+        const host = el.matches("[data-slot-repeat]") ? el : el.querySelector("[data-slot-repeat]");
+        host.lastElementChild.setAttribute("data-extra", "");
+      };
+      const caught = {};
+      for (const [label, mutate] of Object.entries(mutations)) {
+        const copy = filled.cloneNode(true);
+        mutate(copy);
+        caught[label] = !!F.compare(src, F.normalize(copy));
+      }
+      out.push({ name, roundTrip, caught });
+    }
+    return out;
+  }, sources);
+  for (const r of results) {
+    if (r.roundTrip) fail(`[fidelity] ${files[r.name]}: filled template does not match its source: ${r.roundTrip}`);
+    const missed = Object.entries(r.caught).filter(([, c]) => !c).map(([l]) => l);
+    if (missed.length) fail(`[fidelity] ${files[r.name]}: mutations not caught: ${missed.join(", ")}`);
+    log.push(`[fidelity] ${files[r.name]}: round trip ${r.roundTrip ? "FAIL" : "ok"}, mutations caught ${Object.values(r.caught).filter(Boolean).length}/${Object.keys(r.caught).length}`);
+  }
+  await context.close();
+}
+
+// 3 and 4. Accessibility and phone width, alone and composed
+const scenarios = [];
+for (const name of Object.keys(sources)) {
+  if (name.startsWith("field-")) for (const fieldState of ["default", "error", "disabled"]) scenarios.push({ kind: "alone", name, fieldState, label: `${name} (${fieldState})` });
+  else scenarios.push({ kind: "alone", name, label: name });
+}
+scenarios.push(
+  { kind: "item", label: "composed: item, all fields, unsaved", shot: "item" },
+  { kind: "item", state: "loading", saveState: "clean", label: "composed: item, loading" },
+  { kind: "item", state: "error", saveState: "error", label: "composed: item, error", shot: "item-error" },
+  { kind: "collection", state: "ready", label: "composed: collection", shot: "collection" },
+  { kind: "collection", state: "empty", label: "composed: collection, empty", shot: "collection-empty" },
+  { kind: "collection", state: "loading", label: "composed: collection, loading" },
+  { kind: "collection", state: "error", label: "composed: collection, error" },
+  { kind: "home", label: "composed: home", shot: "home" },
+  { kind: "singleton", label: "composed: singleton", shot: "singleton" },
+  { kind: "system-error", label: "composed: system error", shot: "system-error" },
+  { kind: "login", label: "composed: login", shot: "login" },
+  { kind: "modal", name: "screen-create", label: "composed: create dialog open", shot: "create" },
+  { kind: "modal", name: "screen-slide-over", label: "composed: slide-over open", shot: "slide-over" },
+  { kind: "modal", name: "screen-dialog", label: "composed: confirm dialog open", shot: "dialog" },
+);
+
+for (const scenario of scenarios) {
+  for (const scheme of ["light", "dark"]) {
+    const { page, context, errors } = await openHarness(scheme);
+    const fidelity = await page.evaluate(buildInPage, { sources, scenario });
+    await page.waitForTimeout(150);
+    const badFidelity = fidelity.filter((r) => !r.ok);
+    const axe = await runAxe(page, scenario.kind === "alone");
+    if (scenario.shot && scheme === "light") await page.screenshot({ path: join(outDir, `tpl-${scenario.shot}.png`), fullPage: true });
+    if (scenario.shot && scheme === "dark") await page.screenshot({ path: join(outDir, `tpl-${scenario.shot}-dark.png`), fullPage: true });
+    const overflow = scheme === "light" ? await overflowAt400(page) : { px: 0 };
+    if (scenario.shot && scheme === "light") await page.screenshot({ path: join(outDir, `tpl-${scenario.shot}-400.png`), fullPage: true });
+    const tag = `${scenario.label} [${scheme}]`;
+    badFidelity.forEach((r) => fail(`[fidelity] ${tag}: ${r.name}: ${r.diff}`));
+    axe.forEach((v) => fail(`[a11y] ${tag}: ${v}`));
+    errors.forEach((e) => fail(`[console] ${tag}: ${e}`));
+    if (overflow.px > 0) fail(`[400px] ${tag}: overflows by ${overflow.px}px (${overflow.offenders.join(", ")})`);
+    log.push(`[render] ${tag}: templates ${fidelity.length - badFidelity.length}/${fidelity.length}, axe ${axe.length}, console ${errors.length}${scheme === "light" ? `, overflow ${overflow.px}px` : ""}`);
+    await context.close();
+  }
+}
+
+await browser.close();
+server.close();
+writeFileSync(join(outDir, "templates-report.txt"), log.join("\n") + "\n\nFAILURES\n" + failures.join("\n"));
+console.log(log.join("\n"));
+console.log(`\n${Object.keys(sources).length} templates, ${scenarios.length} scenarios x 2 themes`);
+if (failures.length) {
+  console.log(`\nFAILURES (${failures.length})`);
+  failures.forEach((f) => console.log("  " + f));
+  process.exit(1);
+}
+console.log("\nALL CHECKS PASSED");

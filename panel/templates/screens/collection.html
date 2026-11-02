@@ -1,0 +1,24 @@
+<section class="pn-screen" data-state="" data-type="" data-slot-attr="data-state:state data-type:type-id" aria-labelledby="pn-screen-title" data-template="screen-collection">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title"></h1>
+    <div class="pn-screen-actions">
+      <button class="pn-button" data-variant="primary" type="button" data-action="create"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-plus"/></svg><span data-slot="create-label"></span></button>
+    </div>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text"></span></div>
+  <div class="pn-region-ready">
+    <div class="pn-collection-tools" role="search">
+      <label class="pn-visually-hidden" for="pn-search" data-slot="search-label"></label>
+      <input class="pn-input" type="search" id="pn-search" name="q" placeholder="" data-slot-attr="placeholder:search-placeholder">
+      <label class="pn-visually-hidden" for="pn-sort" data-slot="sort-label"></label>
+      <select class="pn-select" id="pn-sort" name="sort" data-slot-repeat="sort-option">
+        <option value="" data-slot-attr="value:value" data-slot="text"></option>
+      </select>
+    </div>
+    <ul class="pn-list" data-slot-repeat="row">
+      <li class="pn-list-item"><a class="pn-list-row" href="" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title"></span><span class="pn-list-subtitle" data-slot="subtitle"></span></span><span class="pn-status" data-tone="" data-slot-attr="data-tone:tone" data-slot="status"></span></a></li>
+    </ul>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section>

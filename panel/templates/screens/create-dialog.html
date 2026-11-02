@@ -1,0 +1,12 @@
+<dialog class="pn-dialog" aria-labelledby="pn-create-title" data-template="screen-create">
+  <form method="dialog" novalidate>
+    <div class="pn-dialog-body">
+      <h2 class="pn-dialog-title" id="pn-create-title" data-slot="title"></h2>
+      <div class="pn-grid" data-slot-children="fields"></div>
+    </div>
+    <div class="pn-dialog-footer">
+      <button class="pn-button" value="cancel" data-action="cancel">Cancel</button>
+      <button class="pn-button" data-variant="primary" value="create" data-action="create">Create</button>
+    </div>
+  </form>
+</dialog>

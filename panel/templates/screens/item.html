@@ -1,0 +1,25 @@
+<section class="pn-screen" data-state="" data-type="" data-slot-attr="data-state:state data-type:type-id" aria-labelledby="pn-screen-title" data-template="screen-item">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title"></h1>
+    <div class="pn-screen-actions">
+      <button class="pn-status" type="button" data-tone="" data-action="status" data-slot-attr="data-tone:tone"><span class="pn-visually-hidden">Status:</span> <span class="pn-status-text" data-slot="status"></span></button>
+    </div>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text"></span></div>
+  <div class="pn-region-ready">
+    <form class="pn-item" data-kind="collection" novalidate>
+      <div class="pn-grid" data-slot-children="fields"></div>
+      <aside class="pn-item-sidebar" aria-label="Details">
+        <dl class="pn-meta">
+          <dt>Created</dt>
+          <dd data-slot="created"></dd>
+          <dt>Updated</dt>
+          <dd data-slot="updated"></dd>
+        </dl>
+        <button class="pn-button" data-variant="negative" type="button" data-action="delete"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"/></svg>Delete</button>
+      </aside>
+    </form>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section>

@@ -4,7 +4,8 @@
   "description": "Dev-time tooling for the Panel skill. Nothing here ships with the skill.",
   "type": "module",
   "scripts": {
-    "check:design-system": "node tools/check-design-system.mjs"
+    "check:design-system": "node tools/check-design-system.mjs",
+    "check:templates": "node tools/check-templates.mjs"
   },
   "devDependencies": {
     "axe-core": "^4.14.0",

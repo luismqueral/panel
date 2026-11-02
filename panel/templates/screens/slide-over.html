@@ -1,0 +1,13 @@
+<dialog class="pn-drawer" aria-labelledby="pn-drawer-title" data-template="screen-slide-over">
+  <form class="pn-drawer-form" method="dialog" novalidate>
+    <div class="pn-drawer-header">
+      <h2 class="pn-drawer-title" id="pn-drawer-title" data-slot="title"></h2>
+      <button class="pn-button" data-variant="quiet" data-icon-only data-size="sm" value="close" aria-label="Close" data-action="close"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"/></svg></button>
+    </div>
+    <div class="pn-drawer-body" data-slot-children="body"></div>
+    <div class="pn-drawer-footer">
+      <button class="pn-button" value="cancel" data-action="cancel">Cancel</button>
+      <button class="pn-button" data-variant="primary" value="done" data-action="done">Done</button>
+    </div>
+  </form>
+</dialog>

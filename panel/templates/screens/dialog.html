@@ -1,0 +1,12 @@
+<dialog class="pn-dialog" aria-labelledby="pn-dialog-title" aria-describedby="pn-dialog-text" data-template="screen-dialog">
+  <form method="dialog">
+    <div class="pn-dialog-body">
+      <h2 class="pn-dialog-title" id="pn-dialog-title" data-slot="title"></h2>
+      <p class="pn-dialog-text" id="pn-dialog-text" data-slot="text"></p>
+    </div>
+    <div class="pn-dialog-footer">
+      <button class="pn-button" value="cancel" data-action="cancel">Cancel</button>
+      <button class="pn-button" data-variant="" value="confirm" data-action="confirm" data-slot-attr="data-variant:variant" data-slot="confirm-label"></button>
+    </div>
+  </form>
+</dialog>

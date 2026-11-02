@@ -1,0 +1,12 @@
+<section class="pn-screen" data-state="" data-singleton="" data-slot-attr="data-state:state data-singleton:singleton-id" aria-labelledby="pn-screen-title" data-template="screen-singleton">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title"></h1>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text"></span></div>
+  <div class="pn-region-ready">
+    <form class="pn-item" data-kind="singleton" novalidate>
+      <div class="pn-grid" data-slot-children="fields"></div>
+    </form>
+  </div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section>

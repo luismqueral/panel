@@ -242,3 +242,43 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Consequence:** Phase 5 intake gains host-profile detection; conformance gains "the build follows the host profile"; each cookbook documents style isolation against common host setups.
 - **Reverse:** Drop the profile and let flavor opinions stand.
 - **Tag:** decided-by-human
+
+## D-033 Slot convention
+
+- **Choice:** Four markers: `data-slot` (text), `data-slot-children` (container for other templates), `data-slot-attr="attr:key"` (attribute values from the schema), `data-slot-repeat` (a parent whose single child is copied per item, zero or more times). Every template root carries `data-template="name"`. Markers stay in the output so any page can be checked. Documented in `panel/templates/README.md`.
+- **Why:** Keeps every schema-driven difference inside a marked place, so stripping is mechanical.
+- **Reverse:** Rewrite templates and `tools/lib/fidelity.js`.
+- **Tag:** default
+
+## D-034 What the fidelity comparison normalizes
+
+- **Question:** "Byte-identical" would fail on indentation or attribute order, which carry no structure.
+- **Choice:** The comparison works on a normalized tree: whitespace between tags is ignored, attributes are sorted, slot contents and slot attribute values are blanked, and runtime state attributes (`disabled`, `aria-invalid`, `open`, `value` on inputs, and the others listed in the README) are dropped on both sides. Everything else must match exactly: tags, order, classes, fixed attributes, fixed text.
+- **Why:** Tests structure, not formatting. The checker proves it catches renamed classes, removed or added elements, changed fixed attributes, and altered repeat units.
+- **Reverse:** Compare serialized source text instead.
+- **Tag:** default
+
+## D-035 Fixed UI copy lives in templates
+
+- **Choice:** Interface words that do not come from the schema ("Save", "Revert", "Delete", "Cancel", "Create", "Log out", "Created", "Updated", "Skip to content") are fixed text in the templates, not slots.
+- **Why:** The same words on every panel; a model cannot drift them. Localization would make them slots later.
+- **Reverse:** Turn each into a `data-slot`.
+- **Tag:** default, philosophy-dependent
+
+## D-036 Unchecked containers
+
+- **Choice:** Three containers hold free component markup the checker cannot compare: `field-custom` → `control`, `screen-login` → `methods` (each auth recipe defines its sign-in controls), and `empty`/`error` → `actions`. Everything else inside a container must itself be a template.
+- **Why:** Custom fields and auth methods vary by definition.
+- **Reverse:** Add templates for login methods once recipes settle.
+- **Tag:** default
+
+## D-037 Layout choices in templates
+
+- **Choice:** Nav sits beside the content and stacks on top at phone width (no script, no menu button). The item sidebar (status is in the header; created, updated, delete in the sidebar) moves below the fields under 52rem. Singletons have no sidebar. The layout has a `dialogs` container for create, confirm, and slide-over dialogs. `relation` uses a select in v1 (proposal 001).
+- **Tag:** philosophy-dependent
+
+## D-038 Required is `aria-required`, not `required`
+
+- **Choice:** Templates mark required fields with `aria-required` and `data-required="true"` on the label, never the native `required` attribute.
+- **Why:** Attribute slots must stay present with a value; a boolean attribute cannot be blank. Native `required` would also block saving drafts, against D-001.
+- **Tag:** default

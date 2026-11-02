@@ -1,0 +1,24 @@
+<section class="pn-screen" data-state="" data-slot-attr="data-state:state" aria-labelledby="pn-screen-title" data-template="screen-home">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title"></h1>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text"></span></div>
+  <div class="pn-region-ready">
+    <div class="pn-home">
+      <section aria-labelledby="pn-home-content">
+        <h2 class="pn-section-title" id="pn-home-content" data-slot="content-heading"></h2>
+        <ul class="pn-list" data-slot-repeat="entry">
+          <li class="pn-list-item"><a class="pn-list-row" href="" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title"></span><span class="pn-list-subtitle" data-slot="subtitle"></span></span><span class="pn-list-meta" data-slot="meta"></span></a></li>
+        </ul>
+      </section>
+      <section aria-labelledby="pn-home-recent">
+        <h2 class="pn-section-title" id="pn-home-recent" data-slot="recent-heading"></h2>
+        <ul class="pn-list" data-slot-repeat="recent">
+          <li class="pn-list-item"><a class="pn-list-row" href="" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title"></span><span class="pn-list-subtitle" data-slot="subtitle"></span></span><span class="pn-list-meta" data-slot="meta"></span></a></li>
+        </ul>
+      </section>
+    </div>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section>
