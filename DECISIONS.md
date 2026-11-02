@@ -218,3 +218,27 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 
 - **Choice:** Root `package.json` with dev-only `playwright` and `axe-core`. Checks live in `tools/` and serve pages over a local HTTP server (axe cannot read stylesheets over `file://`). Output goes to `tools/out/`, which is not committed.
 - **Tag:** default
+
+## D-031 Flavors, host shapes, and recipes are separate
+
+- **Question:** Appendix G has cookbooks explain "how the three adapters map onto the stack's existing auth, data, and files", and Appendix I lists "framework-specific mappings" as recipes. The same knowledge would live in two places.
+- **Choice:** Three kinds, no overlap:
+  - **Flavor** (what the panel is written in): template-to-framework translation rules, how the behavior spec maps onto the framework (for React, one hook per spec section), pitfalls, checklist.
+  - **Host shape** (where the panel runs): mount point, routing, whether a server exists, rendering pitfalls such as SSR. A section of the flavor file per shape (Vite SPA, Next.js, and so on).
+  - **Recipe** (what the panel talks to): fills an adapter contract. This includes the host's existing setup, for example `django-auth` or `django-models`. A flavor's adapter section only points to recipes.
+- **Why:** One flavor composes with any recipes. Host integrations live in one place, which is also where binding to existing models will go.
+- **Consequence:** Intake's "the host app's existing auth" option resolves to a host recipe. Phase 9 adds a comparison: the React blog build with and without the flavor file.
+- **Reverse:** Fold host recipes back into cookbooks.
+- **Tag:** decided-by-human
+
+## D-032 Host profile: the host decides how code is written, Panel decides what it does
+
+- **Question:** When Panel is invoked inside an existing project, how compatible must the result be?
+- **Choice:** Intake builds a **host profile** for existing projects by reading the project: language, framework, host shape, router, styling approach, component library, data layer, existing auth, folder layout, naming, package manager, test runner, lint rules. It is written into the intake record and the build must follow it. The flavor's opinions are fallbacks used only where the host has none.
+  - Follows the host: language, file layout, naming, router and mount, data-fetching and state libraries, test runner and lint rules, existing auth and data (through recipes).
+  - Stays Panel's: screens and template structure, the behavior spec, the schema and conformance, accessibility rules, and the look.
+- **Look:** Panel keeps its own `pn-` design system, scoped so it cannot collide with the host's styles (for example, Tailwind's preflight). It looks the same in every project. Host component libraries are not used inside the panel.
+- **Why:** The code should read like the team wrote it, while the panel stays consistent and testable across projects.
+- **Consequence:** Phase 5 intake gains host-profile detection; conformance gains "the build follows the host profile"; each cookbook documents style isolation against common host setups.
+- **Reverse:** Drop the profile and let flavor opinions stand.
+- **Tag:** decided-by-human
