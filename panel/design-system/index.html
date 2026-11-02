@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel design system</title>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="components.css">
+  <style>
+    /* Living-page layout only. Nothing here ships. */
+    html { background: var(--pn-color-bg); }
+    body { margin: 0; }
+    .demo { max-width: 72rem; margin: 0 auto; padding: var(--pn-space-6) var(--pn-space-4) var(--pn-space-7); }
+    .demo-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--pn-space-4); margin-bottom: var(--pn-space-6); }
+    .demo h1 { margin: 0; font-size: var(--pn-text-xl); }
+    .demo > h2 { margin: var(--pn-space-7) 0 var(--pn-space-2); font-size: var(--pn-text-lg); }
+    .demo > h2 + p { margin: 0 0 var(--pn-space-4); font-size: var(--pn-text-sm); color: var(--pn-color-text-muted); }
+    .demo-states { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--pn-space-4); }
+    .demo-states-wide { grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); }
+    .demo-cell { display: flex; flex-direction: column; gap: var(--pn-space-2); margin: 0; padding: var(--pn-space-4); background: var(--pn-color-surface); border: 1px solid var(--pn-color-border); border-radius: var(--pn-radius-md); min-width: 0; }
+    .demo-cell figcaption { font-family: var(--pn-font-mono); font-size: var(--pn-text-xs); color: var(--pn-color-text-muted); }
+    .demo-na { font-size: var(--pn-text-sm); color: var(--pn-color-text-muted); }
+    .demo-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--pn-space-2); }
+    .demo-swatch { height: 3rem; border: 1px solid var(--pn-color-border); border-radius: var(--pn-radius-sm); }
+    .demo-space { height: 0.75rem; background: var(--pn-color-accent); border-radius: 1px; }
+    .demo-grid-cell { padding: var(--pn-space-2); font-family: var(--pn-font-mono); font-size: var(--pn-text-xs); background: var(--pn-color-info-soft); border-radius: var(--pn-radius-sm); }
+  </style>
+</head>
+<body class="pn">
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="pn-icon-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="pn-icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="pn-icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></symbol>
+  <symbol id="pn-icon-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="pn-icon-alert" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/></symbol>
+  <symbol id="pn-icon-chevron-right" viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></symbol>
+  <symbol id="pn-icon-chevron-down" viewBox="0 0 24 24"><path d="M6 10l6 6 6-6"/></symbol>
+  <symbol id="pn-icon-upload" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5M4 15v4h16v-4"/></symbol>
+  <symbol id="pn-icon-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></symbol>
+  <symbol id="pn-icon-image" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="1"/><path d="M3.5 16l5-5 4 4 2.5-2.5 5.5 5.5"/></symbol>
+  <symbol id="pn-icon-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13"/></symbol>
+  <symbol id="pn-icon-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+</svg>
+
+<main class="demo">
+  <div class="demo-top">
+    <h1>Panel design system</h1>
+    <div class="pn-toolbar" role="group" aria-label="Theme">
+      <button class="pn-button" data-size="sm" type="button" data-theme-choice="system" aria-pressed="true">System</button>
+      <button class="pn-button" data-size="sm" type="button" data-theme-choice="light" aria-pressed="false">Light</button>
+      <button class="pn-button" data-size="sm" type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+    </div>
+  </div>
+  <p class="pn-help">Status: Proposed. Every visual value here is philosophy-dependent. Hover and focus cells use <code>data-force</code> to show the state without a pointer.</p>
+
+  <!-- Tokens -->
+
+  <h2>Color</h2>
+  <p>Neutral surfaces and text, one accent, semantic colors for meaning only.</p>
+  <div class="demo-states">
+    <figure class="demo-cell"><div class="demo-swatch" style="background:var(--pn-color-bg)"></div><figcaption>--pn-color-bg</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-swatch" style="background:var(--pn-color-surface)"></div><figcaption>--pn-color-surface</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-swatch" style="background:var(--pn-color-surface-sunken)"></div><figcaption>--pn-color-surface-sunken</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-swatch" style="background:var(--pn-color-text)"></div><figcaption>--pn-color-text</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-swatch" style="background:var(--pn-color-text-muted)"></div><figcaption>--pn-color-text-muted</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-swatch" style="background:var(--pn-color-border)"></div><figcaption>--pn-color-border</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-swatch" style="background:var(--pn-color-border-control)"></div><figcaption>--pn-color-border-control</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-swatch" style="background:var(--pn-color-accent)"></div><figcaption>--pn-color-accent</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-swatch" style="background:var(--pn-color-positive)"></div><figcaption>--pn-color-positive</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-swatch" style="background:var(--pn-color-notice)"></div><figcaption>--pn-color-notice</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-swatch" style="background:var(--pn-color-negative)"></div><figcaption>--pn-color-negative</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-swatch" style="background:var(--pn-color-info)"></div><figcaption>--pn-color-info</figcaption></figure>
+  </div>
+
+  <h2>Type</h2>
+  <p>Five sizes. Sans for everything, mono for data.</p>
+  <div class="demo-states demo-states-wide">
+    <figure class="demo-cell"><span style="font-size:var(--pn-text-xl)">Field Notes</span><figcaption>--pn-text-xl</figcaption></figure>
+    <figure class="demo-cell"><span style="font-size:var(--pn-text-lg)">Field Notes</span><figcaption>--pn-text-lg</figcaption></figure>
+    <figure class="demo-cell"><span style="font-size:var(--pn-text-md)">Field Notes</span><figcaption>--pn-text-md</figcaption></figure>
+    <figure class="demo-cell"><span style="font-size:var(--pn-text-sm)">Field Notes</span><figcaption>--pn-text-sm</figcaption></figure>
+    <figure class="demo-cell"><span style="font-size:var(--pn-text-xs)">Field Notes</span><figcaption>--pn-text-xs</figcaption></figure>
+    <figure class="demo-cell"><span style="font-family:var(--pn-font-mono);font-size:var(--pn-text-sm)">2026-11-01 · 1,204 words</span><figcaption>--pn-font-mono</figcaption></figure>
+  </div>
+
+  <h2>Space and shape</h2>
+  <p>An even spacing scale, two radii, and the focus ring.</p>
+  <div class="demo-states">
+    <figure class="demo-cell"><div class="demo-space" style="width:var(--pn-space-1)"></div><figcaption>--pn-space-1</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-space" style="width:var(--pn-space-2)"></div><figcaption>--pn-space-2</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-space" style="width:var(--pn-space-3)"></div><figcaption>--pn-space-3</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-space" style="width:var(--pn-space-4)"></div><figcaption>--pn-space-4</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-space" style="width:var(--pn-space-5)"></div><figcaption>--pn-space-5</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-space" style="width:var(--pn-space-6)"></div><figcaption>--pn-space-6</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-space" style="width:var(--pn-space-7)"></div><figcaption>--pn-space-7</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-swatch" style="border-radius:var(--pn-radius-sm)"></div><figcaption>--pn-radius-sm</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-swatch" style="border-radius:var(--pn-radius-md)"></div><figcaption>--pn-radius-md</figcaption></figure>
+    <figure class="demo-cell"><div class="demo-swatch" style="outline:var(--pn-focus-width) solid var(--pn-color-focus);outline-offset:var(--pn-focus-offset)"></div><figcaption>focus ring</figcaption></figure>
+  </div>
+
+  <h2>Form grid</h2>
+  <p>Fields carry <code>data-width</code> from the schema. Below 40rem every field is full width.</p>
+  <div class="pn-grid">
+    <div data-width="1/1" class="demo-grid-cell">1/1</div>
+    <div data-width="1/2" class="demo-grid-cell">1/2</div>
+    <div data-width="1/2" class="demo-grid-cell">1/2</div>
+    <div data-width="1/3" class="demo-grid-cell">1/3</div>
+    <div data-width="2/3" class="demo-grid-cell">2/3</div>
+    <div data-width="1/3" class="demo-grid-cell">1/3</div>
+    <div data-width="1/3" class="demo-grid-cell">1/3</div>
+    <div data-width="1/3" class="demo-grid-cell">1/3</div>
+  </div>
+
+  <h2>Icons</h2>
+  <p>Original stroke icons in one sprite, sized to the text around them.</p>
+  <div class="demo-row" style="font-size:var(--pn-text-lg)">
+    <svg class="pn-icon" aria-label="close" role="img"><use href="#pn-icon-close"/></svg>
+    <svg class="pn-icon" aria-label="plus" role="img"><use href="#pn-icon-plus"/></svg>
+    <svg class="pn-icon" aria-label="search" role="img"><use href="#pn-icon-search"/></svg>
+    <svg class="pn-icon" aria-label="check" role="img"><use href="#pn-icon-check"/></svg>
+    <svg class="pn-icon" aria-label="alert" role="img"><use href="#pn-icon-alert"/></svg>
+    <svg class="pn-icon" aria-label="chevron right" role="img"><use href="#pn-icon-chevron-right"/></svg>
+    <svg class="pn-icon" aria-label="chevron down" role="img"><use href="#pn-icon-chevron-down"/></svg>
+    <svg class="pn-icon" aria-label="upload" role="img"><use href="#pn-icon-upload"/></svg>
+    <svg class="pn-icon" aria-label="file" role="img"><use href="#pn-icon-file"/></svg>
+    <svg class="pn-icon" aria-label="image" role="img"><use href="#pn-icon-image"/></svg>
+    <svg class="pn-icon" aria-label="trash" role="img"><use href="#pn-icon-trash"/></svg>
+    <svg class="pn-icon" aria-label="menu" role="img"><use href="#pn-icon-menu"/></svg>
+  </div>
+
+  <!-- Components -->
+
+  <h2 id="button">Button</h2>
+  <p>Default, primary, negative, quiet. Small and icon-only sizes. Error: not applicable; destructive actions use the negative variant.</p>
+  <div class="demo-states">
+    <figure class="demo-cell"><figcaption>default</figcaption><div class="demo-row"><button class="pn-button" type="button">Cancel</button><button class="pn-button" data-variant="primary" type="button">Save</button></div></figure>
+    <figure class="demo-cell"><figcaption>hover</figcaption><div class="demo-row"><button class="pn-button" type="button" data-force="hover">Cancel</button><button class="pn-button" data-variant="primary" type="button" data-force="hover">Save</button></div></figure>
+    <figure class="demo-cell"><figcaption>focus</figcaption><div class="demo-row"><button class="pn-button" type="button" data-force="focus">Cancel</button><button class="pn-button" data-variant="primary" type="button" data-force="focus">Save</button></div></figure>
+    <figure class="demo-cell"><figcaption>disabled</figcaption><div class="demo-row"><button class="pn-button" type="button" disabled>Cancel</button><button class="pn-button" data-variant="primary" type="button" disabled>Save</button></div></figure>
+    <figure class="demo-cell"><figcaption>negative</figcaption><div class="demo-row"><button class="pn-button" data-variant="negative" type="button">Delete</button><button class="pn-button" data-variant="negative" type="button" data-force="hover">Delete</button></div></figure>
+    <figure class="demo-cell"><figcaption>quiet, small, icon-only</figcaption><div class="demo-row"><button class="pn-button" data-variant="quiet" type="button">Revert</button><button class="pn-button" data-size="sm" type="button">Small</button><button class="pn-button" data-icon-only type="button" aria-label="Add"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-plus"/></svg></button></div></figure>
+    <figure class="demo-cell"><figcaption>with spinner (saving)</figcaption><div class="demo-row"><button class="pn-button" data-variant="primary" type="button" aria-disabled="true"><span class="pn-spinner" aria-hidden="true"></span>Saving</button></div></figure>
+  </div>
+
+  <h2 id="text-input">Text input</h2>
+  <p>Label above, help and error below. Error uses <code>aria-invalid</code> and <code>aria-describedby</code>.</p>
+  <div class="demo-states">
+    <figure class="demo-cell"><figcaption>default</figcaption><div class="pn-field"><label class="pn-label" for="in-1">Title</label><input class="pn-input" id="in-1" type="text" placeholder="Untitled"></div></figure>
+    <figure class="demo-cell"><figcaption>hover</figcaption><div class="pn-field"><label class="pn-label" for="in-2">Title</label><input class="pn-input" id="in-2" type="text" value="A quiet page" data-force="hover"></div></figure>
+    <figure class="demo-cell"><figcaption>focus</figcaption><div class="pn-field"><label class="pn-label" for="in-3">Title</label><input class="pn-input" id="in-3" type="text" value="A quiet page" data-force="focus"></div></figure>
+    <figure class="demo-cell"><figcaption>disabled</figcaption><div class="pn-field"><label class="pn-label" for="in-4">Title</label><input class="pn-input" id="in-4" type="text" value="A quiet page" disabled></div></figure>
+    <figure class="demo-cell"><figcaption>error</figcaption><div class="pn-field"><label class="pn-label" data-required for="in-5">Title</label><input class="pn-input" id="in-5" type="text" aria-invalid="true" aria-describedby="in-5-error" required><p class="pn-error" id="in-5-error">Add a title before publishing.</p></div></figure>
+    <figure class="demo-cell"><figcaption>help, mono</figcaption><div class="pn-field"><label class="pn-label" for="in-6">Slug</label><input class="pn-input" id="in-6" type="text" value="a-quiet-page" data-mono aria-describedby="in-6-help"><p class="pn-help" id="in-6-help">Made from the title.</p></div></figure>
+  </div>
+
+  <h2 id="textarea">Textarea</h2>
+  <p>Multi-line text. The markdown field adds a toolbar above it.</p>
+  <div class="demo-states demo-states-wide">
+    <figure class="demo-cell"><figcaption>default</figcaption><div class="pn-field"><label class="pn-label" for="ta-1">Description</label><textarea class="pn-textarea" id="ta-1"></textarea></div></figure>
+    <figure class="demo-cell"><figcaption>hover</figcaption><div class="pn-field"><label class="pn-label" for="ta-2">Description</label><textarea class="pn-textarea" id="ta-2" data-force="hover">Notes from the field.</textarea></div></figure>
+    <figure class="demo-cell"><figcaption>focus</figcaption><div class="pn-field"><label class="pn-label" for="ta-3">Description</label><textarea class="pn-textarea" id="ta-3" data-force="focus">Notes from the field.</textarea></div></figure>
+    <figure class="demo-cell"><figcaption>disabled</figcaption><div class="pn-field"><label class="pn-label" for="ta-4">Description</label><textarea class="pn-textarea" id="ta-4" disabled>Notes from the field.</textarea></div></figure>
+    <figure class="demo-cell"><figcaption>error</figcaption><div class="pn-field"><label class="pn-label" data-required for="ta-5">Description</label><textarea class="pn-textarea" id="ta-5" aria-invalid="true" aria-describedby="ta-5-error" required></textarea><p class="pn-error" id="ta-5-error">Add a description.</p></div></figure>
+  </div>
+
+  <h2 id="select">Select</h2>
+  <p>Native select, restyled.</p>
+  <div class="demo-states">
+    <figure class="demo-cell"><figcaption>default</figcaption><div class="pn-field"><label class="pn-label" for="se-1">Category</label><select class="pn-select" id="se-1"><option>Essay</option><option>Note</option></select></div></figure>
+    <figure class="demo-cell"><figcaption>hover</figcaption><div class="pn-field"><label class="pn-label" for="se-2">Category</label><select class="pn-select" id="se-2" data-force="hover"><option>Essay</option></select></div></figure>
+    <figure class="demo-cell"><figcaption>focus</figcaption><div class="pn-field"><label class="pn-label" for="se-3">Category</label><select class="pn-select" id="se-3" data-force="focus"><option>Essay</option></select></div></figure>
+    <figure class="demo-cell"><figcaption>disabled</figcaption><div class="pn-field"><label class="pn-label" for="se-4">Category</label><select class="pn-select" id="se-4" disabled><option>Essay</option></select></div></figure>
+    <figure class="demo-cell"><figcaption>error</figcaption><div class="pn-field"><label class="pn-label" data-required for="se-5">Category</label><select class="pn-select" id="se-5" aria-invalid="true" aria-describedby="se-5-error" required><option value="">Choose one</option></select><p class="pn-error" id="se-5-error">Choose a category.</p></div></figure>
+  </div>
+
+  <h2 id="radio">Radio</h2>
+  <p>A fieldset of choices. Error is set on the fieldset.</p>
+  <div class="demo-states">
+    <figure class="demo-cell"><figcaption>default</figcaption><fieldset class="pn-choices"><legend class="pn-label">Layout</legend><label class="pn-choice"><input class="pn-radio" type="radio" name="ra-1" checked>Wide</label><label class="pn-choice"><input class="pn-radio" type="radio" name="ra-1">Narrow</label></fieldset></figure>
+    <figure class="demo-cell"><figcaption>hover</figcaption><fieldset class="pn-choices"><legend class="pn-label">Layout</legend><label class="pn-choice"><input class="pn-radio" type="radio" name="ra-2" checked>Wide</label><label class="pn-choice"><input class="pn-radio" type="radio" name="ra-2" data-force="hover">Narrow</label></fieldset></figure>
+    <figure class="demo-cell"><figcaption>focus</figcaption><fieldset class="pn-choices"><legend class="pn-label">Layout</legend><label class="pn-choice"><input class="pn-radio" type="radio" name="ra-3" checked data-force="focus">Wide</label><label class="pn-choice"><input class="pn-radio" type="radio" name="ra-3">Narrow</label></fieldset></figure>
+    <figure class="demo-cell"><figcaption>disabled</figcaption><fieldset class="pn-choices" disabled><legend class="pn-label">Layout</legend><label class="pn-choice"><input class="pn-radio" type="radio" name="ra-4" checked>Wide</label><label class="pn-choice"><input class="pn-radio" type="radio" name="ra-4">Narrow</label></fieldset></figure>
+    <figure class="demo-cell"><figcaption>error</figcaption><fieldset class="pn-choices" aria-invalid="true" aria-describedby="ra-5-error"><legend class="pn-label" data-required>Layout</legend><label class="pn-choice"><input class="pn-radio" type="radio" name="ra-5">Wide</label><label class="pn-choice"><input class="pn-radio" type="radio" name="ra-5">Narrow</label><p class="pn-error" id="ra-5-error">Choose a layout.</p></fieldset></figure>
+  </div>
+
+  <h2 id="checkbox">Checkbox</h2>
+  <p>Independent yes or no choices.</p>
+  <div class="demo-states">
+    <figure class="demo-cell"><figcaption>default</figcaption><label class="pn-choice"><input class="pn-checkbox" type="checkbox" checked>Show in feed</label><label class="pn-choice"><input class="pn-checkbox" type="checkbox">Pin to top</label></figure>
+    <figure class="demo-cell"><figcaption>hover</figcaption><label class="pn-choice"><input class="pn-checkbox" type="checkbox" data-force="hover">Pin to top</label></figure>
+    <figure class="demo-cell"><figcaption>focus</figcaption><label class="pn-choice"><input class="pn-checkbox" type="checkbox" checked data-force="focus">Show in feed</label></figure>
+    <figure class="demo-cell"><figcaption>disabled</figcaption><label class="pn-choice"><input class="pn-checkbox" type="checkbox" checked disabled>Show in feed</label><label class="pn-choice"><input class="pn-checkbox" type="checkbox" disabled>Pin to top</label></figure>
+    <figure class="demo-cell"><figcaption>error</figcaption><label class="pn-choice"><input class="pn-checkbox" type="checkbox" aria-invalid="true" aria-describedby="cb-5-error" required>I have the rights to this image</label><p class="pn-error" id="cb-5-error">Confirm before publishing.</p></figure>
+  </div>
+
+  <h2 id="toggle">Toggle</h2>
+  <p>A checkbox with <code>role="switch"</code>. Takes effect when saved, like every other field.</p>
+  <div class="demo-states">
+    <figure class="demo-cell"><figcaption>default</figcaption><label class="pn-choice"><input class="pn-toggle" type="checkbox" role="switch">Featured</label><label class="pn-choice"><input class="pn-toggle" type="checkbox" role="switch" checked>Comments</label></figure>
+    <figure class="demo-cell"><figcaption>hover</figcaption><label class="pn-choice"><input class="pn-toggle" type="checkbox" role="switch" data-force="hover">Featured</label></figure>
+    <figure class="demo-cell"><figcaption>focus</figcaption><label class="pn-choice"><input class="pn-toggle" type="checkbox" role="switch" checked data-force="focus">Comments</label></figure>
+    <figure class="demo-cell"><figcaption>disabled</figcaption><label class="pn-choice"><input class="pn-toggle" type="checkbox" role="switch" disabled>Featured</label><label class="pn-choice"><input class="pn-toggle" type="checkbox" role="switch" checked disabled>Comments</label></figure>
+    <figure class="demo-cell"><figcaption>error</figcaption><label class="pn-choice"><input class="pn-toggle" type="checkbox" role="switch" aria-invalid="true" aria-describedby="tg-5-error">Featured</label><p class="pn-error" id="tg-5-error">Only three posts can be featured.</p></figure>
+  </div>
+
+  <h2 id="tag">Tag and tags input</h2>
+  <p>A tag is a label the editor typed. The tags input collects them.</p>
+  <div class="demo-states demo-states-wide">
+    <figure class="demo-cell"><figcaption>default</figcaption><div class="pn-field"><label class="pn-label" for="tags-1">Tags</label><div class="pn-tags-input"><span class="pn-tag">walking<button class="pn-tag-remove" type="button" aria-label="Remove walking"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"/></svg></button></span><span class="pn-tag">maps<button class="pn-tag-remove" type="button" aria-label="Remove maps"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"/></svg></button></span><input class="pn-tags-input-field" id="tags-1" type="text" placeholder="Add a tag"></div></div></figure>
+    <figure class="demo-cell"><figcaption>hover</figcaption><div class="pn-field"><label class="pn-label" for="tags-2">Tags</label><div class="pn-tags-input" data-force="hover"><span class="pn-tag">walking<button class="pn-tag-remove" type="button" aria-label="Remove walking" data-force="hover"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"/></svg></button></span><input class="pn-tags-input-field" id="tags-2" type="text"></div></div></figure>
+    <figure class="demo-cell"><figcaption>focus</figcaption><div class="pn-field"><label class="pn-label" for="tags-3">Tags</label><div class="pn-tags-input" data-force="focus"><span class="pn-tag">walking<button class="pn-tag-remove" type="button" aria-label="Remove walking"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"/></svg></button></span><input class="pn-tags-input-field" id="tags-3" type="text" value="cit"></div></div></figure>
+    <figure class="demo-cell"><figcaption>disabled</figcaption><div class="pn-field"><label class="pn-label" for="tags-4">Tags</label><div class="pn-tags-input" aria-disabled="true"><span class="pn-tag" aria-disabled="true">walking<button class="pn-tag-remove" type="button" aria-label="Remove walking" disabled><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"/></svg></button></span><input class="pn-tags-input-field" id="tags-4" type="text" disabled></div></div></figure>
+    <figure class="demo-cell"><figcaption>error</figcaption><div class="pn-field"><label class="pn-label" for="tags-5">Tags</label><div class="pn-tags-input" aria-invalid="true"><span class="pn-tag">walking<button class="pn-tag-remove" type="button" aria-label="Remove walking"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"/></svg></button></span><span class="pn-tag" aria-invalid="true">walking<button class="pn-tag-remove" type="button" aria-label="Remove duplicate walking"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"/></svg></button></span><input class="pn-tags-input-field" id="tags-5" type="text" aria-invalid="true" aria-describedby="tags-5-error"></div><p class="pn-error" id="tags-5-error">That tag is already added.</p></div></figure>
+  </div>
+
+  <h2 id="status">Status</h2>
+  <p>A workflow state. A button when it changes the state, a span when it only shows it.</p>
+  <div class="demo-states">
+    <figure class="demo-cell"><figcaption>default</figcaption><div class="demo-row"><span class="pn-status">Draft</span><span class="pn-status" data-tone="notice">In review</span><span class="pn-status" data-tone="positive">Published</span></div></figure>
+    <figure class="demo-cell"><figcaption>hover</figcaption><button class="pn-status" type="button" data-force="hover" aria-label="Status: Draft. Change status">Draft</button></figure>
+    <figure class="demo-cell"><figcaption>focus</figcaption><button class="pn-status" data-tone="positive" type="button" data-force="focus" aria-label="Status: Published. Change status">Published</button></figure>
+    <figure class="demo-cell"><figcaption>disabled</figcaption><button class="pn-status" type="button" disabled aria-label="Status: Draft. Change status">Draft</button></figure>
+    <figure class="demo-cell"><figcaption>error</figcaption><button class="pn-status" type="button" aria-invalid="true" aria-describedby="st-5-error" aria-label="Status: Draft. Change status">Draft</button><p class="pn-error" id="st-5-error">Publishing needs a cover image.</p></figure>
+  </div>
+
+  <h2 id="tabs">Tabs</h2>
+  <p>Switch between groups in one view. A dot marks a tab holding fields with errors.</p>
+  <div class="demo-states demo-states-wide">
+    <figure class="demo-cell"><figcaption>default</figcaption><div class="pn-tabs" role="tablist" aria-label="Sections"><button class="pn-tab" role="tab" type="button" aria-selected="true">Content</button><button class="pn-tab" role="tab" type="button" aria-selected="false" tabindex="-1">SEO</button></div></figure>
+    <figure class="demo-cell"><figcaption>hover</figcaption><div class="pn-tabs" role="tablist" aria-label="Sections"><button class="pn-tab" role="tab" type="button" aria-selected="true">Content</button><button class="pn-tab" role="tab" type="button" aria-selected="false" tabindex="-1" data-force="hover">SEO</button></div></figure>
+    <figure class="demo-cell"><figcaption>focus</figcaption><div class="pn-tabs" role="tablist" aria-label="Sections"><button class="pn-tab" role="tab" type="button" aria-selected="true" data-force="focus">Content</button><button class="pn-tab" role="tab" type="button" aria-selected="false" tabindex="-1">SEO</button></div></figure>
+    <figure class="demo-cell"><figcaption>disabled</figcaption><div class="pn-tabs" role="tablist" aria-label="Sections"><button class="pn-tab" role="tab" type="button" aria-selected="true">Content</button><button class="pn-tab" role="tab" type="button" aria-selected="false" disabled>SEO</button></div></figure>
+    <figure class="demo-cell"><figcaption>error</figcaption><div class="pn-tabs" role="tablist" aria-label="Sections"><button class="pn-tab" role="tab" type="button" aria-selected="true">Content</button><button class="pn-tab" role="tab" type="button" aria-selected="false" tabindex="-1" data-invalid aria-description="Has errors">SEO</button></div></figure>
+  </div>
+
+  <h2 id="breadcrumb">Breadcrumb</h2>
+  <p>Where you are. The last entry is the current page. Disabled and error: not applicable.</p>
+  <div class="demo-states demo-states-wide">
+    <figure class="demo-cell"><figcaption>default</figcaption><nav aria-label="Breadcrumb"><ol class="pn-breadcrumb"><li><a href="#breadcrumb">Posts</a></li><li><span aria-current="page">A quiet page</span></li></ol></nav></figure>
+    <figure class="demo-cell"><figcaption>hover</figcaption><nav aria-label="Breadcrumb hover example"><ol class="pn-breadcrumb"><li><a href="#breadcrumb" data-force="hover">Posts</a></li><li><span aria-current="page">A quiet page</span></li></ol></nav></figure>
+    <figure class="demo-cell"><figcaption>focus</figcaption><nav aria-label="Breadcrumb focus example"><ol class="pn-breadcrumb"><li><a href="#breadcrumb" data-force="focus">Posts</a></li><li><span aria-current="page">A quiet page</span></li></ol></nav></figure>
+  </div>
+
+  <h2 id="toolbar">Toolbar</h2>
+  <p>A compact group of buttons, such as the markdown toolbar.</p>
+  <div class="demo-states demo-states-wide">
+    <figure class="demo-cell"><figcaption>default, pressed</figcaption><div class="pn-toolbar" role="toolbar" aria-label="Formatting"><button class="pn-button" data-size="sm" type="button" aria-pressed="true"><b>B</b></button><button class="pn-button" data-size="sm" type="button" aria-pressed="false"><i>I</i></button><button class="pn-button" data-size="sm" type="button">Link</button></div></figure>
+    <figure class="demo-cell"><figcaption>hover</figcaption><div class="pn-toolbar" role="toolbar" aria-label="Formatting hover example"><button class="pn-button" data-size="sm" type="button"><b>B</b></button><button class="pn-button" data-size="sm" type="button" data-force="hover"><i>I</i></button></div></figure>
+    <figure class="demo-cell"><figcaption>focus</figcaption><div class="pn-toolbar" role="toolbar" aria-label="Formatting focus example"><button class="pn-button" data-size="sm" type="button" data-force="focus"><b>B</b></button><button class="pn-button" data-size="sm" type="button"><i>I</i></button></div></figure>
+    <figure class="demo-cell"><figcaption>disabled</figcaption><div class="pn-toolbar" role="toolbar" aria-label="Formatting disabled example"><button class="pn-button" data-size="sm" type="button" disabled><b>B</b></button><button class="pn-button" data-size="sm" type="button" disabled><i>I</i></button></div></figure>
+  </div>
+
+  <h2 id="list">List</h2>
+  <p>Rows with a title, subtitle, status, and meta. Error marks a row with a problem.</p>
+  <div class="demo-states demo-states-wide">
+    <figure class="demo-cell"><figcaption>default, hover, focus</figcaption>
+      <ul class="pn-list">
+        <li class="pn-list-item"><a class="pn-list-row" href="#list"><span class="pn-list-text"><span class="pn-list-title">A quiet page</span><span class="pn-list-subtitle">2026-10-28</span></span><span class="pn-status" data-tone="positive">Published</span></a></li>
+        <li class="pn-list-item"><a class="pn-list-row" href="#list" data-force="hover"><span class="pn-list-text"><span class="pn-list-title">Walking the river</span><span class="pn-list-subtitle">2026-10-21</span></span><span class="pn-status">Draft</span></a></li>
+        <li class="pn-list-item"><a class="pn-list-row" href="#list" data-force="focus"><span class="pn-list-text"><span class="pn-list-title">Maps I keep</span><span class="pn-list-subtitle">2026-10-02</span></span><span class="pn-list-meta">2d ago</span></a></li>
+      </ul>
+    </figure>
+    <figure class="demo-cell"><figcaption>disabled, error</figcaption>
+      <ul class="pn-list">
+        <li class="pn-list-item" aria-disabled="true"><a class="pn-list-row" href="#list" tabindex="-1"><span class="pn-list-text"><span class="pn-list-title">Locked by another editor</span><span class="pn-list-subtitle">2026-09-30</span></span></a></li>
+        <li class="pn-list-item" aria-invalid="true"><a class="pn-list-row" href="#list" aria-describedby="li-err"><span class="pn-list-text"><span class="pn-list-title">Broken cover</span><span class="pn-list-subtitle pn-error" id="li-err">Cover image is missing</span></span><span class="pn-status">Draft</span></a></li>
+      </ul>
+    </figure>
+  </div>
+
+  <h2 id="spinner">Spinner</h2>
+  <p>Work in progress. Always paired with text for screen readers. Only a default state.</p>
+  <div class="demo-row"><span class="pn-spinner" aria-hidden="true"></span><span>Loading posts</span></div>
+
+  <h2 id="dropzone">Dropzone and file</h2>
+  <p>A label wrapping a file input, so it works by click, keyboard, and drop.</p>
+  <div class="demo-states">
+    <figure class="demo-cell"><figcaption>default</figcaption><label class="pn-dropzone"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-upload"/></svg><span>Drop an image or choose one</span><input type="file" accept="image/*"></label></figure>
+    <figure class="demo-cell"><figcaption>hover, dragover</figcaption><label class="pn-dropzone" data-force="hover"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-upload"/></svg><span>Drop to upload</span><input type="file" accept="image/*"></label></figure>
+    <figure class="demo-cell"><figcaption>focus</figcaption><label class="pn-dropzone" data-force="focus"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-upload"/></svg><span>Drop an image or choose one</span><input type="file" accept="image/*"></label></figure>
+    <figure class="demo-cell"><figcaption>disabled</figcaption><label class="pn-dropzone" aria-disabled="true"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-upload"/></svg><span>Uploads are off</span><input type="file" disabled></label></figure>
+    <figure class="demo-cell"><figcaption>error</figcaption><label class="pn-dropzone" aria-invalid="true"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-alert"/></svg><span id="dz-5-error">That file is over 10 MB</span><input type="file" aria-describedby="dz-5-error"></label></figure>
+    <figure class="demo-cell"><figcaption>file</figcaption><div class="pn-file"><span class="pn-file-thumb"></span><span class="pn-file-text"><span class="pn-file-name">river-morning.jpg</span><span class="pn-file-meta">1.2 MB · 2400×1600</span></span><button class="pn-button" data-variant="quiet" data-icon-only data-size="sm" type="button" aria-label="Remove river-morning.jpg"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"/></svg></button></div></figure>
+  </div>
+
+  <h2 id="dialog">Dialog</h2>
+  <p>A native <code>&lt;dialog&gt;</code>. Shown statically below; the button opens a real modal. Hover, focus, and disabled live on its buttons.</p>
+  <div class="demo-row" style="margin-bottom:var(--pn-space-4)"><button class="pn-button" type="button" data-open="demo-dialog">Open dialog</button></div>
+  <div class="demo-states demo-states-wide">
+    <figure class="demo-cell"><figcaption>default, focus on primary</figcaption>
+      <dialog class="pn-dialog" data-static open aria-labelledby="dl-1-title">
+        <div class="pn-dialog-body"><h2 class="pn-dialog-title" id="dl-1-title">Publish this post?</h2><p class="pn-dialog-text">It will be visible on the site right away.</p></div>
+        <div class="pn-dialog-footer"><button class="pn-button" type="button">Cancel</button><button class="pn-button" data-variant="primary" type="button" data-force="focus">Publish</button></div>
+      </dialog>
+    </figure>
+    <figure class="demo-cell"><figcaption>error, disabled</figcaption>
+      <dialog class="pn-dialog" data-static open aria-labelledby="dl-2-title">
+        <div class="pn-dialog-body"><h2 class="pn-dialog-title" id="dl-2-title">Rename post</h2><div class="pn-field"><label class="pn-label" for="dl-2-in">Title</label><input class="pn-input" id="dl-2-in" type="text" aria-invalid="true" aria-describedby="dl-2-error"><p class="pn-error" id="dl-2-error">A title is required.</p></div></div>
+        <div class="pn-dialog-footer"><button class="pn-button" type="button" data-force="hover">Cancel</button><button class="pn-button" data-variant="primary" type="button" disabled>Rename</button></div>
+      </dialog>
+    </figure>
+  </div>
+  <dialog class="pn-dialog" id="demo-dialog" aria-labelledby="demo-dialog-title">
+    <form method="dialog">
+      <div class="pn-dialog-body"><h2 class="pn-dialog-title" id="demo-dialog-title">Delete this post?</h2><p class="pn-dialog-text">This cannot be undone.</p></div>
+      <div class="pn-dialog-footer"><button class="pn-button" value="cancel">Cancel</button><button class="pn-button" data-variant="negative" value="delete">Delete</button></div>
+    </form>
+  </dialog>
+
+  <h2 id="drawer">Drawer</h2>
+  <p>A slide-over for quick edits that keep the page behind it. Shown statically; the button opens a real one.</p>
+  <div class="demo-row" style="margin-bottom:var(--pn-space-4)"><button class="pn-button" type="button" data-open="demo-drawer">Open drawer</button></div>
+  <div class="demo-states demo-states-wide">
+    <figure class="demo-cell"><figcaption>default</figcaption>
+      <dialog class="pn-drawer" data-static open aria-labelledby="dr-1-title">
+        <div class="pn-drawer-header"><h2 class="pn-drawer-title" id="dr-1-title">Cover image</h2><button class="pn-button" data-variant="quiet" data-icon-only data-size="sm" type="button" aria-label="Close"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"/></svg></button></div>
+        <div class="pn-drawer-body"><div class="pn-field"><label class="pn-label" for="dr-1-in">Alt text</label><input class="pn-input" id="dr-1-in" type="text" value="Fog over the river"></div></div>
+        <div class="pn-drawer-footer"><button class="pn-button" type="button">Cancel</button><button class="pn-button" data-variant="primary" type="button">Done</button></div>
+      </dialog>
+    </figure>
+    <figure class="demo-cell"><figcaption>error</figcaption>
+      <dialog class="pn-drawer" data-static open aria-labelledby="dr-2-title">
+        <div class="pn-drawer-header"><h2 class="pn-drawer-title" id="dr-2-title">Cover image</h2><button class="pn-button" data-variant="quiet" data-icon-only data-size="sm" type="button" aria-label="Close" data-force="focus"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"/></svg></button></div>
+        <div class="pn-drawer-body"><div class="pn-field"><label class="pn-label" data-required for="dr-2-in">Alt text</label><input class="pn-input" id="dr-2-in" type="text" aria-invalid="true" aria-describedby="dr-2-error"><p class="pn-error" id="dr-2-error">Describe the image for people who cannot see it.</p></div></div>
+        <div class="pn-drawer-footer"><button class="pn-button" type="button">Cancel</button><button class="pn-button" data-variant="primary" type="button" disabled>Done</button></div>
+      </dialog>
+    </figure>
+  </div>
+  <dialog class="pn-drawer" id="demo-drawer" aria-labelledby="demo-drawer-title">
+    <form method="dialog" style="display:contents">
+      <div class="pn-drawer-header"><h2 class="pn-drawer-title" id="demo-drawer-title">Cover image</h2><button class="pn-button" data-variant="quiet" data-icon-only data-size="sm" value="close" aria-label="Close"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"/></svg></button></div>
+      <div class="pn-drawer-body"><div class="pn-field"><label class="pn-label" for="demo-drawer-in">Alt text</label><input class="pn-input" id="demo-drawer-in" type="text"></div></div>
+      <div class="pn-drawer-footer"><button class="pn-button" value="cancel">Cancel</button><button class="pn-button" data-variant="primary" value="done">Done</button></div>
+    </form>
+  </dialog>
+
+  <h2 id="toast">Toast</h2>
+  <p>A short message that confirms or warns. Tones: info, positive, notice, negative (the error state). Disabled: not applicable.</p>
+  <div class="pn-toasts" data-static>
+    <div class="pn-toast" role="status"><p class="pn-toast-text">Draft saved</p><button class="pn-button" data-variant="quiet" data-icon-only data-size="sm" type="button" aria-label="Dismiss"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"/></svg></button></div>
+    <div class="pn-toast" role="status" data-tone="positive"><p class="pn-toast-text">Post published</p><button class="pn-button" data-variant="quiet" data-icon-only data-size="sm" type="button" aria-label="Dismiss" data-force="hover"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"/></svg></button></div>
+    <div class="pn-toast" role="status" data-tone="notice"><p class="pn-toast-text">You are offline. Changes are kept here until you reconnect.</p><button class="pn-button" data-variant="quiet" data-icon-only data-size="sm" type="button" aria-label="Dismiss" data-force="focus"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"/></svg></button></div>
+    <div class="pn-toast" role="alert" data-tone="negative"><p class="pn-toast-text">Could not save. Your edits are kept.</p><button class="pn-button" data-size="sm" type="button">Retry</button></div>
+  </div>
+
+  <h2 id="empty">Empty state</h2>
+  <p>What to show when there is nothing yet, or when loading failed (the error state). Hover and focus live on its button. Disabled: not applicable.</p>
+  <div class="demo-states demo-states-wide">
+    <figure class="demo-cell"><figcaption>default</figcaption><div class="pn-empty"><svg class="pn-icon pn-empty-icon" aria-hidden="true"><use href="#pn-icon-file"/></svg><p class="pn-empty-title">No posts yet</p><p class="pn-empty-text">Posts you write will be listed here.</p><button class="pn-button" data-variant="primary" type="button"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-plus"/></svg>New post</button></div></figure>
+    <figure class="demo-cell"><figcaption>error</figcaption><div class="pn-empty" data-tone="negative"><svg class="pn-icon pn-empty-icon" aria-hidden="true"><use href="#pn-icon-alert"/></svg><p class="pn-empty-title">Posts could not be loaded</p><p class="pn-empty-text">The content folder could not be read.</p><button class="pn-button" type="button" data-force="focus">Try again</button></div></figure>
+  </div>
+</main>
+
+<script>
+  // Living-page only: theme switch and opening the demo dialog and drawer.
+  const root = document.documentElement;
+  document.querySelectorAll("[data-theme-choice]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const choice = button.dataset.themeChoice;
+      if (choice === "system") root.removeAttribute("data-theme");
+      else root.setAttribute("data-theme", choice);
+      document.querySelectorAll("[data-theme-choice]").forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+    });
+  });
+  document.querySelectorAll("[data-open]").forEach((button) => {
+    button.addEventListener("click", () => document.getElementById(button.dataset.open).showModal());
+  });
+</script>
+</body>
+</html>
