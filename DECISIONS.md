@@ -163,3 +163,58 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 | Relation cardinality | Single-link only | Add `multiple: true` proposal |
 
 **Tag:** default
+
+## D-023 Class and token prefix
+
+- **Question:** How the design system avoids colliding with host app styles and utility frameworks (Bootstrap and Tailwind both use `p-` classes).
+- **Choice:** Every class is `pn-*` and every token is `--pn-*`. Component styles apply inside an element with class `pn`.
+- **Why:** Prefixed classes plus a root scope work in every flavor without a build step. Scoped CSS or a frame can still be layered on per cookbook.
+- **Reverse:** Find and replace the prefix across the design system and templates.
+- **Tag:** default
+
+## D-024 How states are expressed
+
+- **Choice:** Real states use the platform: `:hover`, `:focus-visible`, `:disabled` or `aria-disabled="true"`, and `aria-invalid="true"` for error. Variants use data attributes (`data-variant`, `data-size`, `data-tone`, `data-width`). `data-force="hover"` and `data-force="focus"` exist only so the living page and the playground can show a state statically.
+- **Why:** States stay accessible by construction, and templates fill attributes straight from the schema (`width: 1/2` becomes `data-width="1/2"`).
+- **Reverse:** Switch to state classes.
+- **Tag:** default
+
+## D-025 States that do not apply
+
+- **Question:** The Phase 1 exit asks every component to show default, hover, focus, disabled, and error. Some states do not exist for some components.
+- **Choice:** The living page marks them "not applicable" with the reason, instead of inventing a fake state: button error (use the negative variant), breadcrumb disabled and error, spinner (default only), toast disabled (negative tone is its error), empty state disabled (its error is the negative tone). Dialog and drawer show default and error; their hover, focus, and disabled live on the buttons inside.
+- **Why:** A made-up state would become a rule a model must follow with no real meaning.
+- **Reverse:** Add the states to `components.css` and the living page.
+- **Tag:** default, needs human review
+
+## D-026 Control borders meet 3:1 contrast
+
+- **Choice:** Inputs, selects, checkboxes, radios, toggles, and secondary buttons use `--pn-color-border-control` (3:1 or better against the surface), not the quieter `--pn-color-border` used for dividers.
+- **Why:** Rule 9 (sufficient contrast) and WCAG non-text contrast. A hairline-light input border would look calmer but fail it.
+- **Reverse:** Swap the token on controls. Accessibility checks will fail.
+- **Tag:** philosophy-dependent
+
+## D-027 Dialogs and drawers are native `<dialog>`
+
+- **Choice:** `pn-dialog` and `pn-drawer` style the native `<dialog>` element, opened with `showModal()`. `data-static` shows one inline for the living page and the playground.
+- **Why:** The platform provides the modal layer, inert background, Escape to close, and focus return with no dependency.
+- **Reverse:** Style a `div[role=dialog]` and write focus trapping in the snippets.
+- **Tag:** default
+
+## D-028 Visual values
+
+- **Choice:** Neutral warm-grey surfaces, one blue accent, four semantic tones; five type sizes (0.75 to 1.5rem); a 4px-based space scale with seven steps; radius 3px and 5px; a 2px focus outline offset 2px; a six-column form grid that collapses to one column below 40rem; shadow only on raised layers (dialog, drawer, toast).
+- **Why:** Smallest reasonable choices that satisfy the hypotheses without claiming them.
+- **Reverse:** Edit `tokens.css`; components read only tokens.
+- **Tag:** philosophy-dependent
+
+## D-029 Icons are a sprite
+
+- **Choice:** `design-system/icons.svg` holds `<symbol>` icons used through `<svg class="pn-icon"><use href="#pn-icon-name"/></svg>`. A page includes the sprite once. The check script confirms the living page's copy matches the file.
+- **Reverse:** Inline each icon's path where used.
+- **Tag:** default
+
+## D-030 Dev tooling
+
+- **Choice:** Root `package.json` with dev-only `playwright` and `axe-core`. Checks live in `tools/` and serve pages over a local HTTP server (axe cannot read stylesheets over `file://`). Output goes to `tools/out/`, which is not committed.
+- **Tag:** default
