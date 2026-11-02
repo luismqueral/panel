@@ -34,14 +34,14 @@ In a playground, which loads nothing from the network, stand in for Google's but
    const keyFor = createKeyStore();
    const auth = {
      recipe: "google-login",
-     allow: PANEL.auth.allow,
+     allow: ALLOW,
      clientId,
      sessions: createSessions(process.env.SESSION_SECRET),
      verify: (credential) => verifyGoogleToken(credential, { clientId, keyFor }),
    };
    ```
 
-3. Put the schema's `allow` list into `panel.config.js` as `auth.allow`, unchanged.
+3. Put the schema's `allow` list, unchanged, in `allow.mjs` at the project root, outside the served panel folder: `export const ALLOW = ["me@example.com"];`. `start.mjs` imports it. Never put it in `panel.config.js`: the browser loads that file, so anyone could read who has access.
 4. In `panel.js`, use `createGoogleAuth(request)` when not in `?test` mode.
 5. **If** the person wants a whole Google Workspace domain, the entry is `*@domain.com`. `isAllowed` also requires Google's `hd` claim to equal the domain. Do not loosen this.
 6. **If** the person wants roles (some editors can only edit drafts): stop. Roles are out of scope (Appendix L). Record it as an open question.

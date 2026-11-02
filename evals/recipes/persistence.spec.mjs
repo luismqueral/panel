@@ -54,6 +54,16 @@ const screenReady = (page) => expect(page.locator(".pn-screen")).toHaveAttribute
 let server;
 test.afterEach(async () => server?.close());
 
+test.describe("project server", () => {
+  test("serves only the panel's page, scripts, styles, and data files", async ({ page }) => {
+    server = await start();
+    expect((await page.request.get(`${server.url}/panel.config.js`)).status()).toBe(200);
+    expect(await (await page.request.get(`${server.url}/panel.config.js`)).text()).not.toContain("me@example.com");
+    expect((await page.request.get(`${server.url}/server/server.mjs`)).status()).toBe(404);
+    expect((await page.request.get(`${server.url}/CONFORMANCE.md`)).status()).toBe(404);
+  });
+});
+
 test.describe("google-login", () => {
   test("signed out: the API refuses and the page shows login", async ({ page }) => {
     server = await start();

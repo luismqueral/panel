@@ -8,7 +8,8 @@ import { STATUS, fail } from "./errors.mjs";
 import { isAllowed } from "./google.mjs";
 import { MAX_UPLOAD } from "./local-disk.mjs";
 
-const STATIC = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".json": "application/json" };
+// Only these kinds are served from the panel folder; anything else (notes, reports) is a 404.
+const STATIC = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".json": "application/json", ".png": "image/png", ".ico": "image/x-icon", ".webp": "image/webp" };
 const MAX_JSON = 1024 * 1024;
 
 // auth: { recipe: "google-login", allow, verify(credential) → { email, hd }, sessions, clientId }
@@ -92,10 +93,10 @@ export function createPanelServer({ root, config, data, files, auth }) {
 
   async function staticFile(res, path) {
     const file = normalize(path.endsWith("/") ? `${path}index.html` : path).replace(/^\/+/, "");
-    if (file.startsWith("..")) return res.writeHead(404).end();
+    if (file.startsWith("..") || !STATIC[extname(file)]) return res.writeHead(404).end();
     try {
       const content = await readFile(join(root, file));
-      res.writeHead(200, { "content-type": STATIC[extname(file)] ?? "application/octet-stream", "x-content-type-options": "nosniff", "cache-control": "no-cache" }).end(content);
+      res.writeHead(200, { "content-type": STATIC[extname(file)], "x-content-type-options": "nosniff", "cache-control": "no-cache" }).end(content);
     } catch {
       res.writeHead(404).end();
     }

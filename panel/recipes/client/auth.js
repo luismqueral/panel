@@ -16,16 +16,19 @@ function loadScript() {
 }
 
 export function createGoogleAuth(request) {
+  let refused = false;
   return {
     async session() {
       try {
         return await request("GET", "/session");
       } catch (error) {
+        refused = error.code === "forbidden";
         if (error.code === "unauthorized" || error.code === "forbidden") return null;
         throw error;
       }
     },
     async renderMethods(container, { onSignedIn, onError }) {
+      if (refused) onError("This account isn't allowed. Sign in with another one.");
       try {
         const [{ googleClientId }] = await Promise.all([request("GET", "/config"), loadScript()]);
         window.google.accounts.id.initialize({

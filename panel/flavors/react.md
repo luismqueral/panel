@@ -61,7 +61,7 @@ These broke while the reference build was written. Each one is handled in the co
 - **Empty `src`**: React drops `src=""` and warns. An empty image uses a transparent GIF data URI, so the `<img>` keeps its attribute.
 - **`onSelect`**: React's `onSelect` does not fire for every selection change in a `<textarea>`. The markdown toolbar (F3) adds a native `select` listener too.
 - **Slots outside the screen**: the save bar and the create dialog belong in the layout's `savebar` and `dialogs` slots, not in the screen. Render them through `createPortal` into those slot elements. Keep the slot elements in state, set from a ref callback.
-- **Leaving with unsaved changes (S9)**: the hashchange guard runs outside React. Keep "is it dirty" in a ref that the editor updates on render, not in state.
+- **Leaving with unsaved changes (S9)**: the hashchange guard runs outside React. Keep "is it dirty" in a ref that the editor updates on render, not in state. Use the listener from `build.md` step 4, "Routing", with `setRoute` in place of `route()`.
 - **Stale screens**: give each screen a `key` built from the route, so moving from one item to another remounts it and loads fresh data.
 - **Values vs. saved values**: the save state compares `values` to the last saved values. Initialize both from the same object, computed fields included, or the bar starts dirty.
 - **`ref` as a prop**: in React 19 a function component receives `ref` as a normal prop. In React 18, use `forwardRef`.

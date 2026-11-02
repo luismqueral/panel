@@ -3,7 +3,8 @@
 
 export const PANEL = {
   name: "Field Notes",
-  auth: { recipe: "google-login", allow: ["me@example.com"] },
+  // auth.allow is server-only (recipes/google-login.md step 3)
+  auth: { recipe: "google-login" },
   data: { recipe: "json-files", path: "./content" },
   files: { recipe: "local-disk", path: "./uploads", url: "/uploads" },
   types: [

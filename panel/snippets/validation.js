@@ -1,4 +1,4 @@
-// Validation. behavior-spec.md section 2 (V1–V6). Optional vanilla snippet.
+// Validation. behavior-spec.md section 2 (V1–V7). Optional vanilla snippet.
 //
 // const validation = createValidation({
 //   root,                          // element containing the field templates
@@ -6,6 +6,7 @@
 //   get: (name) => value,
 // });
 // validation.run("publish")       // shows every error, returns the invalid field names
+// fixMessage(n, "publish")         // "Fix 1 field to publish", "Fix 2 fields to save" (V4, V7)
 
 export const MESSAGES = {
   publishRequired: "Required to publish.",
@@ -14,6 +15,10 @@ export const MESSAGES = {
   slug: "Use lowercase letters, numbers, and dashes.",
   date: "Use a date like 2026-11-01.",
 };
+
+export function fixMessage(count, verb) {
+  return `Fix ${count} ${count === 1 ? "field" : "fields"} to ${verb}`;
+}
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -28,11 +33,11 @@ function range(field) {
   return `Must be at most ${max}.`;
 }
 
-// mode: "format" (blur, save), "publish", or "create". Returns a message, or "" when valid.
+// mode: "format" (blur, save), "publish", "create", or "required" (singleton saves, V7). Returns a message, or "" when valid.
 export function check(field, value, mode = "format") {
   if (isEmpty(value)) {
     if (field.required && mode === "publish") return MESSAGES.publishRequired;
-    if (field.required && mode === "create") return MESSAGES.createRequired;
+    if (field.required && (mode === "create" || mode === "required")) return MESSAGES.createRequired;
     return "";
   }
   if (field.type === "number") {

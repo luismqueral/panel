@@ -11,6 +11,7 @@ import { createSessions } from "./dist/server/session.mjs";
 import { createKeyStore, verifyGoogleToken } from "./dist/server/google.mjs";
 import { createJsonFiles } from "./dist/server/json-files.mjs";
 import { createLocalDisk } from "./dist/server/local-disk.mjs";
+import { ALLOW } from "./allow.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const project = here;
@@ -24,7 +25,7 @@ if (PANEL.auth.recipe === "google-login") {
   const keyFor = createKeyStore();
   auth = {
     recipe: "google-login",
-    allow: PANEL.auth.allow,
+    allow: ALLOW,
     clientId,
     sessions: createSessions(process.env.SESSION_SECRET),
     verify: (credential) => verifyGoogleToken(credential, { clientId, keyFor }),

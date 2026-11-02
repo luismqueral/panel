@@ -24,7 +24,7 @@ Files, as in `contracts.md`. Stored as `<path>/<yyyy>/<mm>/<8 random hex>-<safe 
 3. In `panel.js`: `createHttpAdapters(request).files` when not in `?test` mode.
 4. **If** the public site is served by something else (a static host), the uploads folder must be published with the site. Say where it goes, for example `public/uploads`, and set `path` to it.
 5. **If** the person needs a different limit, change `MAX_UPLOAD` in `local-disk.mjs` and say so. Do not remove it.
-6. Ask whether uploads belong in git. Large binaries usually do not.
+6. Ask whether uploads belong in git. Default: no; add the uploads folder to `.gitignore`, since large binaries usually do not belong there. When unattended, take the default and record it (`build.md` step 8).
 
 ## 5. Verify
 

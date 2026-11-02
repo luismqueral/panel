@@ -16,7 +16,7 @@ export async function open(page, hash = "#/", data = seed) {
 }
 
 export const calls = (page, method) => page.evaluate((m) => window.panelTest.calls.filter((c) => !m || c.method === m), method);
-export const fail = (page, method) => page.evaluate((m) => window.panelTest.fail(m), method);
+export const fail = (page, method, code) => page.evaluate(([m, c]) => window.panelTest.fail(m, c), [method, code]);
 export const delay = (page, ms) => page.evaluate((n) => window.panelTest.delay(n), ms);
 
 export const screen = (page) => page.locator(".pn-screen");

@@ -51,6 +51,13 @@ function shippedCopies(panel) {
 function staticChecks(run) {
   const panel = join(run, "panel");
   const missing = REQUIRED.filter((f) => !existsSync(join(panel, f)));
+  // build.md "What you produce": with a login recipe, the allow list lives in allow.mjs, never in the served config.
+  const schemaAuth = parseYaml(readFileSync(existsSync(join(run, "panel.yaml")) ? join(run, "panel.yaml") : join(root, "panel/examples/blog/panel.yaml"), "utf8")).auth ?? {};
+  const allow = schemaAuth.allow ?? [];
+  if (allow.length && !existsSync(join(run, "allow.mjs"))) missing.push("../allow.mjs");
+  const config = existsSync(join(panel, "panel.config.js")) ? readFileSync(join(panel, "panel.config.js"), "utf8") : "";
+  const allowServed = allow.filter((a) => config.includes(a));
+  if (allowServed.length) missing.push("allow list out of panel.config.js");
   const modified = shippedCopies(panel)
     .filter(([mine, theirs]) => existsSync(join(panel, mine)) && readFileSync(join(panel, mine), "utf8") !== readFileSync(join(root, theirs), "utf8"))
     .map(([mine]) => mine);
@@ -66,9 +73,13 @@ function staticChecks(run) {
   const code = walk(panel).filter((f) => /\.(m?js|html)$/.test(f)).map((f) => readFileSync(f, "utf8")).join("\n");
   const bareImports = [...code.matchAll(/\bfrom\s+["']([^./"'][^"']*)["']/g)].map((m) => m[1]).filter((m) => !m.startsWith("node:"));
   const externalScripts = [...code.matchAll(/<script[^>]+src=["'](https?:[^"']+)["']/g)].map((m) => m[1]);
-  const packageJson = existsSync(join(run, "package.json")) || existsSync(join(panel, "package.json"));
+  // A package.json may only set "type": "module" (build.md step 6); any dependency counts as added.
+  const packageJson = [join(run, "package.json"), join(panel, "package.json")].filter(existsSync).some((f) => {
+    const pkg = JSON.parse(readFileSync(f, "utf8"));
+    return ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"].some((k) => Object.keys(pkg[k] ?? {}).length);
+  });
 
-  return { missing, modified, templatesMissing, templatesChanged, bareImports, externalScripts, packageJson };
+  return { missing, modified, templatesMissing, templatesChanged, bareImports, externalScripts, packageJson, allowServed };
 }
 
 function walk(dir) {
@@ -186,7 +197,7 @@ for (const name of runs) {
   const fidelity = tests.filter((t) => t.title.includes("matches its templates"));
   const unmodified = !checks.modified.length && !checks.templatesMissing.length && !checks.templatesChanged.length;
   const noDeps = !checks.bareImports.length && !checks.packageJson && checks.externalScripts.every((s) => s.startsWith("https://accounts.google.com/"));
-  const conformance = tests.length > 0 && !failed.length && unmodified && noDeps && !checks.missing.length;
+  const conformance = tests.length > 0 && !failed.length && unmodified && noDeps && !checks.missing.length && !checks.allowServed.length;
   report.push({ name, conformance, unmodified, noDeps, checks, passed: tests.length - failed.length, total: tests.length, fidelityPassed: fidelity.filter((t) => t.ok).length, fidelityTotal: fidelity.length, failed, snaps });
   console.log(`${tests.length - failed.length}/${tests.length} tests, conformance ${conformance ? "pass" : "fail"}`);
 }
@@ -210,7 +221,7 @@ const lines = [
   "",
   `**Conformance with unmodified templates: ${passing} of ${report.length} runs (${Math.round(rate * 100)}%). Kill criterion (80%): ${rate >= 0.8 ? "passed" : "failed"}.**`,
   "",
-  "A run conforms when every behavior and quality test passes, every shipped file (templates, CSS, snippets, adapters, server) is unmodified, it adds no dependencies, and every required file exists.",
+  "A run conforms when every behavior and quality test passes, every shipped file (templates, CSS, snippets, adapters, server) is unmodified, it adds no dependencies, and every required file exists, and the login allow list is not in the served config.",
   "",
   "| Run | Conforms | Tests | Template fidelity | Unmodified files | No dependencies | Missing files |",
   "| --- | --- | --- | --- | --- | --- | --- |",

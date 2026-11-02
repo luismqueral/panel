@@ -21,13 +21,17 @@ panel/
   snippets/           copied verbatim from snippets/ (the ones you use)
   adapters/
     memory.js         the test adapters, copied from recipes/client/ (behavior-spec.md section 7)
-    <recipe>.js       one file per recipe in the schema, written from the recipe
+    http.js, auth.js  copied from recipes/client/ when a recipe's steps say so
   seed.json           test data, loaded only with ?test (step 6)
   CONFORMANCE.md      the conformance report (last step)
 server/               when a recipe needs the project server (recipes/contracts.md)
   *.mjs               copied from recipes/server/
-start.mjs             builds the adapters from panel.config.js and the environment, then listens
+allow.mjs             the login allow list, read by the server only (recipes/google-login.md step 3)
+start.mjs             builds the adapters from panel.config.js and the environment, then listens (step 6)
+package.json          { "private": true, "type": "module" }, so Node can import panel.config.js
 ```
+
+Copied files are copied whole and never edited. A recipe's own code is the files its steps name; write new code only where a step says to.
 
 In an existing project, the host profile in the intake record decides the folder and file names (`intake.md` Rule 2). The parts stay the same.
 
@@ -104,6 +108,8 @@ Rules:
 - `width` missing: `1/1`.
 - `singular`: the type's `label` in lowercase, made singular (`Posts` → `post`, `Categories` → `category`, `People` → `person`).
 - Each `behavior` line becomes one config key or one clearly named function, with the line quoted in a comment above it.
+- A `custom` field with a computed value gets `compute: "<name>"`. `<name>` is a key of the `computed` object passed to `makeField` (step 4, "Computed `custom` fields").
+- Never put the login `allow` list in `panel.config.js`: the browser loads that file. It goes in `allow.mjs`.
 
 ## Step 3: Fill templates with `snippets/templates.js`
 
@@ -160,9 +166,43 @@ Screen details:
 | Load errors | `error` with "Could not load the panel" (home), "Could not load <label in lower case>", or "Could not load this <singular>"; "Check your connection and try again."; and a "Try again" button with `data-action="retry"` that reruns the route |
 | Missing item | `error` with "This <singular> doesn't exist", "It may have been deleted.", and no button |
 | Status slide-over | Title "Status". `body`: a `fieldset.pn-choices` with a visually hidden legend "Status" and one `label.pn-choice` holding `input.pn-radio` (name `pn-status`) per status, the current one checked |
-| Not found | `screen-home` with `title` "Not found", no rows, and `error`: "This page doesn't exist", "Check the address, or go back home.", a "Try again" button that goes to `#/`. Crumbs: Home / Not found |
+| Not found | `screen-home` with `title` "Not found", no rows, and `error`: "This page doesn't exist", "Check the address, or go back home.", a "Try again" button (`data-action="retry"`) that goes to `#/`. Crumbs: Home / Not found |
 | `publishRequires` fields | Keep the field's own `required` (`data-required="false"` when it isn't). They show "Required to publish." only after a publish attempt fails |
-| Computed `custom` fields | Write the compute function in `panel.js` from the field's `describe`, rounding to at least 1 (for "estimated minutes to read": `max(1, ceil(words / 200))`, shown as "N min") |
+| Computed `custom` fields | Write the compute function in `panel.js` from the field's `describe`, rounding to at least 1 (for "estimated minutes to read": `max(1, ceil(words / 200))`, shown as "N min"). Pass it to `makeField` as `ctx.computed = { readingTime: { value(values), display(values) } }`, with `ctx.values()` returning every value except computed fields (a computed field reading itself loops forever) |
+| Item while loading | Crumbs Home / type label / "Loading…"; the item `title` "Loading…" |
+| Item missing, or failed to load | Last crumb and `title` "Not found" (missing) or "Could not load" (failed) |
+| Current nav entry | On an item, its type's entry. On a singleton, the singleton's |
+| Login | Page title "Sign in · <panel name>". When `auth.session()` throws, the login's `error` slot reads "Could not reach the panel. Check your connection and reload." and no methods render |
+| Search with no matches | No rows; the screen stays `ready` (the `empty` state is only for a type with no items) |
+| Sorting | Blank values sort last in both directions |
+| Home | `recent` lists items only, never singletons. Home never uses its `empty` state |
+
+### Routing
+
+Use this hash listener. It keeps K6's in-page anchors off the route, and asks S9 on every route change, including the back button:
+
+```js
+let lastHash = location.hash; // route() sets it each time it renders
+window.addEventListener("hashchange", async () => {
+  if (location.hash === lastHash) return;
+  if (location.hash && !location.hash.startsWith("#/")) {
+    const target = document.getElementById(location.hash.slice(1));
+    history.replaceState(null, "", lastHash || "#/");
+    target?.focus();
+    return;
+  }
+  if (current.dirty()) {
+    const target = location.hash;
+    history.pushState(null, "", lastHash || "#/");
+    if (!(await discard())) return;
+    history.replaceState(null, "", target);
+  }
+  current.cleanup();
+  route();
+});
+```
+
+`current` is the open screen's `{ cleanup(), dirty() }`; `discard()` is the S9 confirm dialog.
 
 ## Step 5: Wire behavior with the snippets
 
@@ -170,8 +210,8 @@ Screen details:
 
 | Spec section | Snippet | Wire it to |
 | --- | --- | --- |
-| 1. Save state | `save-state.js` | The item or singleton `form` and the `savebar`. Pass `autosave` only when a `behavior` line asks for it |
-| 2. Validation | `validation.js` | Every form, including the create dialog. Run `"publish"` before a status moves past the first, with `conformance` fields added as required |
+| 1. Save state | `save-state.js` | The item or singleton `form` and the `savebar`. Pass `autosave` only when a `behavior` line asks for it. It also stops Enter submitting the form (K7) |
+| 2. Validation | `validation.js` | Every form, including the create dialog. Run `"publish"` before a status moves past the first, with `conformance` fields added as required. On a singleton's save, run `"required"` (V7). Write the save bar message with `fixMessage(n, "publish")` or `fixMessage(n, "save")` |
 | 3. Dialogs | `dialogs.js` | Every confirm, the create dialog, and the slide-over |
 | 4. Keyboard | `keyboard.js` | `save` on item and singleton screens, `search` on collections |
 | 5. Create flow | `create-flow.js` | The collection's add button, and the empty state's button |
@@ -179,12 +219,14 @@ Screen details:
 | 8. Field controls | `fields.js` | Every field |
 | Toasts | `toast.js` | The layout's `toasts` container |
 
+When a save throws `unauthorized` or `forbidden`, rethrow it so the save bar enters `error` with every edit kept, and show the toast "You were signed out. Copy your edits, then reload to sign in." (negative). A load that throws either shows `screen-login`.
+
 Then implement each `behavior` line. A behavior line that changes a spec rule wins only where the spec allows it (for example, autosave timing). If it conflicts with the spec, say so and follow the spec.
 
 | Behavior line | Implementation |
 | --- | --- |
 | "Autosave drafts every 10 seconds" | `createSaveState({ autosave: { every: 10000, when: () => status === first } })` |
-| "Show word count under the body field" | Write "N words" into the body field's `help` slot on every input |
+| "Show word count under the body field" | Write "N words" ("1 word") into the body field's `help` slot on every input |
 | "Publishing asks for confirmation" | Before moving past the first status, `confirmDialog(..., { title: "Publish this post?", confirmLabel: "Published" })` |
 | "Toolbar hidden until text is selected" | `toolbarOnSelection: true` on the field; `fields.js` toggles `hidden` |
 
@@ -199,6 +241,15 @@ const params = new URLSearchParams(location.search);
 const adapters = params.has("test")
   ? createMemoryAdapters(await (await fetch("./seed.json")).json())
   : createRecipeAdapters();
+if (adapters.test)
+  window.panelTest = {
+    ...adapters.test,
+    reset(seed) {
+      adapters.test.reset(seed);
+      current.cleanup(); // drop the open screen without asking (S9 does not apply)
+      route();           // render the current route again from the new data
+    },
+  };
 ```
 
 Write a few records per type, covering every status, in this shape:
@@ -217,6 +268,8 @@ Write a few records per type, covering every status, in this shape:
 }
 ```
 
+Write `start.mjs` at the project root when a recipe needs the project server. It imports `PANEL` from the panel's `panel.config.js` and `ALLOW` from `allow.mjs`, builds each recipe's part exactly as the recipe shows, then listens on `PORT` (default 4810) and `HOST` (default `127.0.0.1`), serving the panel folder as `root`. With auth `none`, it refuses any host but `127.0.0.1`, `localhost`, or `::1`. Add the `package.json` above so Node 18 or later can import the ES-module config. The server serves only `.html`, `.js`, `.css`, `.svg`, `.json`, and image files from `root`, so `CONFORMANCE.md` and notes stay private.
+
 ## Step 7: Use this copy
 
 Use these words exactly, so every build reads the same. `{label}` is the type label in lowercase, `{Singular}` capitalized.
@@ -234,10 +287,11 @@ Use these words exactly, so every build reads the same. `{label}` is the type la
 | Delete confirm | "Delete this {singular}?" · "This can't be undone." · "Delete" (negative) |
 | Publish confirm | "Publish this {singular}?" · "It will be visible on the site." · the status name |
 | Discard confirm (S9) | "Discard unsaved changes?" · "Your edits will be lost." · "Discard" (negative) |
-| Toasts | "{Singular} {status}" when it moves forward ("Post published") · "{Singular} moved to {status}" when it moves back · "{Singular} deleted" · "Could not create. Try again." · "Could not delete. Try again." |
+| Toasts | "{Singular} {status}" when it moves forward ("Post published") · "{Singular} moved to {status}" when it moves back, both positive · "{Singular} deleted" (no tone) · "Could not create. Try again." · "Could not delete. Try again." · "Could not log out. Try again." · "You were signed out. Copy your edits, then reload to sign in.", all negative |
+| Counts | Singular at 1: "1 post", "1 word", "Fix 1 field to publish" |
 | Upload prompt | "Drop an image, or click to choose" · "Drop a file, or click to choose" |
 | Save bar, validation | As `behavior-spec.md` sections 1 and 2 say |
-| Login | Panel name · "Sign in to edit the site." |
+| Login | Panel name · "Sign in to edit the site." · page title "Sign in · {panel name}" |
 
 ## Step 8: Run conformance and write `CONFORMANCE.md`
 
@@ -248,6 +302,8 @@ Check every default check in `schema-guide.md` section 8, every project check un
 - In an existing project, the build follows the host profile.
 
 Write the report as one table. A failed check is fixed, or raised with the person, never skipped.
+
+Some checks need the person: a recipe's "Ask" step, or a hand checklist with real credentials (Google sign-in). In an unattended run, take the default the recipe names, record it in the intake record under `open_questions` with `assumed: true`, and report the check as `needs the person`, with what they must do. That is not a pass, and it is not a skip.
 
 ```markdown
 # Conformance: Field Notes

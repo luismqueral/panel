@@ -258,6 +258,16 @@ test.describe("keyboard", () => {
   });
 });
 
+test("K7 Enter in a field never submits the form natively", async ({ page }) => {
+  await open(page, "#/settings");
+  await control(page, "site_title").fill("Field Notes 2");
+  await control(page, "site_title").press("Enter");
+  await expect(page).toHaveURL(/\?test#\/settings$/);
+  await expect(control(page, "site_title")).toHaveValue("Field Notes 2");
+  await expect(savebar(page)).toHaveAttribute("data-state", "dirty");
+  expect(await calls(page, "saveSingleton")).toHaveLength(0);
+});
+
 test("K6 the skip link focuses the main region and keeps the screen", async ({ page }) => {
   await open(page, "#/post");
   await page.keyboard.press("Tab");
@@ -375,6 +385,15 @@ test.describe("field controls", () => {
     await expect(cover).toHaveAttribute("data-state", "empty");
   });
 
+  test("F2 an upload over the limit says so", async ({ page }) => {
+    await open(page, "#/post/rail-line");
+    const cover = field(page, "cover");
+    await fail(page, "upload", "too-large");
+    await cover.locator('input[type="file"]').setInputFiles(png);
+    await expect(cover.locator(".pn-error")).toHaveText("That file is too large.");
+    await expect(cover).toHaveAttribute("data-state", "empty");
+  });
+
   test("F3 the markdown toolbar wraps the selection", async ({ page }) => {
     await open(page, "#/post/rail-line");
     const body = control(page, "body");
@@ -438,6 +457,32 @@ test.describe("screen states", () => {
     await page.locator('.pn-nav-link[href="#/"]').click();
     await confirmDialog(page).locator('[data-action="confirm"]').click();
     await expect(page).toHaveURL(/#\/$/);
+  });
+
+  test("S9 the browser's back button with unsaved changes asks first", async ({ page }) => {
+    await open(page, "#/post");
+    await page.locator('.pn-list-row[href="#/post/rail-line"]').click();
+    await expect(screen(page)).toHaveAttribute("data-state", "ready");
+    await control(page, "title").fill("Unsaved");
+    await page.goBack();
+    await expect(confirmDialog(page)).toBeVisible();
+    await expect(page).toHaveURL(/#\/post\/rail-line$/);
+    await confirmDialog(page).locator('[data-action="cancel"]').click();
+    await expect(control(page, "title")).toHaveValue("Unsaved");
+    await page.goBack();
+    await confirmDialog(page).locator('[data-action="confirm"]').click();
+    await expect(page).toHaveURL(/#\/post$/);
+    await expect(screen(page)).toHaveAttribute("data-template", "screen-collection");
+  });
+
+  test("V7 singletons need their required fields to save", async ({ page }) => {
+    await open(page, "#/settings");
+    await control(page, "site_title").fill("");
+    await saveButton(page).click();
+    await expect(field(page, "site_title").locator(".pn-error")).toHaveText("Required.");
+    await expect(control(page, "site_title")).toBeFocused();
+    await expect(page.locator(".pn-savebar-message")).toHaveText("Fix 1 field to save");
+    expect(await calls(page, "saveSingleton")).toHaveLength(0);
   });
 
   test("singletons save like items", async ({ page }) => {

@@ -8,7 +8,7 @@ import { formatDate, button } from "./dom.js";
 import { tpl, fill, repeat, slotRepeat, slotChildren } from "./snippets/templates.js";
 import { makeField } from "./snippets/fields.js";
 import { createSaveState } from "./snippets/save-state.js";
-import { createValidation } from "./snippets/validation.js";
+import { createValidation, fixMessage } from "./snippets/validation.js";
 import { openDialog, confirmDialog } from "./snippets/dialogs.js";
 import { installShortcuts } from "./snippets/keyboard.js";
 import { createFlow } from "./snippets/create-flow.js";
@@ -50,8 +50,13 @@ async function start({ data, files, auth, test }) {
       fill(account, { text: { user: user.user } });
       account.querySelector('[data-action="logout"]').addEventListener("click", async () => {
         if (current.dirty() && !(await discard())) return;
+        try {
+          await auth.logout();
+        } catch {
+          toast("Could not log out. Try again.", "negative");
+          return;
+        }
         current.cleanup();
-        await auth.logout();
         boot();
       });
       slotChildren(nav, "account").append(account);
@@ -87,6 +92,11 @@ async function start({ data, files, auth, test }) {
   }
 
   // A load that finds the session gone shows the login screen (recipes/contracts.md, Auth).
+  // A save that finds the session gone keeps the edits in the save bar's error state.
+  const saveFailed = (error) => {
+    if (error?.code === "unauthorized" || error?.code === "forbidden") toast("You were signed out. Copy your edits, then reload to sign in.", "negative");
+    throw error;
+  };
   const signedOut = (error) => (error?.code === "unauthorized" || error?.code === "forbidden") && (current.cleanup(), boot(), true);
 
   function showError(el, title, text, retry) {
@@ -193,7 +203,11 @@ async function start({ data, files, auth, test }) {
       const dir = sortSelect.value.startsWith("-") ? -1 : 1;
       const rows = items
         .filter((it) => !q || type.list.search.some((f) => String(it.values[f] ?? "").toLowerCase().includes(q)))
-        .sort((a, b) => dir * String(a.values[key] ?? "").localeCompare(String(b.values[key] ?? "")));
+        .sort((a, b) => {
+          const x = String(a.values[key] ?? "");
+          const y = String(b.values[key] ?? "");
+          return !x || !y ? Number(!x) - Number(!y) : dir * x.localeCompare(y);
+        });
       repeat(slotRepeat(el, "row"), rows, (unit, it) =>
         fill(unit, {
           text: { title: it.values[type.list.title] || "Untitled", subtitle: formatDate(it.values[type.list.subtitle]), status: capital(it.status ?? "") },
@@ -258,7 +272,7 @@ async function start({ data, files, auth, test }) {
     const crumbs = [{ text: "Home", href: "#/" }, { text: type.label, href: `#/${type.id}` }];
     setChrome(type.id, [...crumbs, { text: "Loading…", href: location.hash }]);
     const el = screen("screen-item", { "type-id": type.id, tone: "neutral" });
-    fill(el, { text: { title: "", status: "", created: "", updated: "" } });
+    fill(el, { text: { title: "Loading…", status: "", created: "", updated: "" } });
     const statusButton = el.querySelector('[data-action="status"]');
     if (!type.status) statusButton.hidden = true;
     let record;
@@ -267,7 +281,9 @@ async function start({ data, files, auth, test }) {
       [record, options] = await Promise.all([data.get(type.id, id), relationOptions(type.fields)]);
     } catch (error) {
       if (signedOut(error)) return;
-      setChrome(type.id, [...crumbs, { text: "Not found", href: location.hash }]);
+      const missing = error.code === "not-found" ? "Not found" : "Could not load";
+      setChrome(type.id, [...crumbs, { text: missing, href: location.hash }]);
+      fill(el, { text: { title: missing } });
       if (error.code === "not-found") showError(el, `This ${type.singular} doesn't exist`, "It may have been deleted.", null);
       else showError(el, `Could not load this ${type.singular}`, "Check your connection and try again.", route);
       return;
@@ -310,12 +326,12 @@ async function start({ data, files, auth, test }) {
         const publishing = isLater(extra?.status ?? record.status);
         const invalid = validation.run(publishing ? "publish" : "format", publishing ? type.publishRequires : []);
         if (!invalid.length) return true;
-        saveState.say(publishing ? `Fix ${invalid.length} ${invalid.length === 1 ? "field" : "fields"} to publish` : `Fix ${invalid.length === 1 ? "1 field" : `${invalid.length} fields`} to save`);
+        saveState.say(fixMessage(invalid.length, publishing ? "publish" : "save"));
         validation.focus(invalid[0]);
         return false;
       },
       async save(values, extra) {
-        record = await data.update(type.id, record.id, { status: extra?.status ?? record.status, values });
+        record = await data.update(type.id, record.id, { status: extra?.status ?? record.status, values }).catch(saveFailed);
         header();
       },
       autosave: type.autosave && { every: type.autosave.every, when: () => !type.autosave.drafts || record.status === first },
@@ -331,7 +347,7 @@ async function start({ data, files, auth, test }) {
       if (forward && isLater(next)) {
         const invalid = validation.run("publish", type.publishRequires);
         if (invalid.length) {
-          saveState.say(`Fix ${invalid.length} ${invalid.length === 1 ? "field" : "fields"} to publish`);
+          saveState.say(fixMessage(invalid.length, "publish"));
           validation.focus(invalid[0]);
           return;
         }
@@ -414,13 +430,13 @@ async function start({ data, files, auth, test }) {
       read: set.read,
       write: set.write,
       validate() {
-        const invalid = set.validation.run("publish");
+        const invalid = set.validation.run("required");
         if (!invalid.length) return true;
-        saveState.say(`Fix ${invalid.length === 1 ? "1 field" : `${invalid.length} fields`} to save`);
+        saveState.say(fixMessage(invalid.length, "save"));
         set.validation.focus(invalid[0]);
         return false;
       },
-      save: async (values) => (record = await data.saveSingleton(def.id, values)),
+      save: async (values) => (record = await data.saveSingleton(def.id, values).catch(saveFailed)),
       onRevert: () => set.validation.clear(),
     });
     const off = installShortcuts({ save: () => saveState.save() });
@@ -464,11 +480,11 @@ async function start({ data, files, auth, test }) {
     }
     if (current.dirty()) {
       const target = location.hash;
-      history.replaceState(null, "", lastHash || "#/");
+      history.pushState(null, "", lastHash || "#/");
       if (!(await discard())) return;
-      current.cleanup();
-      history.pushState(null, "", target);
-    } else current.cleanup();
+      history.replaceState(null, "", target);
+    }
+    current.cleanup();
     route();
   });
 
@@ -481,6 +497,7 @@ async function start({ data, files, auth, test }) {
       problem = "Could not reach the panel. Check your connection and reload.";
     }
     if (!user) {
+      document.title = `Sign in · ${PANEL.name}`;
       const login = tpl("screen-login");
       fill(login, { text: { title: PANEL.name, text: "Sign in to edit the site.", error: problem } });
       app.replaceChildren(login);

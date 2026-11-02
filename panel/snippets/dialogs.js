@@ -17,7 +17,19 @@ function focusInitial(dialog) {
   (confirm ?? focusables(dialog)[0])?.focus();
 }
 
+// The close event fires a task after the dialog closes; reopening before it would hear the old close.
+const pending = new WeakMap();
+
 export function openDialog(dialog, { opener = document.activeElement } = {}) {
+  const previous = pending.get(dialog);
+  if (previous) return previous.then(() => openDialog(dialog, { opener }));
+  const result = show(dialog, opener);
+  pending.set(dialog, result);
+  result.then(() => pending.get(dialog) === result && pending.delete(dialog));
+  return result;
+}
+
+function show(dialog, opener) {
   return new Promise((resolve) => {
     function trap(event) {
       if (event.key !== "Tab") return;

@@ -169,8 +169,8 @@ function upload(el, input, field, ctx, isImage) {
       set(await ctx.files.upload(file));
       error.textContent = "";
       changed(el);
-    } catch {
-      error.textContent = "Could not upload. Try again.";
+    } catch (problem) {
+      error.textContent = problem?.code === "too-large" ? "That file is too large." : "Could not upload. Try again.";
     } finally {
       zone.removeAttribute("aria-busy");
       input.value = "";

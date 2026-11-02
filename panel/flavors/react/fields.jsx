@@ -259,8 +259,8 @@ function Upload({ image, field, prefix, value, onChange, error, disabled, help, 
     try {
       onChange(await files.upload(file));
       setFailed("");
-    } catch {
-      setFailed("Could not upload. Try again.");
+    } catch (problem) {
+      setFailed(problem?.code === "too-large" ? "That file is too large." : "Could not upload. Try again.");
     } finally {
       setBusy(false);
       if (input.current) input.current.value = "";

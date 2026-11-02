@@ -10,7 +10,7 @@ Don't use it for many editors writing at once, thousands of items, or data the h
 
 ## 2. Prerequisites
 
-- `via: server` (default): Node 18 or later, and the project server.
+- `via: server` (default): Node 18 or later, the project server, and a `package.json` with `"type": "module"` (`build.md` step 6).
 - `via: file-system-access`: a Chromium browser. No server.
 - `via: github`: a repository, and a login that can produce a GitHub token. Unverified.
 - `via: download`, `via: local-storage`: nothing. Mockups and one-off edits only.
@@ -35,7 +35,7 @@ content/
 1. Copy `recipes/server/json-files.mjs` and `recipes/server/errors.mjs` with the rest of `recipes/server/`, and `recipes/client/http.js`.
 2. In `start.mjs`: `data: createJsonFiles({ dir: resolve(project, PANEL.data.path), config: PANEL })`.
 3. In `panel.js`: `createHttpAdapters(request).data` when not in `?test` mode.
-4. Add the content folder to version control if the person wants history. Add it to `.gitignore` if not. Ask.
+4. Ask whether the content folder goes in version control. Default: yes, so edits have history. When unattended, take the default and record it (`build.md` step 8).
 5. Writes are atomic (a temporary file, then a rename). Keep it that way.
 
 ### via: file-system-access (unverified)

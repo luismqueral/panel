@@ -8,6 +8,7 @@ import { Field } from "./panel/fields.jsx";
 import { useSaveState, useValidation, useConfirm, useShortcuts } from "./panel/hooks.js";
 import { openDialog } from "./panel/snippets/dialogs.js";
 import { slugify } from "./panel/snippets/create-flow.js";
+import { fixMessage } from "./panel/snippets/validation.js";
 
 const words = (text) => (text ?? "").trim().split(/\s+/).filter(Boolean).length;
 const COMPUTED = {
@@ -127,9 +128,9 @@ export default function App({ adapters }) {
       }
       if (dirty.current()) {
         const target = location.hash;
-        history.replaceState(null, "", lastHash.current || "#/");
+        history.pushState(null, "", lastHash.current || "#/");
         if (!(await discard())) return;
-        history.pushState(null, "", target);
+        history.replaceState(null, "", target);
       }
       dirty.current = () => false;
       lastHash.current = location.hash;
@@ -140,8 +141,8 @@ export default function App({ adapters }) {
   }, [discard]);
 
   useEffect(() => {
-    document.title = `${crumbs.at(-1).text} · ${PANEL.name}`;
-  }, [crumbs]);
+    document.title = user === null ? `Sign in · ${PANEL.name}` : `${crumbs.at(-1).text} · ${PANEL.name}`;
+  }, [crumbs, user]);
 
   if (user === undefined) return null;
   if (!user)
@@ -154,7 +155,11 @@ export default function App({ adapters }) {
     ...PANEL.types.map((t) => ({ text: t.label, href: `#/${t.id}`, current: route.key === t.id })),
     ...PANEL.singletons.map((s) => ({ text: s.label, href: `#/${s.id}`, current: route.key === s.id })),
   ];
-  const ctx = { data, files, toast, confirm, setCrumbs, slots, dirty, signedOut, discard };
+  const saveFailed = (error) => {
+    if (signedOutError(error)) toast("You were signed out. Copy your edits, then reload to sign in.", "negative");
+    throw error;
+  };
+  const ctx = { data, files, toast, confirm, setCrumbs, slots, dirty, signedOut, discard, saveFailed };
   const go = (hash) => {
     dirty.current = () => false;
     location.hash = hash;
@@ -178,8 +183,13 @@ export default function App({ adapters }) {
                 user={user.user}
                 onLogout={async () => {
                   if (dirty.current() && !(await discard())) return;
+                  try {
+                    await auth.logout();
+                  } catch {
+                    toast("Could not log out. Try again.", "negative");
+                    return;
+                  }
                   dirty.current = () => false;
-                  await auth.logout();
                   setUser(null);
                 }}
               />
@@ -254,7 +264,11 @@ function CollectionScreen({ ctx, type, go }) {
   const dir = sort.startsWith("-") ? -1 : 1;
   const rows = items
     .filter((it) => !q || type.list.search.some((f) => String(it.values[f] ?? "").toLowerCase().includes(q)))
-    .sort((a, b) => dir * String(a.values[key] ?? "").localeCompare(String(b.values[key] ?? "")))
+    .sort((a, b) => {
+      const x = String(a.values[key] ?? "");
+      const y = String(b.values[key] ?? "");
+      return !x || !y ? Number(!x) - Number(!y) : dir * x.localeCompare(y);
+    })
     .map((it) => ({ title: it.values[type.list.title] || "Untitled", subtitle: formatDate(it.values[type.list.subtitle]), status: capital(it.status), tone: tone(type, it.status), href: `#/${type.id}/${it.id}` }));
   const state = load.state === "ready" && !items.length ? "empty" : load.state;
   const open = (event) => createRef.current.open(event.currentTarget);
@@ -354,7 +368,7 @@ function ItemScreen({ ctx, type, id, go }) {
   const base = [{ text: "Home", href: "#/" }, { text: type.label, href: `#/${type.id}` }];
   useEffect(() => {
     if (load.state === "loading") ctx.setCrumbs([...base, { text: "Loading…", href: location.hash }]);
-    if (load.state === "error" && !ctx.signedOut(load.error)) ctx.setCrumbs([...base, { text: "Not found", href: location.hash }]);
+    if (load.state === "error" && !ctx.signedOut(load.error)) ctx.setCrumbs([...base, { text: load.error?.code === "not-found" ? "Not found" : "Could not load", href: location.hash }]);
   }, [load.state]);
   if (load.state !== "ready") {
     const missing = load.error?.code === "not-found";
@@ -362,7 +376,7 @@ function ItemScreen({ ctx, type, id, go }) {
       <Item
         state={load.state}
         typeId={type.id}
-        title=""
+        title={load.state === "loading" ? "Loading…" : missing ? "Not found" : "Could not load"}
         status=""
         tone="neutral"
         hasStatus={Boolean(type.status)}
@@ -388,7 +402,6 @@ function ItemEditor({ ctx, type, initial, base, go }) {
   const first = type.status?.[0];
   const isLater = (s) => Boolean(type.status) && type.status.indexOf(s) > 0;
   const fieldsFor = (v) => withComputed(type.fields, v);
-  const fix = (n, verb) => `Fix ${n} ${n === 1 ? "field" : "fields"} to ${verb}`;
 
   let validation;
   const saveState = useSaveState({
@@ -398,12 +411,12 @@ function ItemEditor({ ctx, type, initial, base, go }) {
       const publishing = isLater(extra?.status ?? live.current.status);
       const invalid = validation.run(publishing ? "publish" : "format", publishing ? type.publishRequires : []);
       if (!invalid.length) return true;
-      saveState.say(fix(invalid.length, publishing ? "publish" : "save"));
+      saveState.say(fixMessage(invalid.length, publishing ? "publish" : "save"));
       validation.focus(invalid[0]);
       return false;
     },
     async save(values, extra) {
-      const next = await ctx.data.update(type.id, live.current.id, { status: extra?.status ?? live.current.status, values: fieldsFor(values) });
+      const next = await ctx.data.update(type.id, live.current.id, { status: extra?.status ?? live.current.status, values: fieldsFor(values) }).catch(ctx.saveFailed);
       setRecord(next);
     },
     autosave: type.autosave && { every: type.autosave.every, when: () => !type.autosave.drafts || live.current.status === first },
@@ -424,7 +437,7 @@ function ItemEditor({ ctx, type, initial, base, go }) {
     if (forward && isLater(next)) {
       const invalid = validation.run("publish", type.publishRequires);
       if (invalid.length) {
-        saveState.say(fix(invalid.length, "publish"));
+        saveState.say(fixMessage(invalid.length, "publish"));
         validation.focus(invalid[0]);
         return;
       }
@@ -505,13 +518,13 @@ function SingletonEditor({ ctx, def, initial }) {
   const saveState = useSaveState({
     initial: withComputed(def.fields, initial),
     validate() {
-      const invalid = validation.run("publish");
+      const invalid = validation.run("required");
       if (!invalid.length) return true;
-      saveState.say(`Fix ${invalid.length === 1 ? "1 field" : `${invalid.length} fields`} to save`);
+      saveState.say(fixMessage(invalid.length, "save"));
       validation.focus(invalid[0]);
       return false;
     },
-    save: (values) => ctx.data.saveSingleton(def.id, withComputed(def.fields, values)),
+    save: (values) => ctx.data.saveSingleton(def.id, withComputed(def.fields, values)).catch(ctx.saveFailed),
     onRevert: () => validation.clear(),
   });
   validation = useValidation(def.fields, saveState.values, def.id);

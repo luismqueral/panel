@@ -1,4 +1,4 @@
-// Save state and autosave. behavior-spec.md section 1 (S1–S8, A1–A4). Optional vanilla snippet.
+// Save state and autosave. behavior-spec.md section 1 (S1–S8, A1–A4) and K7. Optional vanilla snippet.
 //
 // const saveState = createSaveState({
 //   form, savebar,                     // the item's <form> and the savebar template instance
@@ -96,6 +96,8 @@ export function createSaveState({ form, savebar, read, write, save, validate, au
   }
 
   const onSaveClick = () => run();
+  const onSubmit = (event) => event.preventDefault();
+  form.addEventListener("submit", onSubmit);
   form.addEventListener("input", onEdit);
   form.addEventListener("change", onEdit);
   saveButton.addEventListener("click", onSaveClick);
@@ -119,6 +121,7 @@ export function createSaveState({ form, savebar, read, write, save, validate, au
       render();
     },
     destroy() {
+      form.removeEventListener("submit", onSubmit);
       form.removeEventListener("input", onEdit);
       form.removeEventListener("change", onEdit);
       saveButton.removeEventListener("click", onSaveClick);

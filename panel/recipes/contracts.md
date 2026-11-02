@@ -18,7 +18,7 @@ Rules:
 
 - The server decides who is signed in. The browser never decides it, and never holds a token it could forge.
 - Every data and files request is checked on the server. An unsigned request gets `unauthorized`; a signed-in address not on the allow list gets `forbidden`.
-- When any adapter throws `unauthorized`, the panel shows `screen-login`, and keeps unsaved edits in memory so they can be saved after signing in.
+- When a load throws `unauthorized`, the panel shows `screen-login`. When a save throws it, the save bar enters `error` with every edit kept, and a toast says "You were signed out. Copy your edits, then reload to sign in." (`build.md` step 5). The panel does not carry edits across a sign-in.
 
 ## Data
 
@@ -93,6 +93,7 @@ Rules:
 `json-files` and `local-disk` with `via: server`, and every login recipe, run in one small server the project owns. It is a single dependency-free Node file, `server.mjs`, written once and extended by each recipe. The recipes describe their part; this is the shared frame.
 
 ```
+GET    /api/config                   → { auth, googleClientId }, public, for the sign-in button
 GET    /api/session                  → { user } or 401
 POST   /api/session                  ← the login recipe's credential → { user }, sets the session cookie
 DELETE /api/session                  → 204, clears the cookie
@@ -105,11 +106,11 @@ GET    /api/singletons/:id           → record or null
 PUT    /api/singletons/:id           ← { values } → record
 POST   /api/files                    ← the file as the raw body; headers content-type and x-file-name → file value
 GET    /uploads/...                  → an uploaded file
-GET    anything else                 → the panel's static files
+GET    anything else                 → the panel's static files: .html, .js, .css, .svg, .json, and images only
 ```
 
 - Errors are `{ "error": { "code": "not-found", "message": "..." } }` with the matching HTTP status (401, 403, 404, 400, 409, 413, 503).
-- Every `/api/` request except `GET /api/session` and `POST /api/session` needs a valid session cookie.
+- Every `/api/` request except `GET /api/config`, `GET /api/session`, and `POST /api/session` needs a valid session cookie.
 - Every request that changes something must send `x-panel: 1`. Browsers cannot send a custom header across sites without permission, so this blocks cross-site requests. Reject a request without it with 403.
-- The server reads `panel.config.js` for the types, singletons, and field names it accepts.
+- The server reads `panel.config.js` for the types, singletons, and field names it accepts, and `allow.mjs` for the allow list. `allow.mjs` sits outside the served folder.
 - Bind to `127.0.0.1` unless the person deploys it; never to every address by default when auth is `none`.

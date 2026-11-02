@@ -415,3 +415,19 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Tradeoff:** Input and checkbox borders (`--pn-color-border-control`, #d4d4d4 on white) are about 1.5:1, below the 3:1 non-text contrast in WCAG 1.4.11. This matches the reference look; axe does not check it. Text contrast still passes axe in all four theme modes. To restore 3:1, set `--pn-color-border-control` to about #949494.
 - **Requested by:** the person ("this needs to look closer to kirby").
 - **Tag:** philosophy-dependent
+
+## D-059 Close the gaps the first experiment found
+
+- **Choice:** Every gap in `evals/results/blog-vanilla/REPORT.md` is now a written rule, and each new rule has a test.
+  - **`behavior-spec.md`:** `reset(seed)` re-renders the current route (section 7). K6 keeps the route in the address. K7 stops Enter submitting a form natively. S9 covers the back button and a typed address. V7 enforces `required` on singletons. F2 adds the too-large message. S3 no longer says Delete stays enabled. Singular counts are spelled out.
+  - **`build.md`:** gives the routing listener, the `panelTest.reset` wrapper, `start.mjs` defaults, and `package.json`. It names the `compute` key and every missing piece of copy. It explains how unattended runs report checks that need the person.
+  - **Allow list:** it moves from the served `panel.config.js` to a server-only `allow.mjs`. The project server now serves only page, script, style, data, and image files.
+- **Bugs fixed:**
+  - **`save-state.js`:** a one-field form reloaded the page on Enter.
+  - **`dialogs.js`:** reopening a dialog before its `close` event fired attached the new listener to the old close, so Discard resolved nothing.
+  - **`fields.js`:** never showed the too-large message.
+  - **`auth.js`:** dropped "This account isn't allowed" when a session was refused at load.
+- **Unauthorized saves:** a save that finds the session gone keeps the edits in the save bar's error state, and says so in a toast. Edits no longer have to survive a sign-in, which nothing implemented.
+- **Tests:** 4 new behavior tests (64 in all) and 1 new recipe test. The scorer allows a dependency-free `package.json` and fails a run whose served config holds the allow list.
+- **Requested by:** the person ("keep going and wrap this up"), after review of the first experiment.
+- **Tag:** philosophy-dependent (the copy and the unauthorized-save choice)

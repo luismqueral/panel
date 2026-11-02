@@ -6,7 +6,7 @@ export function createMemoryAdapters(seed, { user = "me@example.com" } = {}) {
   let db;
   let wait = 0;
   let counter = 0;
-  const failing = new Set();
+  const failing = new Map();
   const calls = [];
   const now = () => new Date().toISOString();
   const uid = () => `${Date.now().toString(36)}${(counter++).toString(36)}`;
@@ -17,8 +17,9 @@ export function createMemoryAdapters(seed, { user = "me@example.com" } = {}) {
     calls.push({ method, args: clone(args) });
     if (wait) await new Promise((resolve) => setTimeout(resolve, wait));
     if (failing.has(method)) {
+      const code = failing.get(method);
       failing.delete(method);
-      throw new Error(`${method} failed (test)`);
+      throw Object.assign(new Error(`${method} failed (test)`), { code });
     }
     return clone(run());
   }
@@ -82,7 +83,7 @@ export function createMemoryAdapters(seed, { user = "me@example.com" } = {}) {
 
   const test = {
     adapter: data,
-    fail: (method) => failing.add(method),
+    fail: (method, code = "unavailable") => failing.set(method, code),
     delay: (ms) => (wait = ms),
     calls,
     reset(next) {

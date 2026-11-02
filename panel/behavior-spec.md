@@ -23,13 +23,13 @@ The save bar's `data-state` always shows the current state.
 | --- | --- |
 | S1 | A loaded item is `clean`. |
 | S2 | Any edit that makes the values differ from the saved values enters `dirty`. An edit that makes them equal again returns to `clean`. |
-| S3 | Save or Cmd+S / Ctrl+S in `dirty` or `error` enters `saving`, disables every control inside the form (fields and their own buttons, such as remove-tag), and sends the current values. The header's status button and Delete stay enabled. |
+| S3 | Save or Cmd+S / Ctrl+S in `dirty` or `error` enters `saving`, disables every control inside the form (fields and their own buttons, such as remove-tag), and sends the current values. The header's status button stays enabled; pressing it while saving does nothing. Delete is inside the form, so it is disabled with the fields. |
 | S4 | A successful save stores the sent values as saved values and enters `clean`. |
 | S5 | A failed save enters `error`, re-enables fields, and keeps every edit. |
 | S6 | Revert restores the saved values and enters `clean`. |
 | S7 | Cmd+S / Ctrl+S never opens the browser's save dialog on a panel screen. In `clean` it does nothing. |
 | S8 | Leaving the page while `dirty` or `error` asks the browser to confirm (`beforeunload`). |
-| S9 | Moving to another panel screen while `dirty` or `error` opens a confirm dialog ("Discard unsaved changes?", negative). Cancel stays on the screen with every edit kept. |
+| S9 | Moving to another panel screen while `dirty` or `error` opens a confirm dialog ("Discard unsaved changes?", negative). This includes the browser's back and forward buttons and a typed address: the URL returns to the current screen while the dialog is open. Cancel stays on the screen with every edit kept. Discard goes to the requested screen. Logging out asks the same way. |
 
 ### Autosave
 
@@ -49,16 +49,17 @@ Autosave exists only when a `behavior` line asks for it ("Autosave drafts every 
 | V1 | No error appears while a person types in a field they have not left yet, unless a save, publish, or create was attempted. |
 | V2 | Leaving a field checks its format only: number within `min` and `max`, slug pattern, date format. Missing required values are not errors on blur. |
 | V3 | Saving is blocked only by format errors. A draft with empty required fields saves. |
-| V4 | Publishing is blocked by any format error or empty required field. Every invalid field shows its error, the first one receives focus, and the save bar message reads "Fix N fields to publish". |
+| V4 | Publishing is blocked by any format error or empty required field. Every invalid field shows its error, the first one receives focus, and the save bar message reads "Fix N fields to publish" ("Fix 1 field to publish"). When V3 blocks a save, it reads "Fix N fields to save". |
 | V5 | An error is shown as `aria-invalid="true"` on the control and a message in the field's error slot. It clears as soon as the value becomes valid. |
 | V6 | In the create dialog, required fields must be filled before Create succeeds. |
+| V7 | A singleton has no status, so nothing is ever published: saving it is blocked by empty required fields as well as format errors. Errors show as V4 does, with "Required.", and the message reads "Fix N fields to save". |
 
 Messages:
 
 | Problem | Message |
 | --- | --- |
 | Empty required field, publishing | "Required to publish." |
-| Empty required field, creating | "Required." |
+| Empty required field, creating, or saving a singleton | "Required." |
 | Number out of range | "Must be between {min} and {max}." (or "at least {min}", "at most {max}") |
 | Slug | "Use lowercase letters, numbers, and dashes." |
 | Date | "Use a date like 2026-11-01." |
@@ -83,7 +84,8 @@ Messages:
 | K3 | `/` moves focus to the collection search, unless focus is already in a text control. |
 | K4 | Enter in a create dialog's text field submits it. |
 | K5 | Every action can be reached with Tab and shows a visible focus ring. Checked by the design-system check, and by axe on every screen. |
-| K6 | The skip link moves focus to the main region and does not change the screen. Hashes that do not start with `#/` are in-page anchors, not routes. |
+| K6 | The skip link moves focus to the main region and does not change the screen. The address keeps the current route: hashes that do not start with `#/` are in-page anchors, so the panel focuses the target and puts the route back (`history.replaceState`). |
+| K7 | Enter in a field of an item or singleton form never submits the form natively, never reloads the page, and never saves. Saving is the Save button or K1 only. |
 
 ## 5. Create flow
 
@@ -113,12 +115,14 @@ Browser tests drive a panel only through the templates' classes and `data-action
 ```js
 window.panelTest = {
   adapter,          // the data adapter in use; must be the test memory adapter
-  fail(method),     // make the next call to adapter[method] reject
+  fail(method, code), // make the next call to adapter[method] reject, with error code (default "unavailable")
   delay(ms),        // make every adapter call take ms milliseconds
   calls,            // array of { method, args } in call order
   reset(seed),      // replace all data with seed (see evals/behavior/seed.json)
 };
 ```
+
+`reset(seed)` also drops the current screen's state without asking (no S9 dialog) and renders the current route again from the new data, so a test that resets on a collection sees the new rows at once. The memory adapter's own `reset` only replaces data; the panel wraps it (`build.md` step 6).
 
 Every screen also passes template fidelity, axe, and a 400px width with no sideways scroll (`evals/behavior/quality.spec.mjs`).
 
@@ -129,6 +133,6 @@ Routes use the hash: `#/` home, `#/<type id>` collection, `#/<type id>/<item id>
 | Id | Rule |
 | --- | --- |
 | F1 | Tags: Enter or comma adds the typed tag. Leaving the input adds it too. Duplicates and blanks are ignored. Backspace in an empty input removes the last tag. Each tag's remove button removes it and returns focus to the input. |
-| F2 | Image and file: choosing or dropping a file uploads it through the files adapter and sets `data-state="filled"`. The remove button clears it and sets `data-state="empty"`. A failed upload shows "Could not upload. Try again." and keeps the old value. |
+| F2 | Image and file: choosing or dropping a file uploads it through the files adapter and sets `data-state="filled"`. The remove button clears it and sets `data-state="empty"`. A failed upload shows "Could not upload. Try again.", or "That file is too large." when the adapter throws `too-large`, and keeps the old value. |
 | F3 | Markdown: each toolbar button wraps the selection (`**bold**`, `_italic_`, `[link](https://)`) or prefixes the line (`## `), and counts as an edit. |
 | F4 | Custom fields with a computed value are read-only, update as their sources change, and save the computed value. |

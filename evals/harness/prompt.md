@@ -13,7 +13,7 @@ This is an unattended run. No one will answer questions. Intake and the schema i
 - The intake record is `evals/harness/blog.intake.yaml`. Copy it to `{{RUN}}/panel.intake.yaml`.
 - The approved schema is `panel/examples/blog/panel.yaml`. Copy it to `{{RUN}}/panel.yaml`.
 
-So the mode is New panel, and the remaining steps are Build and Conformance. Skip Preview. The project root is `{{RUN}}/`: write the build there, laid out as `build.md` says (`panel/`, `server/`, `start.mjs`). Write `panel/CONFORMANCE.md` last.
+So the mode is New panel, and the remaining steps are Build and Conformance. Skip Preview. The project root is `{{RUN}}/`: write the build there, laid out as `build.md` says. Write `panel/CONFORMANCE.md` last.
 
 Rules for this run:
 
