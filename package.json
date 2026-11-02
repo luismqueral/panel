@@ -12,13 +12,19 @@
     "build:vanilla-blog": "node evals/fixtures/vanilla-blog/build.mjs",
     "test:behavior": "playwright test -c evals/behavior/playwright.config.mjs",
     "check:playground": "node tools/check-playground.mjs",
-    "test:recipes": "node --test evals/recipes/*.test.mjs && playwright test -c evals/recipes/playwright.config.mjs"
+    "test:recipes": "node --test evals/recipes/*.test.mjs && playwright test -c evals/recipes/playwright.config.mjs",
+    "build:react-blog": "node evals/fixtures/react-blog/build.mjs",
+    "test:behavior:react": "node evals/fixtures/react-blog/build.mjs && node tools/run-behavior.mjs evals/fixtures/react-blog/dist"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
+    "@vitejs/plugin-react": "^6.1.2",
     "ajv": "^8.20.0",
     "axe-core": "^4.14.0",
     "playwright": "^1.64.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "vite": "^8.3.5",
     "yaml": "^2.9.1"
   }
 }

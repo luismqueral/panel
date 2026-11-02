@@ -456,6 +456,12 @@ async function start({ data, files, auth, test }) {
 
   window.addEventListener("hashchange", async () => {
     if (location.hash === lastHash) return;
+    if (location.hash && !location.hash.startsWith("#/")) {
+      const target = document.getElementById(location.hash.slice(1));
+      history.replaceState(null, "", lastHash || "#/");
+      target?.focus();
+      return;
+    }
     if (current.dirty()) {
       const target = location.hash;
       history.replaceState(null, "", lastHash || "#/");

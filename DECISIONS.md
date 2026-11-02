@@ -372,3 +372,17 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Choice:** Verified: `none`, `google-login`, `json-files` (`via: server`), `local-disk` (`via: server`), by `npm run test:recipes` (14 unit tests, 12 browser tests against the real server). Google's own sign-in is replaced by a stub button and a fake verifier at the `verify` seam (D-015); the manual checklist in `google-login.md` covers the real flow. Unverified: `email-link`, `postgres`, `supabase`, `s3`, `r2`, and the non-server `via` branches. The validator warns when a schema names an unverified recipe.
 - **Deferred:** Host recipes (`django-auth`, `django-models`, and so on) promised in D-040 are not written. Intake records "the host app's existing auth" as an open question and stops (intake.md Rule 5).
 - **Tag:** default
+
+## D-053 The memory adapters ship with the skill
+
+- **Choice:** `memory.js` moved from the vanilla fixture to `panel/recipes/client/memory.js`. Every build copies it (`build.md` step 6), so every flavor runs the same behavior suite against the same test contract.
+- **Why:** Each build writing its own memory adapter would make the test seam differ per build, and the suite would test the adapter as much as the panel.
+- **Tag:** default
+
+## D-054 React flavor ships component files; Vue is guidance only
+
+- **Choice:** `panel/flavors/react/` ships `templates.jsx` (every template as a component, slot markers kept literally), `fields.jsx`, and `hooks.js` (one hook per behavior spec section, importing the shared snippets for rules and native dialog code). `flavors/react.md` gives translation rules, the hook mapping, the pitfalls found while building, host shapes, style isolation, and a checklist. `evals/fixtures/react-blog/` is built from these files with Vite and passes the same 60 behavior and quality tests as vanilla (`npm run test:behavior:react`). `flavors/vue.md` is unverified guidance with no component files.
+- **Why:** The fidelity check compares rendered DOM, so the React components can be checked exactly like vanilla. Sharing the snippets keeps one copy of each rule.
+- **Host shapes:** Vite SPA is verified by the fixture. Next.js and Nuxt sections are unverified.
+- **Reverse:** Ship translation rules only and let the model write components.
+- **Tag:** default

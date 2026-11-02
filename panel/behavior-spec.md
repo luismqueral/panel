@@ -83,6 +83,7 @@ Messages:
 | K3 | `/` moves focus to the collection search, unless focus is already in a text control. |
 | K4 | Enter in a create dialog's text field submits it. |
 | K5 | Every action can be reached with Tab and shows a visible focus ring. Checked by the design-system check, and by axe on every screen. |
+| K6 | The skip link moves focus to the main region and does not change the screen. Hashes that do not start with `#/` are in-page anchors, not routes. |
 
 ## 5. Create flow
 

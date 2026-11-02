@@ -173,7 +173,7 @@ Then implement each `behavior` line. A behavior line that changes a spec rule wi
 
 `recipes/contracts.md` defines the auth, data, and files contracts. Write one file per recipe in the schema, following that recipe's steps exactly, and run its verification checklist.
 
-Always also write `adapters/memory.js`, implementing the same contracts in memory and exposing `window.panelTest` (behavior-spec.md section 7). `panel.js` uses it when the URL has `?test`, and the recipes otherwise:
+Always also copy `recipes/client/memory.js` to `adapters/memory.js`. It implements the same contracts in memory and provides the `fail`, `delay`, `calls`, and `reset` parts of `window.panelTest` (behavior-spec.md section 7). `panel.js` uses it when the URL has `?test`, and the recipes otherwise. The seed is a JSON file of the schema's types, a few records each, covering every status:
 
 ```js
 const params = new URLSearchParams(location.search);

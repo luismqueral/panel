@@ -258,6 +258,16 @@ test.describe("keyboard", () => {
   });
 });
 
+test("K6 the skip link focuses the main region and keeps the screen", async ({ page }) => {
+  await open(page, "#/post");
+  await page.keyboard.press("Tab");
+  await expect(page.locator(".pn-skip")).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#pn-main")).toBeFocused();
+  await expect(page).toHaveURL(/#\/post$/);
+  await expect(screen(page)).toHaveAttribute("data-state", "ready");
+});
+
 test.describe("create flow", () => {
   test("C1 D1 the create dialog asks only for the title and its slug, focused on the title", async ({ page }) => {
     await open(page, "#/post");
