@@ -1,0 +1,31 @@
+panel: 1
+name: Test
+
+auth:
+  recipe: google-login
+  allow:
+    - me@example.com
+
+data:
+  recipe: json-files
+  path: ./content
+
+types:
+  - id: post
+    label: Posts
+    list:
+      title: title
+    fields:
+      - name: title
+        type: text
+
+      - name: site
+        type: relation
+        to: settings
+
+singletons:
+  - id: settings
+    label: Settings
+    fields:
+      - name: site_title
+        type: text

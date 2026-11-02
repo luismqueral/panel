@@ -1,0 +1,128 @@
+panel: 1
+name: Studio Ana Ruiz
+
+notes: A small design studio showing its work. Projects are the whole site; everything else is one page each.
+
+auth:
+  recipe: google-login
+  allow:
+    - ana@example.com
+    - "*@studio-ruiz.example"
+
+data:
+  recipe: json-files
+  path: ./content
+
+files:
+  recipe: local-disk
+  path: ./public/uploads
+  url: /uploads
+
+types:
+  - id: project
+    label: Projects
+    notes: Each project is a case study. The cover sells it; the summary is one or two sentences.
+    status:
+      - draft
+      - published
+    list:
+      title: title
+      subtitle: client
+      sort: -year
+      search:
+        - title
+        - client
+    fields:
+      - name: title
+        type: text
+        required: true
+
+      - name: slug
+        type: slug
+        from: title
+        width: 1/2
+
+      - name: year
+        type: number
+        min: 2000
+        max: 2100
+        required: true
+        width: 1/3
+
+      - name: featured
+        type: toggle
+        default: false
+        width: 1/3
+        help: Featured projects lead the home page.
+
+      - name: client
+        type: text
+        width: 1/2
+
+      - name: discipline
+        type: select
+        options:
+          - Identity
+          - Editorial
+          - Packaging
+          - Digital
+        width: 1/2
+
+      - name: cover
+        type: image
+        required: true
+
+      - name: summary
+        type: textarea
+        required: true
+        help: One or two sentences for the project list.
+
+      - name: body
+        type: markdown
+
+      - name: deck
+        type: file
+        label: Case study PDF
+        width: 1/2
+
+      - name: next_project
+        type: relation
+        to: project
+        width: 1/2
+        help: Shown at the bottom of the page.
+
+singletons:
+  - id: about
+    label: About
+    fields:
+      - name: headline
+        type: text
+        required: true
+
+      - name: portrait
+        type: image
+        width: 1/3
+
+      - name: bio
+        type: markdown
+        width: 2/3
+
+  - id: contact
+    label: Contact
+    fields:
+      - name: email
+        type: text
+        required: true
+        width: 1/2
+
+      - name: instagram
+        type: text
+        width: 1/2
+
+      - name: availability
+        type: select
+        options:
+          - Booking now
+          - Booking next quarter
+          - Not taking work
+        default: Booking now

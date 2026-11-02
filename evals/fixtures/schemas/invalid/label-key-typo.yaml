@@ -1,0 +1,20 @@
+panel: 1
+name: Test
+
+auth:
+  recipe: google-login
+  allow:
+    - me@example.com
+
+data:
+  recipe: json-files
+  path: ./content
+
+types:
+  - id: post
+    lable: Posts
+    list:
+      title: title
+    fields:
+      - name: title
+        type: text

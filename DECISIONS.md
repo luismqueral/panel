@@ -282,3 +282,28 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Choice:** Templates mark required fields with `aria-required` and `data-required="true"` on the label, never the native `required` attribute.
 - **Why:** Attribute slots must stay present with a value; a boolean attribute cannot be blank. Native `required` would also block saving drafts, against D-001.
 - **Tag:** default
+
+## D-039 Two layers of schema checking
+
+- **Choice:** `panel/panel.schema.json` checks shape only (keys, types, enums, type-only keys). `tools/validate.mjs` adds what JSON Schema cannot say clearly: references (`list`, `from`, `to`), unique ids and names, `default` matching its type, a `files` adapter when uploads exist, recipe existence, slot, and settings, `panel: 1` on line one, and the YAML style rules (no inline braces or brackets, quote misreadable values, blank line between fields as a warning). Every message names the file, line, and place in plain words (`type "post" › field "cover"`), and suggests the closest valid name for typos.
+- **Why:** Shape errors from a raw JSON Schema validator are not "a clear message".
+- **Tag:** default
+
+## D-040 Recipe registry shape
+
+- **Choice:** `panel/recipes/index.json` lists every recipe intake offers (`none`, `google-login`, `email-link`, `json-files`, `postgres`, `supabase`, `local-disk`, `s3`, `r2`), each with `kind` (the adapter it fills), `status` (`planned`, `unverified`, `verified`), and `settings` as a JSON Schema. All are `planned` until Phase 7. Host recipes (D-031) are added in Phase 7.
+- **Settings decided now:** login recipes take `allow` (emails or `*@domain`). Secrets are never in the schema: settings ending `_env` name an environment variable. `json-files` and `local-disk` take `via` to record the D-003 choice (`server` by default; `file-system-access`, `github` with `repo`, `download`, `local-storage`).
+- **Reverse:** Edit the index; the validator reads it.
+- **Tag:** default
+
+## D-041 Small schema rules not stated in the brief
+
+- **Choice:** `status` needs at least two states, each a machine name. `auth` is always a block (`auth: none` as a string is rejected with the fix shown). `slug.from` must name a `text` or `textarea` field. `image`, `file`, and `relation` fields take no `default`. A missing `label` is derived from `name` (`site_title` → "Site title"). JSON schemas are accepted for single-file builds; the YAML style rules do not apply to them. `notes`, `behavior`, and `x-` keys are also allowed on adapters and on `list`.
+- **Tag:** default
+
+## D-042 Where the validator lives (open)
+
+- **Question:** The validator uses dependencies (`ajv`, `yaml`), so per rule 5 it cannot ship inside the skill. A model using the skill in someone else's project will not have `tools/`.
+- **Choice for now:** The validator stays dev-time in `tools/`. `schema-guide.md` section 10 gives a manual checklist that covers the same rules for when it is unavailable.
+- **Options later:** publish it as a package run with `npx`, or write a dependency-free validator for the YAML subset Panel allows.
+- **Tag:** default, needs human decision

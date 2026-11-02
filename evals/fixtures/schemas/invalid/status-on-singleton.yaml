@@ -1,0 +1,21 @@
+panel: 1
+name: Test
+
+auth:
+  recipe: google-login
+  allow:
+    - me@example.com
+
+data:
+  recipe: json-files
+  path: ./content
+
+singletons:
+  - id: settings
+    label: Settings
+    status:
+      - draft
+      - live
+    fields:
+      - name: site_title
+        type: text

@@ -1,0 +1,202 @@
+{
+  "typo-core-key": {
+    "errors": 1,
+    "messages": [
+      "\"singeltons\" is not a Panel key here",
+      "Did you mean \"singletons\"?"
+    ]
+  },
+  "missing-panel": {
+    "errors": 2,
+    "messages": [
+      "line one must be exactly \"panel: 1\"",
+      "missing \"panel\""
+    ]
+  },
+  "unknown-field-type": {
+    "errors": 1,
+    "messages": [
+      "unknown field type \"richtext\"",
+      "type: custom with describe"
+    ]
+  },
+  "list-title-missing-field": {
+    "errors": 1,
+    "messages": [
+      "list.title names \"headline\", which is not a field in post"
+    ]
+  },
+  "image-without-files": {
+    "errors": 1,
+    "messages": [
+      "an image or file field needs a files adapter"
+    ]
+  },
+  "no-types-or-singletons": {
+    "errors": 1,
+    "messages": [
+      "define at least one entry under types or singletons"
+    ]
+  },
+  "auth-none-as-string": {
+    "errors": 1,
+    "messages": [
+      "write auth as a block with a recipe line"
+    ]
+  },
+  "unknown-recipe": {
+    "errors": 1,
+    "messages": [
+      "no recipe named \"json-file\"",
+      "Did you mean \"json-files\"?"
+    ]
+  },
+  "recipe-wrong-slot": {
+    "errors": 1,
+    "messages": [
+      "\"local-disk\" is a files recipe and cannot fill data"
+    ]
+  },
+  "recipe-setting-typo": {
+    "errors": 2,
+    "messages": [
+      "google-login has no setting \"alow\"",
+      "Did you mean \"allow\"?"
+    ]
+  },
+  "recipe-setting-missing": {
+    "errors": 1,
+    "messages": [
+      "google-login needs \"allow\""
+    ]
+  },
+  "allow-not-email": {
+    "errors": 1,
+    "messages": [
+      "\"me\" is not an email address"
+    ]
+  },
+  "secret-in-schema": {
+    "errors": 1,
+    "messages": [
+      "names an environment variable"
+    ]
+  },
+  "select-without-options": {
+    "errors": 1,
+    "messages": [
+      "missing \"options\""
+    ]
+  },
+  "options-on-text": {
+    "errors": 1,
+    "messages": [
+      "\"options\" is only allowed on select fields, not text"
+    ]
+  },
+  "relation-missing-type": {
+    "errors": 1,
+    "messages": [
+      "relation points to \"person\", which is not a type id"
+    ]
+  },
+  "relation-to-singleton": {
+    "errors": 1,
+    "messages": [
+      "relation points to singleton \"settings\""
+    ]
+  },
+  "duplicate-field-name": {
+    "errors": 1,
+    "messages": [
+      "field name \"title\" is used twice in post"
+    ]
+  },
+  "duplicate-id": {
+    "errors": 1,
+    "messages": [
+      "id \"post\" is already used"
+    ]
+  },
+  "status-on-singleton": {
+    "errors": 1,
+    "messages": [
+      "singletons have no status"
+    ]
+  },
+  "default-wrong-type": {
+    "errors": 1,
+    "messages": [
+      "default \"yes\" must be true or false"
+    ]
+  },
+  "inline-braces": {
+    "errors": 1,
+    "messages": [
+      "inline braces { } are not allowed"
+    ]
+  },
+  "unquoted-no": {
+    "errors": 1,
+    "messages": [
+      "quote \"yes\""
+    ]
+  },
+  "panel-version-2": {
+    "errors": 2,
+    "messages": [
+      "line one must be exactly \"panel: 1\"",
+      "panel must be 1"
+    ]
+  },
+  "custom-without-describe": {
+    "errors": 1,
+    "messages": [
+      "missing \"describe\""
+    ]
+  },
+  "sort-missing-field": {
+    "errors": 1,
+    "messages": [
+      "list.sort names \"date\""
+    ]
+  },
+  "search-missing-field": {
+    "errors": 1,
+    "messages": [
+      "list.search names \"body\""
+    ]
+  },
+  "slug-from-missing-field": {
+    "errors": 1,
+    "messages": [
+      "slug is made from \"headline\", which is not a field in post"
+    ]
+  },
+  "invalid-width": {
+    "errors": 1,
+    "messages": [
+      "width \"1/4\" is not allowed"
+    ]
+  },
+  "uppercase-field-name": {
+    "errors": 1,
+    "messages": [
+      "\"Body\" must be lowercase"
+    ]
+  },
+  "type-without-list": {
+    "errors": 1,
+    "messages": [
+      "missing \"list\": every type needs a list block"
+    ]
+  },
+  "label-key-typo": {
+    "errors": 2,
+    "messages": [
+      "\"lable\" is not a Panel key here",
+      "Did you mean \"label\"?",
+      "missing \"label\""
+    ]
+  }
+}

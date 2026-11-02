@@ -1,0 +1,17 @@
+panel: 1
+name: Test
+
+auth: none
+
+data:
+  recipe: json-files
+  path: ./content
+
+types:
+  - id: post
+    label: Posts
+    list:
+      title: title
+    fields:
+      - name: title
+        type: text

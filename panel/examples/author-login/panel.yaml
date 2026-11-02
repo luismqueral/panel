@@ -1,0 +1,19 @@
+panel: 1
+name: Author
+
+auth:
+  recipe: google-login
+  allow:
+    - me@example.com
+
+data:
+  recipe: json-files
+  path: ./content
+
+singletons:
+  - id: profile
+    label: Profile
+    fields:
+      - name: title
+        type: text
+        required: true

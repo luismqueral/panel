@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/luismqueral/panel/panel.schema.json",
+  "title": "Panel schema, version 1",
+  "description": "The contract describing what a project manages. Shape only: references, recipe settings, defaults, and style are checked by the validator (see schema-guide.md).",
+  "type": "object",
+  "required": ["panel", "name", "auth", "data"],
+  "properties": {
+    "panel": { "const": 1, "description": "Schema version. Must be the first line." },
+    "name": { "$ref": "#/$defs/text" },
+    "auth": { "$ref": "#/$defs/adapter" },
+    "data": { "$ref": "#/$defs/adapter" },
+    "files": { "$ref": "#/$defs/adapter" },
+    "types": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/type" } },
+    "singletons": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/singleton" } },
+    "conformance": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/text" } },
+    "notes": { "$ref": "#/$defs/guidance" },
+    "behavior": { "$ref": "#/$defs/guidance" }
+  },
+  "patternProperties": { "^x-": true },
+  "additionalProperties": false,
+  "anyOf": [{ "required": ["types"] }, { "required": ["singletons"] }],
+
+  "$defs": {
+    "text": { "type": "string", "minLength": 1 },
+    "guidance": { "type": "string", "minLength": 1, "description": "Plain Markdown. notes says why, behavior says what." },
+    "machineName": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+
+    "adapter": {
+      "type": "object",
+      "required": ["recipe"],
+      "properties": {
+        "recipe": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "notes": { "$ref": "#/$defs/guidance" },
+        "behavior": { "$ref": "#/$defs/guidance" }
+      },
+      "description": "Other keys are the recipe's settings, checked against recipes/index.json by the validator."
+    },
+
+    "type": {
+      "type": "object",
+      "required": ["id", "label", "fields", "list"],
+      "properties": {
+        "id": { "$ref": "#/$defs/machineName" },
+        "label": { "$ref": "#/$defs/text" },
+        "fields": { "$ref": "#/$defs/fields" },
+        "status": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/machineName" }
+        },
+        "list": { "$ref": "#/$defs/list" },
+        "notes": { "$ref": "#/$defs/guidance" },
+        "behavior": { "$ref": "#/$defs/guidance" }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+
+    "singleton": {
+      "type": "object",
+      "required": ["id", "label", "fields"],
+      "properties": {
+        "id": { "$ref": "#/$defs/machineName" },
+        "label": { "$ref": "#/$defs/text" },
+        "fields": { "$ref": "#/$defs/fields" },
+        "notes": { "$ref": "#/$defs/guidance" },
+        "behavior": { "$ref": "#/$defs/guidance" }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+
+    "list": {
+      "type": "object",
+      "required": ["title"],
+      "properties": {
+        "title": { "$ref": "#/$defs/machineName" },
+        "subtitle": { "$ref": "#/$defs/machineName" },
+        "sort": { "type": "string", "pattern": "^-?[a-z][a-z0-9_]*$" },
+        "search": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/machineName" } },
+        "notes": { "$ref": "#/$defs/guidance" },
+        "behavior": { "$ref": "#/$defs/guidance" }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+
+    "fields": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/field" } },
+
+    "field": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": { "$ref": "#/$defs/machineName" },
+        "type": {
+          "enum": ["text", "textarea", "markdown", "number", "date", "toggle", "select", "tags", "slug", "image", "file", "relation", "custom"]
+        },
+        "label": { "$ref": "#/$defs/text" },
+        "required": { "type": "boolean" },
+        "default": {},
+        "width": { "enum": ["1/1", "1/2", "1/3", "2/3"] },
+        "help": { "$ref": "#/$defs/text" },
+        "notes": { "$ref": "#/$defs/guidance" },
+        "behavior": { "$ref": "#/$defs/guidance" },
+        "from": { "$ref": "#/$defs/machineName" },
+        "options": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/text" } },
+        "to": { "$ref": "#/$defs/machineName" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "time": { "type": "boolean" },
+        "describe": { "$ref": "#/$defs/text" }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false,
+      "allOf": [
+        { "if": { "properties": { "type": { "const": "select" } } }, "then": { "required": ["options"] } },
+        { "if": { "properties": { "type": { "const": "relation" } } }, "then": { "required": ["to"] } },
+        { "if": { "properties": { "type": { "const": "custom" } } }, "then": { "required": ["describe"] } },
+        { "if": { "properties": { "type": { "not": { "const": "slug" } } } }, "then": { "properties": { "from": false } } },
+        { "if": { "properties": { "type": { "not": { "const": "select" } } } }, "then": { "properties": { "options": false } } },
+        { "if": { "properties": { "type": { "not": { "const": "relation" } } } }, "then": { "properties": { "to": false } } },
+        { "if": { "properties": { "type": { "not": { "const": "number" } } } }, "then": { "properties": { "min": false, "max": false } } },
+        { "if": { "properties": { "type": { "not": { "const": "date" } } } }, "then": { "properties": { "time": false } } },
+        { "if": { "properties": { "type": { "not": { "const": "custom" } } } }, "then": { "properties": { "describe": false } } }
+      ]
+    }
+  }
+}

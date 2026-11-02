@@ -1,0 +1,47 @@
+panel: 1
+name: Extensions
+notes: Project-level intent.
+behavior: Project-level behavior.
+x-owner: studio
+
+auth:
+  recipe: google-login
+  notes: Only the two founders.
+  behavior: Sessions last one week.
+  x-provider-console: https://console.example
+  allow:
+    - me@example.com
+
+data:
+  recipe: json-files
+  path: ./content
+  x-backup: nightly
+
+types:
+  - id: post
+    label: Posts
+    notes: Type-level intent.
+    behavior: Type-level behavior.
+    x-order: 1
+    list:
+      title: title
+      notes: List-level intent.
+      behavior: Newest first.
+      x-density: compact
+    fields:
+      - name: title
+        type: text
+        notes: Field-level intent.
+        behavior: Trim spaces on save.
+        x-priority: high
+
+singletons:
+  - id: settings
+    label: Settings
+    notes: Singleton-level intent.
+    behavior: Singleton-level behavior.
+    x-icon: gear
+    fields:
+      - name: site_title
+        type: text
+        x-hint: shown in the tab

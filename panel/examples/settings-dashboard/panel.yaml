@@ -1,0 +1,81 @@
+panel: 1
+name: Store settings
+
+notes: No content to write, only switches and copy that change how the shop behaves. Every change is live after save.
+
+auth:
+  recipe: google-login
+  allow:
+    - "*@shop.example"
+
+data:
+  recipe: json-files
+  path: ./config
+
+singletons:
+  - id: store
+    label: Store
+    fields:
+      - name: store_name
+        type: text
+        required: true
+
+      - name: support_email
+        type: text
+        required: true
+        width: 1/2
+
+      - name: currency
+        type: select
+        options:
+          - USD
+          - EUR
+          - GBP
+        default: USD
+        width: 1/2
+
+      - name: open
+        type: toggle
+        label: Store is open
+        default: true
+        help: When off, the shop shows a closed page and takes no orders.
+
+  - id: announcement
+    label: Announcement bar
+    behavior: The bar's preview updates as the message is typed.
+    fields:
+      - name: show
+        type: toggle
+        label: Show the bar
+        default: false
+
+      - name: message
+        type: text
+        width: 2/3
+
+      - name: ends_on
+        type: date
+        time: true
+        width: 1/3
+        help: The bar hides itself after this moment.
+
+  - id: shipping
+    label: Shipping
+    fields:
+      - name: free_over
+        type: number
+        label: Free shipping over
+        min: 0
+        width: 1/3
+
+      - name: flat_rate
+        type: number
+        min: 0
+        width: 1/3
+
+      - name: regions
+        type: tags
+        width: 1/3
+        default:
+          - US
+          - CA
