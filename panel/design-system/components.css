@@ -21,6 +21,12 @@
   display: none !important;
 }
 
+/* The one rule outside .pn: a page that holds the panel layout gives it the whole viewport */
+body:has(.pn-layout) {
+  margin: 0;
+  background: var(--pn-color-bg);
+}
+
 .pn *,
 .pn *::before,
 .pn *::after {
@@ -1118,6 +1124,8 @@ button.pn-list-row {
 
 .pn-toast .pn-button {
   color: inherit;
+  background: transparent;
+  box-shadow: none;
 }
 
 .pn-toast .pn-button:hover {
