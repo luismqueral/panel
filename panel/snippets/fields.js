@@ -1,11 +1,23 @@
+// Field controls. behavior-spec.md section 8 (F1–F4). Optional vanilla snippet.
 // One controller per field type: the filled template plus get() and set().
+//
+// const c = makeField({ name: "title", label: "Title", type: "text", required: true, width: "1/1" }, {
+//   prefix: "post",               // type or singleton id; "post-new" in the create dialog
+//   files,                        // files adapter, for image and file fields
+//   options: { author: [{ value, text }] }, // relation choices by target type
+//   computed: { readingTime: { value(values), display(values) } }, // custom fields with `compute`
+//   values: () => currentValues,  // for computed fields
+//   root: form,                   // computed fields refresh on its input events
+// });
+// form.append(c.el); c.set(value); c.get();
 
-import { tpl, fill, repeat, slotRepeat, slotChildren, formatSize } from "./dom.js";
+import { tpl, fill, repeat, slotRepeat, slotChildren } from "./templates.js";
 
 const changed = (el) => el.dispatchEvent(new Event("input", { bubbles: true }));
 
 export function makeField(field, ctx) {
-  const id = `${ctx.prefix}-${field.name}`;
+  const base = `${ctx.prefix}-${field.name}`;
+  const id = `${base}-input`;
   const el = tpl(`field-${field.type}`);
   const isImage = field.type === "image";
   fill(el, {
@@ -15,10 +27,10 @@ export function makeField(field, ctx) {
       width: field.width ?? "1/1",
       required: String(Boolean(field.required)),
       "input-id": id,
-      "label-id": `${id}-label`,
-      "help-id": `${id}-help`,
-      "error-id": `${id}-error`,
-      describedby: `${id}-help ${id}-error`,
+      "label-id": `${base}-label`,
+      "help-id": `${base}-help`,
+      "error-id": `${base}-error`,
+      describedby: `${base}-help ${base}-error`,
       to: field.to,
       from: field.from,
       min: field.min ?? "",
@@ -32,7 +44,7 @@ export function makeField(field, ctx) {
   });
   const control = el.querySelector("input, textarea, select");
   const make = TYPES[field.type] ?? TYPES.text;
-  return { el, field, ...make(el, control, field, ctx, id) };
+  return { el, field, ...make(el, control, field, ctx, base) };
 }
 
 const TYPES = {
@@ -124,14 +136,14 @@ const TYPES = {
   image: (el, input, field, ctx) => upload(el, input, field, ctx, true),
   file: (el, input, field, ctx) => upload(el, input, field, ctx, false),
 
-  custom(el, input, field, ctx, id) {
+  custom(el, input, field, ctx, base) {
     const out = document.createElement("input");
     out.className = "pn-input";
     out.type = "text";
     out.readOnly = true;
-    out.id = id;
-    out.setAttribute("aria-labelledby", `${id}-label`);
-    out.setAttribute("aria-describedby", `${id}-help ${id}-error`);
+    out.id = `${base}-input`;
+    out.setAttribute("aria-labelledby", `${base}-label`);
+    out.setAttribute("aria-describedby", `${base}-help ${base}-error`);
     slotChildren(el, "control").append(out);
     const compute = ctx.computed?.[field.compute];
     const refresh = () => (out.value = compute ? compute.display(ctx.values()) : "");
@@ -155,6 +167,7 @@ function upload(el, input, field, ctx, isImage) {
     zone.setAttribute("aria-busy", "true");
     try {
       set(await ctx.files.upload(file));
+      error.textContent = "";
       changed(el);
     } catch {
       error.textContent = "Could not upload. Try again.";
@@ -181,4 +194,10 @@ function upload(el, input, field, ctx, isImage) {
   });
   set(null);
   return { get: () => value, set };
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }

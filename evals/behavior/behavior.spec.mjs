@@ -328,6 +328,66 @@ test.describe("create flow", () => {
   });
 });
 
+test.describe("field controls", () => {
+  test("F1 tags add on Enter and comma, ignore duplicates, and remove", async ({ page }) => {
+    await open(page, "#/post/rail-line");
+    const input = control(page, "tags");
+    const tags = field(page, "tags").locator(".pn-tag");
+    await expect(tags).toHaveCount(1);
+    await input.fill("maps");
+    await input.press("Enter");
+    await input.pressSequentially("rivers,");
+    await input.fill("maps");
+    await input.press("Enter");
+    await expect(tags).toHaveText(["walking", "maps", "rivers"]);
+    await input.press("Backspace");
+    await expect(tags).toHaveCount(2);
+    await field(page, "tags").locator('[data-action="remove-tag"]').first().click();
+    await expect(tags).toHaveText(["maps"]);
+    await expect(input).toBeFocused();
+    await saveButton(page).click();
+    const [update] = await calls(page, "update");
+    expect(update.args[2].values.tags).toEqual(["maps"]);
+  });
+
+  test("F2 uploads fill the field, remove empties it, failures keep the old value", async ({ page }) => {
+    await open(page, "#/post/rail-line");
+    const cover = field(page, "cover");
+    await fail(page, "upload");
+    await cover.locator('input[type="file"]').setInputFiles(png);
+    await expect(cover.locator(".pn-error")).toHaveText("Could not upload. Try again.");
+    await expect(cover).toHaveAttribute("data-state", "empty");
+    await cover.locator('input[type="file"]').setInputFiles(png);
+    await expect(cover).toHaveAttribute("data-state", "filled");
+    await expect(cover.locator(".pn-file-name")).toHaveText("cover.png");
+    await expect(savebar(page)).toHaveAttribute("data-state", "dirty");
+    await cover.locator('[data-action="remove-file"]').click();
+    await expect(cover).toHaveAttribute("data-state", "empty");
+  });
+
+  test("F3 the markdown toolbar wraps the selection", async ({ page }) => {
+    await open(page, "#/post/rail-line");
+    const body = control(page, "body");
+    await body.fill("make this bold");
+    await body.evaluate((el) => el.setSelectionRange(10, 14));
+    await body.dispatchEvent("select");
+    await field(page, "body").locator('[data-action="bold"]').click();
+    await expect(body).toHaveValue("make this **bold**");
+    await expect(savebar(page)).toHaveAttribute("data-state", "dirty");
+  });
+
+  test("F4 computed custom fields are read-only and follow their source", async ({ page }) => {
+    await open(page, "#/post/rail-line");
+    const time = field(page, "reading_time").locator("input");
+    await expect(time).toHaveJSProperty("readOnly", true);
+    await control(page, "body").fill(Array(450).fill("word").join(" "));
+    await expect(time).toHaveValue("3 min");
+    await saveButton(page).click();
+    const [update] = await calls(page, "update");
+    expect(update.args[2].values.reading_time).toBe(3);
+  });
+});
+
 test.describe("screen states", () => {
   test("collections show loading, then ready", async ({ page }) => {
     await open(page, "#/");

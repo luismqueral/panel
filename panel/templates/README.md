@@ -38,7 +38,7 @@ Keep the marker attributes (`data-slot`, `data-slot-attr`, and the rest) in the 
 | `name` | The field's `name` from the schema |
 | `width` | The field's `width`: `1/1`, `1/2`, `1/3`, or `2/3`. Default `1/1` |
 | `required` | `true` or `false` from the field's `required` |
-| `input-id`, `label-id`, `help-id`, `error-id` | Unique ids, built as `<type or singleton id>-<field name>-input` and so on |
+| `input-id`, `label-id`, `help-id`, `error-id` | Unique ids, built as `<type or singleton id>-<field name>-input`, `-label`, `-help`, `-error`. In the create dialog, use `<type id>-new-<field name>-input` and so on |
 | `describedby` | `"<help-id> <error-id>"` |
 | `state` | Screen state: `loading`, `ready`, `empty`, or `error` |
 | `save-state` | Save bar state: `clean`, `dirty`, `saving`, or `error` |

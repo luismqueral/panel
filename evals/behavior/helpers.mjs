@@ -8,7 +8,7 @@ export const seed = JSON.parse(readFileSync(new URL("./seed.json", import.meta.u
 export const emptySeed = { items: { post: [] }, singletons: {} };
 
 export async function open(page, hash = "#/", data = seed) {
-  await page.goto(`./${hash}`);
+  await page.goto(`./?test${hash}`);
   await page.waitForFunction(() => window.panelTest);
   await page.evaluate((d) => window.panelTest.reset(d), data);
   await expect(page.locator(".pn-screen")).not.toHaveAttribute("data-state", "loading");

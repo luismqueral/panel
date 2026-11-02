@@ -1,8 +1,10 @@
 // Reference vanilla build of the blog panel. Templates are inlined verbatim; behavior comes from panel/snippets.
 
-import { PANEL } from "./blog.js";
-import { tpl, fill, repeat, slotRepeat, slotChildren, formatDate, button } from "./dom.js";
-import { makeField } from "./fields.js";
+import { PANEL } from "./panel.config.js";
+import { createMemoryAdapters } from "./adapters/memory.js";
+import { formatDate, button } from "./dom.js";
+import { tpl, fill, repeat, slotRepeat, slotChildren } from "./snippets/templates.js";
+import { makeField } from "./snippets/fields.js";
 import { createSaveState } from "./snippets/save-state.js";
 import { createValidation } from "./snippets/validation.js";
 import { openDialog, confirmDialog } from "./snippets/dialogs.js";
@@ -18,8 +20,12 @@ const COMPUTED = {
   },
 };
 const capital = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const tone = (type, status) => {
+  const i = type.status?.indexOf(status) ?? -1;
+  return i <= 0 ? "neutral" : i === type.status.length - 1 ? "positive" : "notice";
+};
 
-export async function start({ data, files, auth, test }) {
+async function start({ data, files, auth, test }) {
   const app = document.getElementById("app");
   let layout = null;
   let confirm = null;
@@ -161,9 +167,14 @@ export async function start({ data, files, auth, test }) {
     sortSelect.value = type.list.sort;
     const search = el.querySelector("#pn-search");
     const off = installShortcuts({ search: () => search });
-    current = { cleanup: off, dirty: () => false };
-
-    const flow = await createDialog(type);
+    const { flow, dialog } = createDialog(type);
+    current = {
+      cleanup() {
+        off();
+        dialog.remove();
+      },
+      dirty: () => false,
+    };
     const openCreate = (event) => flow.open(event.currentTarget);
     el.querySelector('[data-action="create"]').addEventListener("click", openCreate);
 
@@ -178,7 +189,7 @@ export async function start({ data, files, auth, test }) {
       repeat(slotRepeat(el, "row"), rows, (unit, it) =>
         fill(unit, {
           text: { title: it.values[type.list.title] || "Untitled", subtitle: formatDate(it.values[type.list.subtitle]), status: capital(it.status ?? "") },
-          attrs: { href: `#/${type.id}/${it.id}`, tone: it.status === type.status.at(-1) ? "positive" : "" },
+          attrs: { href: `#/${type.id}/${it.id}`, tone: tone(type, it.status) },
         }),
       );
     }
@@ -203,16 +214,15 @@ export async function start({ data, files, auth, test }) {
     }
   }
 
-  async function createDialog(type) {
+  function createDialog(type) {
     const titleField = type.fields.find((f) => f.name === type.list.title);
     const slugField = type.fields.find((f) => f.type === "slug" && f.from === titleField.name);
     const dialog = tpl("screen-create");
     fill(dialog, { text: { title: `New ${type.singular}` } });
     const asked = [titleField, slugField].filter(Boolean).map((f) => ({ ...f, width: "1/1" }));
-    const set = fieldSet(asked, dialog, "create", {});
-    slotChildren(layout, "dialogs").querySelector('[data-template="screen-create"]')?.remove();
+    const set = fieldSet(asked, dialog, `${type.id}-new`, {});
     slotChildren(layout, "dialogs").append(dialog);
-    return createFlow({
+    const flow = createFlow({
       dialog,
       title: titleField.name,
       slug: slugField?.name ?? null,
@@ -225,6 +235,7 @@ export async function start({ data, files, auth, test }) {
       onCreated: (item) => (location.hash = `#/${type.id}/${item.id}`),
       onError: () => toast("Could not create. Try again.", "negative"),
     });
+    return { flow, dialog };
   }
 
   function savebar() {
@@ -237,7 +248,7 @@ export async function start({ data, files, auth, test }) {
   async function item(type, id) {
     const crumbs = [{ text: "Home", href: "#/" }, { text: type.label, href: `#/${type.id}` }];
     setChrome(type.id, [...crumbs, { text: "Loading…", href: location.hash }]);
-    const el = screen("screen-item", { "type-id": type.id, tone: "" });
+    const el = screen("screen-item", { "type-id": type.id, tone: "neutral" });
     fill(el, { text: { title: "", status: "", created: "", updated: "" } });
     const statusButton = el.querySelector('[data-action="status"]');
     if (!type.status) statusButton.hidden = true;
@@ -252,7 +263,7 @@ export async function start({ data, files, auth, test }) {
       return;
     }
     const form = el.querySelector("form");
-    const set = fieldSet(type.fields, form, "f", options);
+    const set = fieldSet(type.fields, form, type.id, options);
     set.write(record.values);
     const { validation } = set;
     const first = type.status?.[0];
@@ -262,7 +273,7 @@ export async function start({ data, files, auth, test }) {
       const title = record.values[type.list.title] || "Untitled";
       fill(el, {
         text: { title, status: capital(record.status ?? ""), created: formatDate(record.createdAt), updated: formatDate(record.updatedAt) },
-        attrs: { tone: record.status === type.status?.at(-1) ? "positive" : "" },
+        attrs: { tone: tone(type, record.status) },
       });
       setChrome(type.id, [...crumbs, { text: title, href: `#/${type.id}/${record.id}` }]);
     }
@@ -319,7 +330,7 @@ export async function start({ data, files, auth, test }) {
           if (!ok) return;
         }
       }
-      if (await saveState.save({ status: next })) toast(`${capital(type.singular)} ${next === first ? "moved to " + next : next}`, "positive");
+      if (await saveState.save({ status: next })) toast(next === first ? `${capital(type.singular)} moved to ${next}` : `${capital(type.singular)} ${next}`, "positive");
     });
 
     el.querySelector('[data-action="delete"]').addEventListener("click", async (event) => {
@@ -383,7 +394,7 @@ export async function start({ data, files, auth, test }) {
       return;
     }
     const form = el.querySelector("form");
-    const set = fieldSet(def.fields, form, "f", await relationOptions(def.fields).catch(() => ({})));
+    const set = fieldSet(def.fields, form, def.id, await relationOptions(def.fields).catch(() => ({})));
     set.write(record?.values ?? Object.fromEntries(def.fields.filter((f) => "default" in f).map((f) => [f.name, f.default])));
     const bar = savebar();
     const saveState = createSaveState({
@@ -462,3 +473,6 @@ export async function start({ data, files, auth, test }) {
 
   await boot();
 }
+
+const seed = await (await fetch("./seed.json")).json();
+await start(createMemoryAdapters(seed));

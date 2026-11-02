@@ -122,3 +122,12 @@ window.panelTest = {
 Every screen also passes template fidelity, axe, and a 400px width with no sideways scroll (`evals/behavior/quality.spec.mjs`).
 
 Routes use the hash: `#/` home, `#/<type id>` collection, `#/<type id>/<item id>` item, `#/<singleton id>` singleton.
+
+## 8. Field controls
+
+| Id | Rule |
+| --- | --- |
+| F1 | Tags: Enter or comma adds the typed tag. Leaving the input adds it too. Duplicates and blanks are ignored. Backspace in an empty input removes the last tag. Each tag's remove button removes it and returns focus to the input. |
+| F2 | Image and file: choosing or dropping a file uploads it through the files adapter and sets `data-state="filled"`. The remove button clears it and sets `data-state="empty"`. A failed upload shows "Could not upload. Try again." and keeps the old value. |
+| F3 | Markdown: each toolbar button wraps the selection (`**bold**`, `_italic_`, `[link](https://)`) or prefixes the line (`## `), and counts as an edit. |
+| F4 | Custom fields with a computed value are read-only, update as their sources change, and save the computed value. |

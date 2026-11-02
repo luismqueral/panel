@@ -12,10 +12,10 @@ const dist = join(here, "dist");
 
 export function build() {
   rmSync(dist, { recursive: true, force: true });
-  mkdirSync(join(dist, "panel"), { recursive: true });
+  mkdirSync(join(dist, "styles"), { recursive: true });
   cpSync(join(here, "src"), dist, { recursive: true });
   cpSync(join(root, "panel/snippets"), join(dist, "snippets"), { recursive: true });
-  for (const file of ["tokens.css", "components.css"]) cpSync(join(root, "panel/design-system", file), join(dist, "panel", file));
+  for (const file of ["tokens.css", "components.css"]) cpSync(join(root, "panel/design-system", file), join(dist, "styles", file));
   cpSync(join(root, "evals/behavior/seed.json"), join(dist, "seed.json"));
   const { sources } = loadTemplates(root);
   const templates = Object.entries(sources)

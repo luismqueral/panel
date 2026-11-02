@@ -330,3 +330,22 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
   - Confirm dialogs focus Cancel when the action is negative (D1).
   - `.pn [hidden]` always hides, so behavior such as "Toolbar hidden until text is selected" can use the `hidden` state attribute on components that set `display`.
 - **Tag:** philosophy-dependent (S9, published saves, autosave scope); default (the rest)
+
+## D-046 Template filling and field controls ship as snippets
+
+- **Choice:** `snippets/templates.js` (`tpl`, `fill`, `repeat`) and `snippets/fields.js` (one controller per field type) are owned snippets, like the behavior snippets. Field-control behavior is specified in `behavior-spec.md` section 8 (F1–F4) and tested.
+- **Why:** Appendix K: code comes from owned snippets. Without them each run rewrites tag input, uploads, and the markdown toolbar differently, which works against consistency (Appendix J).
+- **Tag:** default
+
+## D-047 A build guide and fixed UI copy
+
+- **Choice:** `panel/build.md` is the procedure for the Build step: output layout, the exact `index.html`, `panel.config.js` with traced keys, screen and route table, snippet wiring, `?test` memory adapters, a fixed copy table, and the `CONFORMANCE.md` report format.
+- **Why:** The router needs a file to load for Build, and Phase 9 scores consistency; unspecified wording and layout would vary between runs for no reason.
+- **Tag:** philosophy-dependent (the copy); default (the rest)
+
+## D-048 Every build includes memory adapters behind `?test`
+
+- **Choice:** Builds always include `adapters/memory.js` and expose `window.panelTest` only when the URL has `?test`. Behavior tests open `./?test#/...`.
+- **Why:** The same tests must run against any build (D-043) without touching real data.
+- **Risk:** `?test` on a deployed panel shows fake data only; it never reaches the real adapters. Recipes note it.
+- **Tag:** default
