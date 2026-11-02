@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "check:design-system": "node tools/check-design-system.mjs",
-    "check:templates": "node tools/check-templates.mjs"
+    "check:templates": "node tools/check-templates.mjs",
+    "preview": "node tools/preview.mjs"
   },
   "devDependencies": {
     "axe-core": "^4.14.0",

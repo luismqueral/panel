@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel preview frame</title>
+  <link rel="stylesheet" href="/panel/design-system/tokens.css">
+  <link rel="stylesheet" href="/panel/design-system/components.css">
+  <script src="/__templates.js"></script>
+  <script src="/tools/lib/fidelity.js"></script>
+  <script src="/tools/lib/compose.js"></script>
+</head>
+<body class="pn" style="margin:0">
+  <div id="sprite"></div>
+  <div id="stage"></div>
+  <script>
+    document.getElementById("sprite").innerHTML = window.PANEL_SPRITE;
+    window.addEventListener("message", (event) => {
+      const { scenario, theme } = event.data || {};
+      if (!scenario) return;
+      if (theme === "system") document.documentElement.removeAttribute("data-theme");
+      else document.documentElement.setAttribute("data-theme", theme);
+      let results;
+      try {
+        results = window.PanelCompose.build(window.PANEL_TEMPLATES, scenario);
+      } catch (error) {
+        results = [{ name: "build", ok: false, diff: error.message }];
+      }
+      parent.postMessage({ fidelity: results }, "*");
+    });
+    parent.postMessage({ ready: true }, "*");
+  </script>
+</body>
+</html>

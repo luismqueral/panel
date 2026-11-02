@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel template preview</title>
+  <link rel="stylesheet" href="/panel/design-system/tokens.css">
+  <link rel="stylesheet" href="/panel/design-system/components.css">
+  <script src="/__templates.js"></script>
+  <style>
+    /* Preview chrome only. */
+    html, body { height: 100%; margin: 0; }
+    .pv { display: grid; grid-template-columns: 15rem minmax(0, 1fr); height: 100%; }
+    .pv-side { overflow-y: auto; padding: var(--pn-space-4) var(--pn-space-3); background: var(--pn-color-surface); border-right: 1px solid var(--pn-color-border); }
+    .pv-side h1 { margin: 0 0 var(--pn-space-4); padding: 0 var(--pn-space-2); font-size: var(--pn-text-md); }
+    .pv-side h2 { margin: var(--pn-space-4) 0 var(--pn-space-1); padding: 0 var(--pn-space-2); font-size: var(--pn-text-xs); font-weight: var(--pn-weight-medium); color: var(--pn-color-text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .pv-side button { display: block; width: 100%; padding: var(--pn-space-1) var(--pn-space-2); font: inherit; font-size: var(--pn-text-sm); text-align: left; color: var(--pn-color-text-muted); background: none; border: 0; border-radius: var(--pn-radius-sm); cursor: pointer; }
+    .pv-side button:hover { color: var(--pn-color-text); background: var(--pn-color-surface-hover); }
+    .pv-side button[aria-current="true"] { color: var(--pn-color-text); background: var(--pn-color-surface-sunken); font-weight: var(--pn-weight-medium); }
+    .pv-main { display: flex; flex-direction: column; min-width: 0; }
+    .pv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--pn-space-3); padding: var(--pn-space-2) var(--pn-space-4); background: var(--pn-color-surface); border-bottom: 1px solid var(--pn-color-border); }
+    .pv-bar .pn-select { width: auto; min-height: var(--pn-control-height-sm); padding-top: 0; padding-bottom: 0; font-size: var(--pn-text-sm); }
+    .pv-bar label { display: inline-flex; align-items: center; gap: var(--pn-space-2); font-size: var(--pn-text-sm); color: var(--pn-color-text-muted); }
+    .pv-fidelity { margin-left: auto; font-family: var(--pn-font-mono); font-size: var(--pn-text-xs); }
+    .pv-fidelity[data-ok="true"] { color: var(--pn-color-positive); }
+    .pv-fidelity[data-ok="false"] { color: var(--pn-color-negative); }
+    .pv-canvas { flex: 1; display: flex; flex-direction: column; align-items: center; overflow: auto; background: var(--pn-color-surface-sunken); }
+    .pv-canvas iframe { width: 100%; flex: 1; min-height: 32rem; background: var(--pn-color-bg); border: 0; }
+    .pv-canvas[data-width="400"] iframe { width: 400px; border-left: 1px solid var(--pn-color-border); border-right: 1px solid var(--pn-color-border); }
+    .pv-source { max-height: 40vh; margin: 0; overflow: auto; padding: var(--pn-space-4); font-family: var(--pn-font-mono); font-size: var(--pn-text-xs); line-height: 1.6; white-space: pre-wrap; background: var(--pn-color-surface); border-top: 1px solid var(--pn-color-border); }
+    .pv-source[hidden] { display: none; }
+    .pv-diff { margin: 0; padding: var(--pn-space-2) var(--pn-space-4); font-family: var(--pn-font-mono); font-size: var(--pn-text-xs); color: var(--pn-color-negative); background: var(--pn-color-negative-soft); }
+    .pv-diff:empty { display: none; }
+  </style>
+</head>
+<body class="pn">
+<div class="pv">
+  <nav class="pv-side" aria-label="Scenarios" id="side"><h1>Panel templates</h1></nav>
+  <div class="pv-main">
+    <div class="pv-bar">
+      <div class="pn-toolbar" role="group" aria-label="Theme" id="theme">
+        <button class="pn-button" data-size="sm" type="button" value="system" aria-pressed="true">System</button>
+        <button class="pn-button" data-size="sm" type="button" value="light" aria-pressed="false">Light</button>
+        <button class="pn-button" data-size="sm" type="button" value="dark" aria-pressed="false">Dark</button>
+      </div>
+      <div class="pn-toolbar" role="group" aria-label="Width" id="width">
+        <button class="pn-button" data-size="sm" type="button" value="full" aria-pressed="true">Full</button>
+        <button class="pn-button" data-size="sm" type="button" value="400" aria-pressed="false">400px</button>
+      </div>
+      <label>Screen state
+        <select class="pn-select" id="screen-state"><option>ready</option><option>loading</option><option>empty</option><option>error</option></select>
+      </label>
+      <label>Field state
+        <select class="pn-select" id="field-state"><option>default</option><option>error</option><option>disabled</option></select>
+      </label>
+      <label>Save bar
+        <select class="pn-select" id="save-state"><option>dirty</option><option>clean</option><option>saving</option><option>error</option></select>
+      </label>
+      <label><input class="pn-checkbox" type="checkbox" id="show-source">Source</label>
+      <span class="pv-fidelity" id="fidelity" role="status"></span>
+    </div>
+    <p class="pv-diff" id="diff"></p>
+    <div class="pv-canvas" id="canvas"><iframe id="frame" title="Preview" src="/tools/preview/frame.html"></iframe></div>
+    <pre class="pv-source" id="source" hidden></pre>
+  </div>
+</div>
+<script>
+  const T = window.PANEL_TEMPLATES;
+  const files = window.PANEL_TEMPLATE_FILES;
+  const composed = [
+    { id: "item", label: "Item (all fields)", kind: "item" },
+    { id: "collection", label: "Collection", kind: "collection" },
+    { id: "home", label: "Home", kind: "home" },
+    { id: "singleton", label: "Singleton", kind: "singleton" },
+    { id: "create", label: "Create dialog", kind: "modal", name: "screen-create" },
+    { id: "slide-over", label: "Slide-over", kind: "modal", name: "screen-slide-over" },
+    { id: "dialog", label: "Confirm dialog", kind: "modal", name: "screen-dialog" },
+    { id: "login", label: "Login", kind: "login" },
+    { id: "system-error", label: "System error", kind: "system-error" },
+  ];
+  const groups = [
+    ["Composed screens", composed],
+    ["Shell", Object.keys(T).filter((n) => files[n].startsWith("shell/")).map((n) => ({ id: n, label: n, kind: "alone", name: n }))],
+    ["Screens", Object.keys(T).filter((n) => files[n].startsWith("screens/")).map((n) => ({ id: n, label: n.replace(/^screen-/, ""), kind: "alone", name: n }))],
+    ["Fields", Object.keys(T).filter((n) => files[n].startsWith("fields/")).map((n) => ({ id: n, label: n.replace(/^field-/, ""), kind: "alone", name: n }))],
+  ];
+
+  const side = document.getElementById("side");
+  const all = [];
+  for (const [title, items] of groups) {
+    const h = document.createElement("h2");
+    h.textContent = title;
+    side.appendChild(h);
+    for (const item of items) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = item.label;
+      b.addEventListener("click", () => select(item.id));
+      item.button = b;
+      all.push(item);
+      side.appendChild(b);
+    }
+  }
+
+  const frame = document.getElementById("frame");
+  const state = { id: new URLSearchParams(location.hash.slice(1)).get("s") || "item", theme: "system", width: "full" };
+  let ready = false;
+
+  function toggles(groupId, key) {
+    document.querySelectorAll(`#${groupId} button`).forEach((b) => b.addEventListener("click", () => {
+      state[key] = b.value;
+      document.querySelectorAll(`#${groupId} button`).forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      render();
+    }));
+  }
+  toggles("theme", "theme");
+  toggles("width", "width");
+  ["screen-state", "field-state", "save-state", "show-source"].forEach((id) => document.getElementById(id).addEventListener("change", render));
+
+  function select(id) {
+    state.id = id;
+    location.hash = "s=" + id;
+    render();
+  }
+
+  function render() {
+    const item = all.find((i) => i.id === state.id) || all[0];
+    all.forEach((i) => i.button.setAttribute("aria-current", String(i === item)));
+    if (state.theme === "system") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", state.theme);
+    document.getElementById("canvas").dataset.width = state.width;
+    const scenario = {
+      kind: item.kind,
+      name: item.name,
+      state: document.getElementById("screen-state").value,
+      fieldState: document.getElementById("field-state").value,
+      saveState: document.getElementById("save-state").value,
+    };
+    const source = document.getElementById("source");
+    source.hidden = !document.getElementById("show-source").checked || item.kind !== "alone";
+    source.textContent = item.kind === "alone" ? `<!-- panel/templates/${files[item.name]} -->\n\n${T[item.name]}` : "";
+    if (ready) frame.contentWindow.postMessage({ scenario, theme: state.theme }, "*");
+  }
+
+  window.addEventListener("message", (event) => {
+    if (event.data?.ready) {
+      ready = true;
+      render();
+    }
+    if (event.data?.fidelity) {
+      const results = event.data.fidelity;
+      const bad = results.filter((r) => !r.ok);
+      const out = document.getElementById("fidelity");
+      out.dataset.ok = String(!bad.length);
+      out.textContent = `fidelity ${results.length - bad.length}/${results.length}`;
+      document.getElementById("diff").textContent = bad.map((r) => `${r.name}: ${r.diff}`).join("\n");
+    }
+  });
+</script>
+</body>
+</html>
