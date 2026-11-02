@@ -407,3 +407,11 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Requested by:** the person ("resemble Kirby's CMS a bit more closely").
 - **Rail:** The nav rail sits on its own slightly darker gray (`--pn-color-rail`, darker than the page in dark mode too), with a translucent white hover and the current entry as a white card, after the always-ready project's panel. New tokens: `--pn-color-rail`, `--pn-color-rail-hover`, `--pn-color-rail-line`.
 - **Tag:** philosophy-dependent
+
+## D-058 Closer still: measured against Kirby's panel source
+
+- **Choice:** After reading the public getkirby/kirby panel source for proportions only (no code or assets copied), tokens and component CSS were redone in our own values. Neutral grays: page about 94%, rail about 91% with a 1px right border, white rows and inputs, black text. Buttons are 2rem, filled light gray by default and transparent when quiet. Primary is pastel green with dark green text, and negative is red text. Unsaved changes turn the save-bar buttons pastel orange instead of coloring the whole bar. Rows put title and info on one line. Screen titles are 1.75rem at weight 500 over a thin rule. Labels are weight 500 with a small gray required mark. Inputs are 2.25rem with a thin border and no shadow. Dialogs sit on the page gray with 0.5rem corners. Toasts use pastel tones. The content column is full width with fluid side padding. Supersedes the button, toast, save-bar and label parts of D-057.
+- **Tokens:** Added `--pn-color-fill`, `--pn-color-fill-hover`, `--pn-color-rail-border`, `--pn-color-tag`, `--pn-color-on-tag`, `--pn-input-height`, and `--pn-radius-lg`. Removed `--pn-color-attention`, `--pn-color-on-attention`, and `--pn-color-on-tone`.
+- **Tradeoff:** Input and checkbox borders (`--pn-color-border-control`, #d4d4d4 on white) are about 1.5:1, below the 3:1 non-text contrast in WCAG 1.4.11. This matches the reference look; axe does not check it. Text contrast still passes axe in all four theme modes. To restore 3:1, set `--pn-color-border-control` to about #949494.
+- **Requested by:** the person ("this needs to look closer to kirby").
+- **Tag:** philosophy-dependent
