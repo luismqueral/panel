@@ -15,6 +15,8 @@ export function build() {
   mkdirSync(join(dist, "styles"), { recursive: true });
   cpSync(join(here, "src"), dist, { recursive: true });
   cpSync(join(root, "panel/snippets"), join(dist, "snippets"), { recursive: true });
+  cpSync(join(root, "panel/recipes/client"), join(dist, "adapters"), { recursive: true });
+  cpSync(join(root, "panel/recipes/server"), join(dist, "server"), { recursive: true });
   for (const file of ["tokens.css", "components.css"]) cpSync(join(root, "panel/design-system", file), join(dist, "styles", file));
   cpSync(join(root, "evals/behavior/seed.json"), join(dist, "seed.json"));
   const { sources } = loadTemplates(root);

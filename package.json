@@ -10,7 +10,9 @@
     "validate": "node tools/validate.mjs",
     "test:schema": "node tools/test-schema.mjs",
     "build:vanilla-blog": "node evals/fixtures/vanilla-blog/build.mjs",
-    "test:behavior": "playwright test -c evals/behavior/playwright.config.mjs"
+    "test:behavior": "playwright test -c evals/behavior/playwright.config.mjs",
+    "check:playground": "node tools/check-playground.mjs",
+    "test:recipes": "node --test evals/recipes/*.test.mjs && playwright test -c evals/recipes/playwright.config.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",

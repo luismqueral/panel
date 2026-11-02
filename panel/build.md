@@ -23,6 +23,9 @@ panel/
     memory.js         the test adapters (behavior-spec.md section 7)
     <recipe>.js       one file per recipe in the schema, written from the recipe
   CONFORMANCE.md      the conformance report (last step)
+server/               when a recipe needs the project server (recipes/contracts.md)
+  *.mjs               copied from recipes/server/
+start.mjs             builds the adapters from panel.config.js and the environment, then listens
 ```
 
 In an existing project, the host profile in the intake record decides the folder and file names (`intake.md` Rule 2). The parts stay the same.

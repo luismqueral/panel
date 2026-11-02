@@ -237,6 +237,7 @@ export function validateSource(text, filename = "panel.yaml") {
       error(at, [slot], `"${adapter.recipe}" is a ${recipe.kind} recipe and cannot fill ${slot}`);
       continue;
     }
+    if (recipe.status !== "verified") warn(at, [slot], `the ${adapter.recipe} recipe is ${recipe.status}: its verification has not been run. Tell the person, and run its checklist before calling the panel done`);
     const settings = Object.fromEntries(Object.entries(adapter).filter(([k]) => k !== "recipe" && !GUIDANCE.has(k) && !k.startsWith("x-")));
     const check = recipeValidators[adapter.recipe];
     if (!check(settings)) {

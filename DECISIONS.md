@@ -253,7 +253,7 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 ## D-034 What the fidelity comparison normalizes
 
 - **Question:** "Byte-identical" would fail on indentation or attribute order, which carry no structure.
-- **Choice:** The comparison works on a normalized tree: whitespace between tags is ignored, attributes are sorted, slot contents and slot attribute values are blanked, and runtime state attributes (`disabled`, `aria-invalid`, `open`, `value` on inputs, and the others listed in the README) are dropped on both sides. Everything else must match exactly: tags, order, classes, fixed attributes, fixed text.
+- **Choice:** The comparison works on a normalized tree: whitespace between tags is ignored, attributes are sorted, slot contents and slot attribute values are blanked, and runtime state attributes (`disabled`, `aria-invalid`, `open`, `value` on inputs, and the others listed in the README) are dropped on both sides. A `<textarea>`'s text is its value and is ignored too (added in Phase 6, so playgrounds can show field values as markup). Everything else must match exactly: tags, order, classes, fixed attributes, fixed text.
 - **Why:** Tests structure, not formatting. The checker proves it catches renamed classes, removed or added elements, changed fixed attributes, and altered repeat units.
 - **Reverse:** Compare serialized source text instead.
 - **Tag:** default
@@ -348,4 +348,27 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Choice:** Builds always include `adapters/memory.js` and expose `window.panelTest` only when the URL has `?test`. Behavior tests open `./?test#/...`.
 - **Why:** The same tests must run against any build (D-043) without touching real data.
 - **Risk:** `?test` on a deployed panel shows fake data only; it never reaches the real adapters. Recipes note it.
+- **Tag:** default
+
+## D-049 Adapter contracts and the project server
+
+- **Choice:** `panel/recipes/contracts.md` defines auth, data, and files as async functions with plain-JSON values and seven error codes, plus one shared HTTP frame (the project server) that login and storage recipes extend. Items carry `id`, `type`, `status`, `values`, `createdAt`, `updatedAt`; updates replace `status` and `values` whole.
+- **Why:** Appendix H: contracts precise before recipes. One server shape keeps three recipes from inventing three APIs.
+- **Tag:** default
+
+## D-050 Recipe code ships as owned files
+
+- **Choice:** The verified recipes' code lives in `panel/recipes/server/` (zero-dependency Node) and `panel/recipes/client/`. Recipes tell the model to copy it, then wire it. The reference build copies it the same way, and the recipe tests import it directly.
+- **Why:** Auth code generated per project is the riskiest part (Appendix I). Copying verified code is safer than regenerating it from prose each time, and matches Appendix K's owned-snippet approach.
+- **Tag:** default
+
+## D-051 Google login security choices
+
+- **Choice:** The server verifies Google ID tokens itself (RS256 only, Google's published keys cached by `max-age`, issuer, audience, expiry with 60 s skew, `email_verified`). `*@domain` entries also require the `hd` claim to match. Sessions are HMAC-signed `HttpOnly; SameSite=Lax` cookies (7 days, renewed past half-life, `Secure` behind HTTPS), and the allow list is re-checked on every request. Writes need an `x-panel: 1` header against cross-site requests. `SESSION_SECRET` must be 32+ characters or the server refuses to start.
+- **Tag:** default
+
+## D-052 Recipe verification scope
+
+- **Choice:** Verified: `none`, `google-login`, `json-files` (`via: server`), `local-disk` (`via: server`), by `npm run test:recipes` (14 unit tests, 12 browser tests against the real server). Google's own sign-in is replaced by a stub button and a fake verifier at the `verify` seam (D-015); the manual checklist in `google-login.md` covers the real flow. Unverified: `email-link`, `postgres`, `supabase`, `s3`, `r2`, and the non-server `via` branches. The validator warns when a schema names an unverified recipe.
+- **Deferred:** Host recipes (`django-auth`, `django-models`, and so on) promised in D-040 are not written. Intake records "the host app's existing auth" as an open question and stops (intake.md Rule 5).
 - **Tag:** default

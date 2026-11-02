@@ -2,6 +2,8 @@
 
 import { PANEL } from "./panel.config.js";
 import { createMemoryAdapters } from "./adapters/memory.js";
+import { createRequest, createHttpAdapters } from "./adapters/http.js";
+import { createGoogleAuth, createNoAuth } from "./adapters/auth.js";
 import { formatDate, button } from "./dom.js";
 import { tpl, fill, repeat, slotRepeat, slotChildren } from "./snippets/templates.js";
 import { makeField } from "./snippets/fields.js";
@@ -43,15 +45,17 @@ async function start({ data, files, auth, test }) {
     layout = tpl("layout");
     const nav = tpl("nav");
     fill(nav, { text: { brand: PANEL.name } });
-    const account = tpl("account");
-    fill(account, { text: { user: user.user } });
-    account.querySelector('[data-action="logout"]').addEventListener("click", async () => {
-      if (current.dirty() && !(await discard())) return;
-      current.cleanup();
-      await auth.logout();
-      boot();
-    });
-    slotChildren(nav, "account").append(account);
+    if (PANEL.auth.recipe !== "none") {
+      const account = tpl("account");
+      fill(account, { text: { user: user.user } });
+      account.querySelector('[data-action="logout"]').addEventListener("click", async () => {
+        if (current.dirty() && !(await discard())) return;
+        current.cleanup();
+        await auth.logout();
+        boot();
+      });
+      slotChildren(nav, "account").append(account);
+    }
     slotChildren(layout, "nav").append(nav);
     slotChildren(layout, "header").append(tpl("header"));
     confirm = tpl("screen-dialog");
@@ -81,6 +85,9 @@ async function start({ data, files, auth, test }) {
     slotChildren(layout, "savebar").replaceChildren();
     return el;
   }
+
+  // A load that finds the session gone shows the login screen (recipes/contracts.md, Auth).
+  const signedOut = (error) => (error?.code === "unauthorized" || error?.code === "forbidden") && (current.cleanup(), boot(), true);
 
   function showError(el, title, text, retry) {
     const error = tpl("error");
@@ -147,7 +154,8 @@ async function start({ data, files, auth, test }) {
       repeat(slotRepeat(el, "entry"), entries, row);
       repeat(slotRepeat(el, "recent"), recent, row);
       el.dataset.state = "ready";
-    } catch {
+    } catch (error) {
+      if (signedOut(error)) return;
       showError(el, "Could not load the panel", "Check your connection and try again.", route);
     }
   }
@@ -209,7 +217,8 @@ async function start({ data, files, auth, test }) {
         render();
         el.dataset.state = "ready";
       }
-    } catch {
+    } catch (error) {
+      if (signedOut(error)) return;
       showError(el, `Could not load ${type.label.toLowerCase()}`, "Check your connection and try again.", route);
     }
   }
@@ -257,6 +266,7 @@ async function start({ data, files, auth, test }) {
     try {
       [record, options] = await Promise.all([data.get(type.id, id), relationOptions(type.fields)]);
     } catch (error) {
+      if (signedOut(error)) return;
       setChrome(type.id, [...crumbs, { text: "Not found", href: location.hash }]);
       if (error.code === "not-found") showError(el, `This ${type.singular} doesn't exist`, "It may have been deleted.", null);
       else showError(el, `Could not load this ${type.singular}`, "Check your connection and try again.", route);
@@ -389,7 +399,8 @@ async function start({ data, files, auth, test }) {
     let record;
     try {
       record = await data.getSingleton(def.id);
-    } catch {
+    } catch (error) {
+      if (signedOut(error)) return;
       showError(el, `Could not load ${def.label.toLowerCase()}`, "Check your connection and try again.", route);
       return;
     }
@@ -456,11 +467,18 @@ async function start({ data, files, auth, test }) {
   });
 
   async function boot() {
-    user = await auth.session();
+    let problem = "";
+    try {
+      user = await auth.session();
+    } catch {
+      user = null;
+      problem = "Could not reach the panel. Check your connection and reload.";
+    }
     if (!user) {
       const login = tpl("screen-login");
-      fill(login, { text: { title: PANEL.name, text: "Sign in to edit the site.", error: "" } });
+      fill(login, { text: { title: PANEL.name, text: "Sign in to edit the site.", error: problem } });
       app.replaceChildren(login);
+      if (problem) return;
       auth.renderMethods(slotChildren(login, "methods"), {
         onSignedIn: boot,
         onError: (message) => (login.querySelector(".pn-error").textContent = message),
@@ -474,5 +492,11 @@ async function start({ data, files, auth, test }) {
   await boot();
 }
 
-const seed = await (await fetch("./seed.json")).json();
-await start(createMemoryAdapters(seed));
+async function adapters() {
+  if (new URLSearchParams(location.search).has("test")) return createMemoryAdapters(await (await fetch("./seed.json")).json());
+  const request = createRequest();
+  const auth = PANEL.auth.recipe === "google-login" ? createGoogleAuth(request) : createNoAuth(request);
+  return { ...createHttpAdapters(request), auth };
+}
+
+await start(await adapters());

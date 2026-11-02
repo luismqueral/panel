@@ -3,6 +3,9 @@
 
 export const PANEL = {
   name: "Field Notes",
+  auth: { recipe: "google-login", allow: ["me@example.com"] },
+  data: { recipe: "json-files", path: "./content" },
+  files: { recipe: "local-disk", path: "./uploads", url: "/uploads" },
   types: [
     {
       id: "post",
