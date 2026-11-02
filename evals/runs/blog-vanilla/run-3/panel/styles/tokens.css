@@ -1,0 +1,145 @@
+/*
+  Panel tokens. Every value a component uses comes from here.
+  Themes: light by default, dark from prefers-color-scheme, and
+  data-theme="light" or data-theme="dark" on any element overrides both.
+  Status: Proposed (philosophy-dependent).
+*/
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  --pn-color-bg: #f3f3f1;
+  --pn-color-surface: #ffffff;
+  --pn-color-surface-sunken: #ebebe8;
+  --pn-color-surface-hover: #f0f0ed;
+  --pn-color-text: #1d1f23;
+  --pn-color-text-muted: #5c6068;
+  --pn-color-border: #dcdcd7;
+  --pn-color-border-control: #868a91;
+  --pn-color-overlay: rgb(20 21 23 / 0.45);
+
+  --pn-color-accent: #2d5bc8;
+  --pn-color-accent-hover: #234aa6;
+  --pn-color-on-accent: #ffffff;
+  --pn-color-focus: #2d5bc8;
+
+  --pn-color-positive: #1d7039;
+  --pn-color-positive-soft: #e3f2e7;
+  --pn-color-notice: #8a5200;
+  --pn-color-notice-soft: #fbefd9;
+  --pn-color-negative: #b8302a;
+  --pn-color-negative-soft: #fbe4e2;
+  --pn-color-info: #2d5bc8;
+  --pn-color-info-soft: #e4ebfa;
+
+  --pn-shadow-raised: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px rgb(0 0 0 / 0.12);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --pn-color-bg: #141517;
+  --pn-color-surface: #1d1e21;
+  --pn-color-surface-sunken: #111214;
+  --pn-color-surface-hover: #26282b;
+  --pn-color-text: #ececee;
+  --pn-color-text-muted: #a3a6ad;
+  --pn-color-border: #33353a;
+  --pn-color-border-control: #7b7f87;
+  --pn-color-overlay: rgb(0 0 0 / 0.6);
+
+  --pn-color-accent: #7fa3ff;
+  --pn-color-accent-hover: #a2bcff;
+  --pn-color-on-accent: #0f1420;
+  --pn-color-focus: #7fa3ff;
+
+  --pn-color-positive: #63cf85;
+  --pn-color-positive-soft: #183223;
+  --pn-color-notice: #f0b347;
+  --pn-color-notice-soft: #36290f;
+  --pn-color-negative: #ff857c;
+  --pn-color-negative-soft: #3d1c1a;
+  --pn-color-info: #7fa3ff;
+  --pn-color-info-soft: #1c2540;
+
+  --pn-shadow-raised: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --pn-color-bg: #141517;
+    --pn-color-surface: #1d1e21;
+    --pn-color-surface-sunken: #111214;
+    --pn-color-surface-hover: #26282b;
+    --pn-color-text: #ececee;
+    --pn-color-text-muted: #a3a6ad;
+    --pn-color-border: #33353a;
+    --pn-color-border-control: #7b7f87;
+    --pn-color-overlay: rgb(0 0 0 / 0.6);
+
+    --pn-color-accent: #7fa3ff;
+    --pn-color-accent-hover: #a2bcff;
+    --pn-color-on-accent: #0f1420;
+    --pn-color-focus: #7fa3ff;
+
+    --pn-color-positive: #63cf85;
+    --pn-color-positive-soft: #183223;
+    --pn-color-notice: #f0b347;
+    --pn-color-notice-soft: #36290f;
+    --pn-color-negative: #ff857c;
+    --pn-color-negative-soft: #3d1c1a;
+    --pn-color-info: #7fa3ff;
+    --pn-color-info-soft: #1c2540;
+
+    --pn-shadow-raised: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.5);
+  }
+}
+
+:root {
+  --pn-font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --pn-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --pn-text-xs: 0.75rem;
+  --pn-text-sm: 0.875rem;
+  --pn-text-md: 1rem;
+  --pn-text-lg: 1.25rem;
+  --pn-text-xl: 1.5rem;
+
+  --pn-leading-tight: 1.25;
+  --pn-leading-normal: 1.5;
+
+  --pn-weight-normal: 400;
+  --pn-weight-medium: 500;
+  --pn-weight-bold: 600;
+
+  --pn-space-1: 0.25rem;
+  --pn-space-2: 0.5rem;
+  --pn-space-3: 0.75rem;
+  --pn-space-4: 1rem;
+  --pn-space-5: 1.5rem;
+  --pn-space-6: 2rem;
+  --pn-space-7: 3rem;
+
+  --pn-grid-columns: 6;
+  --pn-grid-gap: var(--pn-space-5);
+
+  --pn-control-height: 2.25rem;
+  --pn-control-height-sm: 1.75rem;
+
+  --pn-radius-sm: 3px;
+  --pn-radius-md: 5px;
+  --pn-radius-pill: 999px;
+  --pn-border-width: 1px;
+
+  --pn-focus-width: 2px;
+  --pn-focus-offset: 2px;
+
+  --pn-duration: 120ms;
+
+  --pn-layer-drawer: 100;
+  --pn-layer-dialog: 200;
+  --pn-layer-toast: 300;
+}

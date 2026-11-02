@@ -1,0 +1,34 @@
+# Conformance: Field Notes
+
+Walked by hand (no test suite run), in headless Chrome against `start.mjs` on `127.0.0.1`, in `?test` mode with `seed.json`, plus `curl` against the real `/api` routes with a session cookie signed by `server/session.mjs`. The schema passes `node tools/validate.mjs panel.yaml`.
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| 1. Every type has a collection view, an item view, and a create flow | pass | `#/post` (rows, search, sort), `#/post/<id>`, "New post" dialog (header button and empty-state button) |
+| 2. Every singleton has an item view | pass | `#/settings` with Site title and Description, save bar, saves through `saveSingleton` |
+| 3. Every field appears in its item view with its declared type, width, and required rule | pass | Item view shows, in order: `title/1/1/required`, `slug/1/2`, `date/1/2/required`, `cover/1/2` (image), `tags/1/2`, `body/1/1/required` (markdown), `reading_time/1/1` (custom). Settings: `site_title` required, `description` textarea |
+| 4. Every `list.title`, `subtitle`, `sort`, and `search` entry names a real field | pass | `title`, `date`, `-date`, `[title]` all exist on `post`; validator reports valid |
+| 5. Every adapter resolves to a recipe in `recipes/index.json` | pass | `google-login`, `json-files`, `local-disk` (validator) |
+| 6. Behavior: "Autosave drafts every 10 seconds" | pass | `panel.config.js` `autosave`; `createSaveState({ autosave: { every: 10000, when: status === "draft" } })`. Seen: a dirty draft saved in the background within 10 s, fields stayed enabled (A1, A2); a failed autosave entered `error` with fields enabled (A4) |
+| 6. Behavior: "Show word count under the body field" | pass | `panel.config.js` `wordCount: "body"`; the body's `help` slot reads "13 words" on load and "3 words" after typing three words |
+| 6. Behavior: "Publishing asks for confirmation" | pass | `confirmPublish: true`; "Publish this post?" / "It will be visible on the site." / "Published". Cancel keeps Draft; confirm publishes and toasts "Post published" |
+| 6. Behavior (body): "Toolbar hidden until text is selected." | pass | `toolbarOnSelection: true`; toolbar `hidden` on load, shown on selection; Bold wrapped the selection and made the item dirty (F3) |
+| 7. No core key appears that the guide does not define | pass | Schema copied unchanged; validator reports valid. `x-priority: low` is an `x-` key and is ignored |
+| 8. Template fidelity on every screen | pass | All 23 templates are inlined byte-for-byte (string compare against `templates/`). A structural compare of every rendered `[data-template]` against its source (slots stripped, runtime attributes ignored) found no differences on home, collection, empty collection, create dialog, item, singleton, not found, and login |
+| Project: Publishing a post requires a cover image. | pass | `publishRequires: ["cover"]`. Publishing "Walking the old rail line" (no cover) is blocked: cover shows "Required to publish.", focus moves to it, save bar reads "Fix 1 field to publish", status stays Draft. The cover label keeps `data-required="false"` |
+| Behavior spec 1, save state (S1–S9) | pass | Loaded item clean; edit → dirty, undo → clean; Cmd+S → `saving` with fields disabled and status button and Delete enabled, then clean; failed save keeps edits with "Could not save. Your changes are kept."; Revert restores; Cmd+S in clean is prevented and calls nothing; `beforeunload` prevented while dirty; leaving while dirty asks "Discard unsaved changes?" (focus on Cancel), Cancel keeps the edit, Discard leaves |
+| Behavior spec 2, validation (V1–V6) | pass | Slug "Bad Slug" errors on blur and clears when fixed; empty required fields do not block Save; publish blocked as above; create with empty title shows "Required." with `aria-invalid` |
+| Behavior spec 3, dialogs (D1–D6) | pass | `showModal`; focus to first field (create), to Cancel (negative confirm), to confirm (publish); Tab wraps; Escape closes as cancel; focus returns to the opener; backdrop click is native no-op |
+| Behavior spec 4, keyboard (K1–K6) | pass, with one item raised | K1–K4 and K6 seen. K5 (visible focus ring, axe) relies on the unmodified design-system CSS; axe was not run here. **Raised**: run axe before shipping |
+| Behavior spec 5, create flow (C1–C6) | pass | Dialog asks only Title and Slug; slug "hello-world-again" fills from "Hello Wörld, again"; Enter submits; failure keeps the dialog and values and toasts "Could not create. Try again."; success creates in `draft` and opens the item; Cancel creates nothing |
+| Behavior spec 6, status (P1–P5) | pass | Status button shows "Draft"/"Published" with tones neutral/positive; two statuses toggle; publish runs V4 first; confirm before publishing; the change saves with unsaved edits ("Post moved to draft", "Post published") |
+| Behavior spec 7, test hook | pass | `window.panelTest` from `adapters/memory.js` in `?test` mode; `fail`, `delay`, `calls`, `reset` used throughout this walk |
+| Behavior spec 8, field controls (F1–F4) | pass | Tags: Enter and comma add, duplicates ignored, Backspace removes the last, remove button returns focus to the input. Image shows `filled` with the file name. Markdown as above. Reading time is read-only, shows "1 min", and saves the computed number |
+| 400px wide, light and dark | pass | No sideways scroll at 400px on home, collection, item, settings. Colors change with `prefers-color-scheme` (dark background `rgb(20, 21, 23)`) |
+| Recipe json-files, automated parts | pass | Create, update, singleton save, and delete write and remove `content/post/<id>.json` and `content/settings.json`; an unknown field is `invalid`; `../` ids are `not-found`; writes without `x-panel: 1` are 403 |
+| Recipe local-disk, automated parts | pass | Upload named `../../evil cover.png` stored as `uploads/2026/11/<hex>-evil-cover.png`, served as `image/png` with `nosniff` and a sandboxing CSP |
+| Recipe google-login, automated parts | pass | `/api/session` and `/api/items` answer 401 without a cookie; a malformed credential is refused; without `?test` the login screen shows "Field Notes", "Sign in to edit the site.", and Google's button |
+| Recipe google-login, manual checklist (real Google sign-in, cookie flags, allow-list removal) | **raised** | Needs a real `GOOGLE_CLIENT_ID` with `http://localhost:4810` as an authorized origin. Not possible in this unattended run. The panel is not done until the person ticks every box in `recipes/google-login.md` section 5 |
+| Recipe json-files, step 4: content folder in version control? | **raised** | Question for the person: commit `content/` for history, or add it to `.gitignore` |
+| Recipe local-disk, step 6: uploads in git? | **raised** | Question for the person: large binaries usually stay out of git |
+| Host profile | n/a | New standalone project, no host |

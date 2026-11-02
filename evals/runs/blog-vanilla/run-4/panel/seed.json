@@ -1,0 +1,61 @@
+{
+  "items": {
+    "post": [
+      {
+        "id": "rail-line",
+        "type": "post",
+        "status": "draft",
+        "values": {
+          "title": "Walking the old rail line",
+          "slug": "walking-the-old-rail-line",
+          "date": "2026-10-28",
+          "cover": null,
+          "tags": ["walking"],
+          "body": "The line closed in 1962. The path it left is still there, if you know where to look.",
+          "reading_time": 1
+        },
+        "createdAt": "2026-10-20T09:00:00.000Z",
+        "updatedAt": "2026-10-28T18:30:00.000Z"
+      },
+      {
+        "id": "winter-garden",
+        "type": "post",
+        "status": "published",
+        "values": {
+          "title": "A garden in winter",
+          "slug": "a-garden-in-winter",
+          "date": "2026-09-14",
+          "cover": { "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'%3E%3Crect width='4' height='3' fill='%23a9c4d6'/%3E%3C/svg%3E", "name": "frost.svg", "size": 120, "type": "image/svg+xml" },
+          "tags": ["garden", "seasons"],
+          "body": "Nothing grows, and everything is busy.",
+          "reading_time": 1
+        },
+        "createdAt": "2026-09-10T08:00:00.000Z",
+        "updatedAt": "2026-09-14T12:00:00.000Z"
+      },
+      {
+        "id": "untitled-note",
+        "type": "post",
+        "status": "draft",
+        "values": {
+          "title": "",
+          "slug": "",
+          "date": "",
+          "cover": null,
+          "tags": [],
+          "body": "",
+          "reading_time": 1
+        },
+        "createdAt": "2026-10-30T10:00:00.000Z",
+        "updatedAt": "2026-10-30T10:00:00.000Z"
+      }
+    ]
+  },
+  "singletons": {
+    "settings": {
+      "values": { "site_title": "Field Notes", "description": "Notes on walking, gardens, and the slow parts of the year." },
+      "createdAt": "2026-09-01T00:00:00.000Z",
+      "updatedAt": "2026-09-01T00:00:00.000Z"
+    }
+  }
+}

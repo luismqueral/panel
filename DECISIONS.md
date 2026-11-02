@@ -392,3 +392,10 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Choice:** `panel/playground.md` fixes the page (a screen switcher over `template[data-pg-screen]`, open dialogs shown as modals), the screen list, and the rule that every screen is filled exactly as a build would fill it. `tools/check-playground.mjs` (`npm run check:playground`) checks fidelity, axe, and width on every screen in both themes, no network requests, and that every screen in the list is present. `panel/examples/blog/playground.html` is the example.
 - **How it was tested:** A fresh subagent wrote the example from the skill files only, without reading `evals/` or the reference build. The check passed on the first run. Its report of unclear instructions became rules: screen details in `build.md` step 4 (nav entries, home row slots, sort text, empty and error states, the status slide-over, not found, `publishRequires` fields, computed fields), the S3 scope ("every control inside the form"), a valid draft for `confirm`, the Preview step's reading list, and a playground stand-in for Google's button. Where its guesses differed from the reference build, the example was corrected to match.
 - **Tag:** default
+
+## D-056 First experiment result
+
+- **Result:** 0 of 5 fresh vanilla blog runs conform, so the 80% kill criterion fails as written (`evals/results/blog-vanilla/REPORT.md`). Template fidelity is 20 of 20 and shipped files are unmodified in every run; copy is identical across runs; structure is identical in 4 of 5. All 7 failing tests come from two rules the spec did not state (`reset` re-renders; the skip link keeps the URL).
+- **Choice:** Tests are not changed. The scorer requires only the templates `build.md` step 1 asks for.
+- **Open:** Whether to fix the spec gaps and rerun, or treat the result as a stop. Decided by the person.
+- **Tag:** philosophy-dependent

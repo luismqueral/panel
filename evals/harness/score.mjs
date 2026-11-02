@@ -9,6 +9,7 @@ import { tmpdir } from "node:os";
 import { basename, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
+import { parse as parseYaml } from "yaml";
 import { serve } from "../../tools/lib/serve.mjs";
 import { loadTemplates } from "../../tools/lib/templates.mjs";
 
@@ -56,7 +57,10 @@ function staticChecks(run) {
 
   const html = existsSync(join(panel, "index.html")) ? readFileSync(join(panel, "index.html"), "utf8") : "";
   const inlined = Object.fromEntries([...html.matchAll(/<template data-panel-template="([^"]+)">([\s\S]*?)<\/template>/g)].map((m) => [m[1], m[2]]));
-  const templatesMissing = Object.keys(sources).filter((n) => !(n in inlined));
+  // build.md step 1: every shell and screen template, and field-<type> for each type the schema uses.
+  const schema = parseYaml(readFileSync(existsSync(join(run, "panel.yaml")) ? join(run, "panel.yaml") : join(root, "panel/examples/blog/panel.yaml"), "utf8"));
+  const used = new Set([...(schema.types ?? []), ...(schema.singletons ?? [])].flatMap((t) => (t.fields ?? []).map((f) => `field-${f.type}`)));
+  const templatesMissing = Object.keys(sources).filter((n) => (!n.startsWith("field-") || used.has(n)) && !(n in inlined));
   const templatesChanged = Object.keys(sources).filter((n) => n in inlined && squash(inlined[n]) !== squash(sources[n]));
 
   const code = walk(panel).filter((f) => /\.(m?js|html)$/.test(f)).map((f) => readFileSync(f, "utf8")).join("\n");

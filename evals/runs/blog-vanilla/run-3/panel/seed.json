@@ -1,0 +1,61 @@
+{
+  "items": {
+    "post": [
+      {
+        "id": "rail-line",
+        "type": "post",
+        "status": "draft",
+        "values": {
+          "title": "Walking the old rail line",
+          "slug": "walking-the-old-rail-line",
+          "date": "2026-10-28",
+          "cover": null,
+          "tags": ["walking", "history"],
+          "body": "The line closed in 1962. The cuttings are still there, full of ferns.",
+          "reading_time": 1
+        },
+        "createdAt": "2026-10-20T09:00:00.000Z",
+        "updatedAt": "2026-10-28T18:30:00.000Z"
+      },
+      {
+        "id": "winter-garden",
+        "type": "post",
+        "status": "published",
+        "values": {
+          "title": "Notes from a winter garden",
+          "slug": "notes-from-a-winter-garden",
+          "date": "2026-09-14",
+          "cover": { "url": "/uploads/2026/09/4b1c9e02-garden.jpg", "name": "garden.jpg", "size": 120433, "type": "image/jpeg" },
+          "tags": ["garden"],
+          "body": "Frost on the kale, and the last of the leeks.",
+          "reading_time": 1
+        },
+        "createdAt": "2026-09-10T08:00:00.000Z",
+        "updatedAt": "2026-09-14T12:00:00.000Z"
+      },
+      {
+        "id": "harbour-fog",
+        "type": "post",
+        "status": "draft",
+        "values": {
+          "title": "",
+          "slug": "",
+          "date": "",
+          "cover": null,
+          "tags": [],
+          "body": "",
+          "reading_time": 1
+        },
+        "createdAt": "2026-10-30T07:15:00.000Z",
+        "updatedAt": "2026-10-30T07:15:00.000Z"
+      }
+    ]
+  },
+  "singletons": {
+    "settings": {
+      "values": { "site_title": "Field Notes", "description": "Long walks, slow gardens, and the things between." },
+      "createdAt": "2026-09-01T00:00:00.000Z",
+      "updatedAt": "2026-09-01T00:00:00.000Z"
+    }
+  }
+}
