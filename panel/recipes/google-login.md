@@ -21,6 +21,8 @@ Don't use it when editors have no Google account (use `email-link`), or when the
 
 Auth, as in `contracts.md`. `session()` returns `{ user }` from `GET /api/session`. `renderMethods()` renders Google's sign-in button into `screen-login`'s `methods` container. `logout()` calls `DELETE /api/session`.
 
+In a playground, which loads nothing from the network, stand in for Google's button with `<button class="pn-button" data-variant="primary" type="button" data-action="login">Sign in with Google</button>`.
+
 ## 4. Steps
 
 1. Copy `recipes/server/` into the project (`server/`), and `recipes/client/http.js` and `recipes/client/auth.js` into the panel's `adapters/`. Do not rewrite them; they are owned code now, and the person may change them later.

@@ -145,6 +145,24 @@ Row and header text:
 | Breadcrumb | Home / type label / item title. The last crumb has `current: page` |
 | Page title | `<last crumb> · <panel name>` |
 
+Screen details:
+
+| Part | Value |
+| --- | --- |
+| Nav entries | "Home", then each type's `label`, then each singleton's `label`, in schema order. The current one has `current: page`; on the not-found screen none does |
+| Home `entry` rows | `title`: the type or singleton label. `subtitle`: "3 posts" (`singular` when 1) or "Page". `meta`: empty |
+| Home `recent` rows | `title`: the item title. `subtitle`: its type's label. `meta`: the updated date |
+| Home headings | `title`: the panel name. "Content" and "Recently edited" |
+| Sort options | Value `-<field>` then `<field>`, then `<list.title>`. Text for a date field: "Newest first", "Oldest first"; for another field: "<Field>, descending", "<Field>, ascending"; then "Title A–Z". "Sort by" as the label |
+| Search | Label and placeholder "Search <label in lower case>" |
+| Collection `empty` | Icon `#pn-icon-file`, "No <label in lower case> yet", "Create the first <singular>.", and a primary "New <singular>" button with `data-action="create"` |
+| Load errors | `error` with "Could not load the panel" (home), "Could not load <label in lower case>", or "Could not load this <singular>"; "Check your connection and try again."; and a "Try again" button with `data-action="retry"` that reruns the route |
+| Missing item | `error` with "This <singular> doesn't exist", "It may have been deleted.", and no button |
+| Status slide-over | Title "Status". `body`: a `fieldset.pn-choices` with a visually hidden legend "Status" and one `label.pn-choice` holding `input.pn-radio` (name `pn-status`) per status, the current one checked |
+| Not found | `screen-home` with `title` "Not found", no rows, and `error`: "This page doesn't exist", "Check the address, or go back home.", a "Try again" button that goes to `#/`. Crumbs: Home / Not found |
+| `publishRequires` fields | Keep the field's own `required` (`data-required="false"` when it isn't). They show "Required to publish." only after a publish attempt fails |
+| Computed `custom` fields | Write the compute function in `panel.js` from the field's `describe`, rounding to at least 1 (for "estimated minutes to read": `max(1, ceil(words / 200))`, shown as "N min") |
+
 ## Step 5: Wire behavior with the snippets
 
 `behavior-spec.md` is the contract. The snippets implement it; use them unless the host profile rules them out, and then match them rule for rule.

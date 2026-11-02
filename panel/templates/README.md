@@ -82,7 +82,7 @@ Zero copies is allowed.
 
 ## Rule 4: Runtime state attributes are not structure
 
-These attributes belong to behavior and may appear on any element at runtime: `disabled`, `aria-invalid`, `aria-disabled`, `aria-busy`, `aria-expanded`, `aria-pressed`, `aria-selected`, `open`, `checked`, `selected`, `hidden`, `tabindex`, `value` (on inputs, textareas, selects), `data-force`, `data-static`, `data-dragover`, `data-invalid`. Do not use them to change structure or look.
+These attributes belong to behavior and may appear on any element at runtime: `disabled`, `aria-invalid`, `aria-disabled`, `aria-busy`, `aria-expanded`, `aria-pressed`, `aria-selected`, `open`, `checked`, `selected`, `hidden`, `tabindex`, `value` (on inputs, textareas, selects), `data-force`, `data-static`, `data-dragover`, `data-invalid`. A `<textarea>`'s text is its value, so it is state too: `<textarea ...>Draft text</textarea>` matches the empty template. Do not use them to change structure or look.
 
 ## Rule 5: Never edit a template to make something fit
 

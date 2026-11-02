@@ -1,0 +1,3107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Field Notes · Playground</title>
+  <style>
+/*
+  Panel tokens. Every value a component uses comes from here.
+  Themes: light by default, dark from prefers-color-scheme, and
+  data-theme="light" or data-theme="dark" on any element overrides both.
+  Status: Proposed (philosophy-dependent).
+*/
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  --pn-color-bg: #f3f3f1;
+  --pn-color-surface: #ffffff;
+  --pn-color-surface-sunken: #ebebe8;
+  --pn-color-surface-hover: #f0f0ed;
+  --pn-color-text: #1d1f23;
+  --pn-color-text-muted: #5c6068;
+  --pn-color-border: #dcdcd7;
+  --pn-color-border-control: #868a91;
+  --pn-color-overlay: rgb(20 21 23 / 0.45);
+
+  --pn-color-accent: #2d5bc8;
+  --pn-color-accent-hover: #234aa6;
+  --pn-color-on-accent: #ffffff;
+  --pn-color-focus: #2d5bc8;
+
+  --pn-color-positive: #1d7039;
+  --pn-color-positive-soft: #e3f2e7;
+  --pn-color-notice: #8a5200;
+  --pn-color-notice-soft: #fbefd9;
+  --pn-color-negative: #b8302a;
+  --pn-color-negative-soft: #fbe4e2;
+  --pn-color-info: #2d5bc8;
+  --pn-color-info-soft: #e4ebfa;
+
+  --pn-shadow-raised: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px rgb(0 0 0 / 0.12);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --pn-color-bg: #141517;
+  --pn-color-surface: #1d1e21;
+  --pn-color-surface-sunken: #111214;
+  --pn-color-surface-hover: #26282b;
+  --pn-color-text: #ececee;
+  --pn-color-text-muted: #a3a6ad;
+  --pn-color-border: #33353a;
+  --pn-color-border-control: #7b7f87;
+  --pn-color-overlay: rgb(0 0 0 / 0.6);
+
+  --pn-color-accent: #7fa3ff;
+  --pn-color-accent-hover: #a2bcff;
+  --pn-color-on-accent: #0f1420;
+  --pn-color-focus: #7fa3ff;
+
+  --pn-color-positive: #63cf85;
+  --pn-color-positive-soft: #183223;
+  --pn-color-notice: #f0b347;
+  --pn-color-notice-soft: #36290f;
+  --pn-color-negative: #ff857c;
+  --pn-color-negative-soft: #3d1c1a;
+  --pn-color-info: #7fa3ff;
+  --pn-color-info-soft: #1c2540;
+
+  --pn-shadow-raised: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --pn-color-bg: #141517;
+    --pn-color-surface: #1d1e21;
+    --pn-color-surface-sunken: #111214;
+    --pn-color-surface-hover: #26282b;
+    --pn-color-text: #ececee;
+    --pn-color-text-muted: #a3a6ad;
+    --pn-color-border: #33353a;
+    --pn-color-border-control: #7b7f87;
+    --pn-color-overlay: rgb(0 0 0 / 0.6);
+
+    --pn-color-accent: #7fa3ff;
+    --pn-color-accent-hover: #a2bcff;
+    --pn-color-on-accent: #0f1420;
+    --pn-color-focus: #7fa3ff;
+
+    --pn-color-positive: #63cf85;
+    --pn-color-positive-soft: #183223;
+    --pn-color-notice: #f0b347;
+    --pn-color-notice-soft: #36290f;
+    --pn-color-negative: #ff857c;
+    --pn-color-negative-soft: #3d1c1a;
+    --pn-color-info: #7fa3ff;
+    --pn-color-info-soft: #1c2540;
+
+    --pn-shadow-raised: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.5);
+  }
+}
+
+:root {
+  --pn-font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --pn-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --pn-text-xs: 0.75rem;
+  --pn-text-sm: 0.875rem;
+  --pn-text-md: 1rem;
+  --pn-text-lg: 1.25rem;
+  --pn-text-xl: 1.5rem;
+
+  --pn-leading-tight: 1.25;
+  --pn-leading-normal: 1.5;
+
+  --pn-weight-normal: 400;
+  --pn-weight-medium: 500;
+  --pn-weight-bold: 600;
+
+  --pn-space-1: 0.25rem;
+  --pn-space-2: 0.5rem;
+  --pn-space-3: 0.75rem;
+  --pn-space-4: 1rem;
+  --pn-space-5: 1.5rem;
+  --pn-space-6: 2rem;
+  --pn-space-7: 3rem;
+
+  --pn-grid-columns: 6;
+  --pn-grid-gap: var(--pn-space-5);
+
+  --pn-control-height: 2.25rem;
+  --pn-control-height-sm: 1.75rem;
+
+  --pn-radius-sm: 3px;
+  --pn-radius-md: 5px;
+  --pn-radius-pill: 999px;
+  --pn-border-width: 1px;
+
+  --pn-focus-width: 2px;
+  --pn-focus-offset: 2px;
+
+  --pn-duration: 120ms;
+
+  --pn-layer-drawer: 100;
+  --pn-layer-dialog: 200;
+  --pn-layer-toast: 300;
+}
+
+  </style>
+  <style>
+/*
+  Panel components. Requires tokens.css.
+  Scope: everything applies inside an element with class "pn".
+  States: :hover, :focus-visible, :disabled, and aria-invalid="true" are the real states.
+  data-force="hover" and data-force="focus" exist only so the living page can show a state statically.
+  Status: Proposed (philosophy-dependent).
+*/
+
+/* Base */
+
+.pn {
+  font-family: var(--pn-font-sans);
+  font-size: var(--pn-text-md);
+  line-height: var(--pn-leading-normal);
+  color: var(--pn-color-text);
+  background: var(--pn-color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+.pn [hidden] {
+  display: none !important;
+}
+
+.pn *,
+.pn *::before,
+.pn *::after {
+  box-sizing: border-box;
+}
+
+.pn :focus-visible,
+.pn [data-force="focus"] {
+  outline: var(--pn-focus-width) solid var(--pn-color-focus);
+  outline-offset: var(--pn-focus-offset);
+}
+
+.pn-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Icon */
+
+.pn-icon {
+  display: inline-block;
+  flex: none;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Button */
+
+.pn-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pn-space-2);
+  height: var(--pn-control-height);
+  padding: 0 var(--pn-space-3);
+  font: inherit;
+  font-size: var(--pn-text-sm);
+  font-weight: var(--pn-weight-medium);
+  line-height: 1;
+  color: var(--pn-color-text);
+  text-decoration: none;
+  white-space: nowrap;
+  background: var(--pn-color-surface);
+  border: var(--pn-border-width) solid var(--pn-color-border-control);
+  border-radius: var(--pn-radius-md);
+  cursor: pointer;
+  transition: background-color var(--pn-duration), border-color var(--pn-duration), color var(--pn-duration);
+}
+
+.pn-button:hover,
+.pn-button[data-force="hover"] {
+  background: var(--pn-color-surface-hover);
+}
+
+.pn-button[data-variant="primary"] {
+  color: var(--pn-color-on-accent);
+  background: var(--pn-color-accent);
+  border-color: var(--pn-color-accent);
+}
+
+.pn-button[data-variant="primary"]:hover,
+.pn-button[data-variant="primary"][data-force="hover"] {
+  background: var(--pn-color-accent-hover);
+  border-color: var(--pn-color-accent-hover);
+}
+
+.pn-button[data-variant="negative"] {
+  color: var(--pn-color-negative);
+  border-color: currentColor;
+}
+
+.pn-button[data-variant="negative"]:hover,
+.pn-button[data-variant="negative"][data-force="hover"] {
+  background: var(--pn-color-negative-soft);
+}
+
+.pn-button[data-variant="quiet"] {
+  background: transparent;
+  border-color: transparent;
+}
+
+.pn-button[data-variant="quiet"]:hover,
+.pn-button[data-variant="quiet"][data-force="hover"] {
+  background: var(--pn-color-surface-hover);
+}
+
+.pn-button[data-size="sm"] {
+  height: var(--pn-control-height-sm);
+  padding: 0 var(--pn-space-2);
+  font-size: var(--pn-text-xs);
+}
+
+.pn-button[data-icon-only] {
+  width: var(--pn-control-height);
+  padding: 0;
+}
+
+.pn-button[data-icon-only][data-size="sm"] {
+  width: var(--pn-control-height-sm);
+}
+
+.pn-button:disabled,
+.pn-button[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Field: label, help, error, and the control between them */
+
+.pn-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pn-space-1);
+  min-width: 0;
+}
+
+.pn-label {
+  font-size: var(--pn-text-sm);
+  font-weight: var(--pn-weight-medium);
+  color: var(--pn-color-text-muted);
+}
+
+.pn-label[data-required="true"]::after {
+  content: " *";
+  color: var(--pn-color-negative);
+}
+
+.pn-help {
+  margin: 0;
+  font-size: var(--pn-text-xs);
+  color: var(--pn-color-text-muted);
+}
+
+.pn-error {
+  margin: 0;
+  font-size: var(--pn-text-xs);
+  font-weight: var(--pn-weight-medium);
+  color: var(--pn-color-negative);
+}
+
+.pn-error:empty {
+  display: none;
+}
+
+/* Text input, textarea, select */
+
+.pn-input,
+.pn-textarea,
+.pn-select {
+  display: block;
+  width: 100%;
+  min-height: var(--pn-control-height);
+  margin: 0;
+  padding: var(--pn-space-2) var(--pn-space-3);
+  font: inherit;
+  font-size: var(--pn-text-md);
+  line-height: var(--pn-leading-tight);
+  color: var(--pn-color-text);
+  background: var(--pn-color-surface);
+  border: var(--pn-border-width) solid var(--pn-color-border-control);
+  border-radius: var(--pn-radius-md);
+  transition: border-color var(--pn-duration);
+}
+
+.pn-input:focus-visible,
+.pn-textarea:focus-visible,
+.pn-select:focus-visible,
+.pn-input[data-force="focus"],
+.pn-textarea[data-force="focus"],
+.pn-select[data-force="focus"] {
+  outline-offset: 0;
+  border-color: var(--pn-color-focus);
+}
+
+.pn-input::placeholder,
+.pn-textarea::placeholder {
+  color: var(--pn-color-text-muted);
+  opacity: 1;
+}
+
+.pn-input:hover,
+.pn-textarea:hover,
+.pn-select:hover,
+.pn-input[data-force="hover"],
+.pn-textarea[data-force="hover"],
+.pn-select[data-force="hover"] {
+  border-color: var(--pn-color-text-muted);
+}
+
+.pn-textarea {
+  min-height: 7rem;
+  line-height: var(--pn-leading-normal);
+  resize: vertical;
+}
+
+.pn-select {
+  padding-right: var(--pn-space-6);
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    right 1rem center,
+    right calc(1rem - 5px) center;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.pn-input[aria-invalid="true"],
+.pn-textarea[aria-invalid="true"],
+.pn-select[aria-invalid="true"] {
+  border-color: var(--pn-color-negative);
+}
+
+.pn-input:disabled,
+.pn-textarea:disabled,
+.pn-select:disabled {
+  color: var(--pn-color-text-muted);
+  background: var(--pn-color-surface-sunken);
+  border-color: var(--pn-color-border);
+  cursor: not-allowed;
+}
+
+.pn-input[data-mono] {
+  font-family: var(--pn-font-mono);
+  font-size: var(--pn-text-sm);
+}
+
+/* Checkbox and radio */
+
+.pn-choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pn-space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.pn-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pn-space-2);
+  font-size: var(--pn-text-md);
+  cursor: pointer;
+}
+
+.pn-checkbox,
+.pn-radio {
+  flex: none;
+  display: inline-grid;
+  place-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0;
+  appearance: none;
+  background: var(--pn-color-surface);
+  border: var(--pn-border-width) solid var(--pn-color-border-control);
+  border-radius: var(--pn-radius-sm);
+  cursor: pointer;
+}
+
+.pn-radio {
+  border-radius: 50%;
+}
+
+.pn-checkbox::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.3rem;
+  margin-top: -0.15rem;
+  border-left: 2px solid var(--pn-color-on-accent);
+  border-bottom: 2px solid var(--pn-color-on-accent);
+  transform: rotate(-45deg) scale(0);
+}
+
+.pn-radio::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--pn-color-on-accent);
+  transform: scale(0);
+}
+
+.pn-checkbox:hover,
+.pn-radio:hover,
+.pn-checkbox[data-force="hover"],
+.pn-radio[data-force="hover"] {
+  border-color: var(--pn-color-text);
+}
+
+.pn-checkbox:checked,
+.pn-radio:checked {
+  background: var(--pn-color-accent);
+  border-color: var(--pn-color-accent);
+}
+
+.pn-checkbox:checked::before {
+  transform: rotate(-45deg) scale(1);
+}
+
+.pn-radio:checked::before {
+  transform: scale(1);
+}
+
+.pn-checkbox[aria-invalid="true"],
+.pn-radio[aria-invalid="true"],
+.pn-choices[aria-invalid="true"] .pn-checkbox,
+.pn-choices[aria-invalid="true"] .pn-radio {
+  border-color: var(--pn-color-negative);
+}
+
+.pn-checkbox:disabled,
+.pn-radio:disabled {
+  background: var(--pn-color-surface-sunken);
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pn-checkbox:disabled:checked,
+.pn-radio:disabled:checked {
+  background: var(--pn-color-text-muted);
+}
+
+.pn-choice:has(:disabled) {
+  color: var(--pn-color-text-muted);
+  cursor: not-allowed;
+}
+
+/* Toggle: <input type="checkbox" role="switch" class="pn-toggle"> */
+
+.pn-toggle {
+  flex: none;
+  position: relative;
+  width: 2.25rem;
+  height: 1.25rem;
+  margin: 0;
+  appearance: none;
+  background: var(--pn-color-surface-sunken);
+  border: var(--pn-border-width) solid var(--pn-color-border-control);
+  border-radius: var(--pn-radius-pill);
+  cursor: pointer;
+  transition: background-color var(--pn-duration);
+}
+
+.pn-toggle::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(1.25rem - 6px);
+  height: calc(1.25rem - 6px);
+  border-radius: 50%;
+  background: var(--pn-color-text-muted);
+  transition: transform var(--pn-duration);
+}
+
+.pn-toggle:hover,
+.pn-toggle[data-force="hover"] {
+  border-color: var(--pn-color-text);
+}
+
+.pn-toggle:checked {
+  background: var(--pn-color-accent);
+  border-color: var(--pn-color-accent);
+}
+
+.pn-toggle:checked::before {
+  background: var(--pn-color-on-accent);
+  transform: translateX(1rem);
+}
+
+.pn-toggle[aria-invalid="true"] {
+  border-color: var(--pn-color-negative);
+}
+
+.pn-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Tag */
+
+.pn-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pn-space-1);
+  height: 1.5rem;
+  padding: 0 var(--pn-space-2);
+  font-size: var(--pn-text-sm);
+  line-height: 1;
+  color: var(--pn-color-text);
+  background: var(--pn-color-surface-sunken);
+  border: var(--pn-border-width) solid var(--pn-color-border);
+  border-radius: var(--pn-radius-sm);
+}
+
+.pn-tag-remove {
+  display: inline-grid;
+  place-content: center;
+  width: 1rem;
+  height: 1rem;
+  margin-right: calc(var(--pn-space-1) * -1);
+  padding: 0;
+  font-size: var(--pn-text-xs);
+  color: var(--pn-color-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--pn-radius-sm);
+  cursor: pointer;
+}
+
+.pn-tag-remove:hover,
+.pn-tag-remove[data-force="hover"] {
+  color: var(--pn-color-text);
+  background: var(--pn-color-surface-hover);
+}
+
+.pn-tag[aria-invalid="true"] {
+  color: var(--pn-color-negative);
+  background: var(--pn-color-negative-soft);
+  border-color: var(--pn-color-negative);
+}
+
+.pn-tag[aria-disabled="true"] {
+  color: var(--pn-color-text-muted);
+}
+
+.pn-tag[aria-disabled="true"] .pn-tag-remove {
+  display: none;
+}
+
+/* Tags input: tags plus an inline text input, styled as one control */
+
+.pn-tags-input {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pn-space-1);
+  min-height: var(--pn-control-height);
+  padding: calc(var(--pn-space-1) + 1px) var(--pn-space-2);
+  background: var(--pn-color-surface);
+  border: var(--pn-border-width) solid var(--pn-color-border-control);
+  border-radius: var(--pn-radius-md);
+  cursor: text;
+}
+
+.pn-tags-input:hover,
+.pn-tags-input[data-force="hover"] {
+  border-color: var(--pn-color-text-muted);
+}
+
+.pn-tags-input:focus-within,
+.pn-tags-input[data-force="focus"] {
+  border-color: var(--pn-color-focus);
+  outline: var(--pn-focus-width) solid var(--pn-color-focus);
+  outline-offset: 0;
+}
+
+.pn-tags-input-field {
+  flex: 1 1 6rem;
+  min-width: 6rem;
+  height: 1.5rem;
+  padding: 0 var(--pn-space-1);
+  font: inherit;
+  color: var(--pn-color-text);
+  background: transparent;
+  border: 0;
+}
+
+.pn-tags-input-field:focus-visible {
+  outline: none;
+}
+
+.pn-tags-input[aria-invalid="true"] {
+  border-color: var(--pn-color-negative);
+}
+
+.pn-tags-input[aria-disabled="true"] {
+  background: var(--pn-color-surface-sunken);
+  border-color: var(--pn-color-border);
+  cursor: not-allowed;
+}
+
+/* Status: a fixed workflow state. Use a <button> when it changes the state. */
+
+.pn-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pn-space-2);
+  height: 1.5rem;
+  padding: 0 var(--pn-space-2);
+  font: inherit;
+  font-size: var(--pn-text-sm);
+  font-weight: var(--pn-weight-medium);
+  line-height: 1;
+  color: var(--pn-color-text);
+  background: transparent;
+  border: var(--pn-border-width) solid transparent;
+  border-radius: var(--pn-radius-sm);
+}
+
+.pn-status::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  border: 2px solid var(--pn-color-text-muted);
+}
+
+.pn-status[data-tone="positive"]::before {
+  background: var(--pn-color-positive);
+  border-color: var(--pn-color-positive);
+}
+
+.pn-status[data-tone="notice"]::before {
+  background: var(--pn-color-notice);
+  border-color: var(--pn-color-notice);
+}
+
+.pn-status[data-tone="negative"]::before {
+  background: var(--pn-color-negative);
+  border-color: var(--pn-color-negative);
+}
+
+button.pn-status {
+  cursor: pointer;
+}
+
+button.pn-status:hover,
+button.pn-status[data-force="hover"] {
+  background: var(--pn-color-surface-hover);
+  border-color: var(--pn-color-border);
+}
+
+.pn-status:disabled {
+  color: var(--pn-color-text-muted);
+  cursor: not-allowed;
+}
+
+.pn-status[aria-invalid="true"] {
+  color: var(--pn-color-negative);
+  border-color: var(--pn-color-negative);
+}
+
+/* Tabs */
+
+.pn-tabs {
+  display: flex;
+  gap: var(--pn-space-1);
+  overflow-x: auto;
+  border-bottom: var(--pn-border-width) solid var(--pn-color-border);
+}
+
+.pn-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pn-space-2);
+  height: var(--pn-control-height);
+  padding: 0 var(--pn-space-3);
+  font: inherit;
+  font-size: var(--pn-text-sm);
+  font-weight: var(--pn-weight-medium);
+  color: var(--pn-color-text-muted);
+  white-space: nowrap;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+}
+
+.pn-tab:hover,
+.pn-tab[data-force="hover"] {
+  color: var(--pn-color-text);
+}
+
+.pn-tab[aria-selected="true"] {
+  color: var(--pn-color-text);
+  border-bottom-color: var(--pn-color-text);
+}
+
+.pn-tab:focus-visible,
+.pn-tab[data-force="focus"] {
+  outline-offset: -2px;
+}
+
+.pn-tab[data-invalid]::after {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--pn-color-negative);
+}
+
+.pn-tab:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Breadcrumb: <nav aria-label="Breadcrumb"><ol class="pn-breadcrumb"> */
+
+.pn-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pn-space-1);
+  margin: 0;
+  padding: 0;
+  font-size: var(--pn-text-sm);
+  list-style: none;
+}
+
+.pn-breadcrumb li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pn-space-1);
+  min-width: 0;
+}
+
+.pn-breadcrumb li + li::before {
+  content: "/";
+  color: var(--pn-color-text-muted);
+}
+
+.pn-breadcrumb a {
+  padding: var(--pn-space-1);
+  color: var(--pn-color-text-muted);
+  text-decoration: none;
+  border-radius: var(--pn-radius-sm);
+}
+
+.pn-breadcrumb a:hover,
+.pn-breadcrumb a[data-force="hover"] {
+  color: var(--pn-color-text);
+  text-decoration: underline;
+}
+
+.pn-breadcrumb [aria-current="page"] {
+  padding: var(--pn-space-1);
+  overflow: hidden;
+  font-weight: var(--pn-weight-medium);
+  color: var(--pn-color-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Toolbar: a compact group of buttons */
+
+.pn-toolbar {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: var(--pn-color-surface);
+  border: var(--pn-border-width) solid var(--pn-color-border);
+  border-radius: var(--pn-radius-md);
+}
+
+.pn-toolbar .pn-button {
+  border-color: transparent;
+  background: transparent;
+}
+
+.pn-toolbar .pn-button:hover,
+.pn-toolbar .pn-button[data-force="hover"] {
+  background: var(--pn-color-surface-hover);
+}
+
+.pn-toolbar .pn-button[aria-pressed="true"] {
+  background: var(--pn-color-surface-sunken);
+  border-color: var(--pn-color-border);
+}
+
+/* List of rows: collections, pickers, recent activity */
+
+.pn-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--pn-color-surface);
+  border: var(--pn-border-width) solid var(--pn-color-border);
+  border-radius: var(--pn-radius-md);
+}
+
+.pn-list-item + .pn-list-item {
+  border-top: var(--pn-border-width) solid var(--pn-color-border);
+}
+
+.pn-list-row {
+  display: flex;
+  align-items: center;
+  gap: var(--pn-space-3);
+  min-height: 3rem;
+  padding: var(--pn-space-2) var(--pn-space-4);
+  color: inherit;
+  text-decoration: none;
+}
+
+a.pn-list-row:hover,
+a.pn-list-row[data-force="hover"],
+button.pn-list-row:hover {
+  background: var(--pn-color-surface-hover);
+}
+
+button.pn-list-row {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.pn-list-row:focus-visible,
+.pn-list-row[data-force="focus"] {
+  outline-offset: -2px;
+}
+
+.pn-list-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pn-list-title {
+  overflow: hidden;
+  font-weight: var(--pn-weight-medium);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pn-list-subtitle {
+  overflow: hidden;
+  font-size: var(--pn-text-sm);
+  color: var(--pn-color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pn-list-meta {
+  flex: none;
+  font-family: var(--pn-font-mono);
+  font-size: var(--pn-text-xs);
+  color: var(--pn-color-text-muted);
+}
+
+.pn-list-item[aria-disabled="true"] .pn-list-row {
+  color: var(--pn-color-text-muted);
+  pointer-events: none;
+}
+
+.pn-list-item[aria-invalid="true"] .pn-list-row {
+  box-shadow: inset 3px 0 0 var(--pn-color-negative);
+}
+
+/* Spinner */
+
+.pn-spinner {
+  display: inline-block;
+  flex: none;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: pn-spin 0.7s linear infinite;
+}
+
+@keyframes pn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pn-spinner {
+    animation-duration: 2s;
+  }
+}
+
+/* Dropzone and file row */
+
+.pn-dropzone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pn-space-2);
+  min-height: 7rem;
+  padding: var(--pn-space-4);
+  font-size: var(--pn-text-sm);
+  color: var(--pn-color-text-muted);
+  text-align: center;
+  background: var(--pn-color-surface);
+  border: var(--pn-border-width) dashed var(--pn-color-border-control);
+  border-radius: var(--pn-radius-md);
+  cursor: pointer;
+}
+
+.pn-dropzone:hover,
+.pn-dropzone[data-force="hover"],
+.pn-dropzone[data-dragover] {
+  color: var(--pn-color-text);
+  background: var(--pn-color-surface-hover);
+  border-color: var(--pn-color-text-muted);
+}
+
+.pn-dropzone:focus-within,
+.pn-dropzone[data-force="focus"] {
+  outline: var(--pn-focus-width) solid var(--pn-color-focus);
+  outline-offset: var(--pn-focus-offset);
+}
+
+.pn-dropzone input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.pn-dropzone[aria-invalid="true"] {
+  color: var(--pn-color-negative);
+  border-color: var(--pn-color-negative);
+}
+
+.pn-dropzone[aria-disabled="true"] {
+  background: var(--pn-color-surface-sunken);
+  border-color: var(--pn-color-border);
+  cursor: not-allowed;
+}
+
+.pn-file {
+  display: flex;
+  align-items: center;
+  gap: var(--pn-space-3);
+  padding: var(--pn-space-2);
+  background: var(--pn-color-surface);
+  border: var(--pn-border-width) solid var(--pn-color-border);
+  border-radius: var(--pn-radius-md);
+}
+
+.pn-file-thumb {
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  object-fit: cover;
+  background: var(--pn-color-surface-sunken);
+  border-radius: var(--pn-radius-sm);
+}
+
+.pn-file-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pn-file-name {
+  overflow: hidden;
+  font-size: var(--pn-text-sm);
+  font-weight: var(--pn-weight-medium);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pn-file-meta {
+  font-family: var(--pn-font-mono);
+  font-size: var(--pn-text-xs);
+  color: var(--pn-color-text-muted);
+}
+
+/* Form grid: <div class="pn-grid"> with children carrying data-width from the schema */
+
+.pn-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--pn-grid-columns), minmax(0, 1fr));
+  gap: var(--pn-grid-gap);
+}
+
+.pn-grid > * {
+  grid-column: span 6;
+}
+
+.pn-grid > [data-width="1/2"] {
+  grid-column: span 3;
+}
+
+.pn-grid > [data-width="1/3"] {
+  grid-column: span 2;
+}
+
+.pn-grid > [data-width="2/3"] {
+  grid-column: span 4;
+}
+
+@media (max-width: 40rem) {
+  .pn-grid > [data-width] {
+    grid-column: span 6;
+  }
+}
+
+/* Dialog: <dialog class="pn-dialog"> */
+
+.pn-dialog {
+  width: min(28rem, calc(100vw - 2 * var(--pn-space-4)));
+  max-height: calc(100vh - 2 * var(--pn-space-4));
+  padding: 0;
+  color: var(--pn-color-text);
+  background: var(--pn-color-surface);
+  border: var(--pn-border-width) solid var(--pn-color-border);
+  border-radius: var(--pn-radius-md);
+  box-shadow: var(--pn-shadow-raised);
+}
+
+.pn-dialog::backdrop,
+.pn-drawer::backdrop {
+  background: var(--pn-color-overlay);
+}
+
+.pn-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pn-space-4);
+  padding: var(--pn-space-5);
+}
+
+.pn-dialog-title {
+  margin: 0;
+  font-size: var(--pn-text-lg);
+  font-weight: var(--pn-weight-bold);
+  line-height: var(--pn-leading-tight);
+}
+
+.pn-dialog-text {
+  margin: 0;
+  color: var(--pn-color-text-muted);
+}
+
+.pn-dialog-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--pn-space-2);
+  padding: var(--pn-space-3) var(--pn-space-5);
+  background: var(--pn-color-surface-sunken);
+  border-top: var(--pn-border-width) solid var(--pn-color-border);
+}
+
+/* Drawer (slide-over): <dialog class="pn-drawer"> */
+
+.pn-drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(32rem, 100vw);
+  max-width: 100vw;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 0;
+  color: var(--pn-color-text);
+  background: var(--pn-color-bg);
+  border: 0;
+  border-left: var(--pn-border-width) solid var(--pn-color-border);
+  box-shadow: var(--pn-shadow-raised);
+}
+
+.pn-drawer[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.pn-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pn-space-3);
+  padding: var(--pn-space-3) var(--pn-space-4);
+  background: var(--pn-color-surface);
+  border-bottom: var(--pn-border-width) solid var(--pn-color-border);
+}
+
+.pn-drawer-title {
+  margin: 0;
+  font-size: var(--pn-text-md);
+  font-weight: var(--pn-weight-bold);
+}
+
+.pn-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--pn-space-5) var(--pn-space-4);
+}
+
+.pn-drawer-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--pn-space-2);
+  padding: var(--pn-space-3) var(--pn-space-4);
+  background: var(--pn-color-surface);
+  border-top: var(--pn-border-width) solid var(--pn-color-border);
+}
+
+/* Static display of dialogs and drawers, for the living page and the playground */
+
+.pn-dialog[data-static],
+.pn-drawer[data-static] {
+  position: static;
+  inset: auto;
+  z-index: auto;
+  margin: 0;
+}
+
+.pn-dialog[data-static] {
+  width: 100%;
+  max-width: 100%;
+}
+
+.pn-drawer[data-static] {
+  width: 100%;
+  height: auto;
+  border: var(--pn-border-width) solid var(--pn-color-border);
+}
+
+.pn-dialog:modal {
+  z-index: var(--pn-layer-dialog);
+}
+
+.pn-drawer:modal {
+  z-index: var(--pn-layer-drawer);
+}
+
+/* Toast: <div class="pn-toast" role="status"> inside a .pn-toasts region */
+
+.pn-toasts {
+  position: fixed;
+  right: var(--pn-space-4);
+  bottom: var(--pn-space-4);
+  left: var(--pn-space-4);
+  z-index: var(--pn-layer-toast);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--pn-space-2);
+  pointer-events: none;
+}
+
+.pn-toasts[data-static] {
+  position: static;
+  align-items: stretch;
+}
+
+.pn-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--pn-space-3);
+  width: min(24rem, 100%);
+  padding: var(--pn-space-2) var(--pn-space-2) var(--pn-space-2) var(--pn-space-4);
+  font-size: var(--pn-text-sm);
+  color: var(--pn-color-text);
+  background: var(--pn-color-surface);
+  border: var(--pn-border-width) solid var(--pn-color-border);
+  border-left: 3px solid var(--pn-color-info);
+  border-radius: var(--pn-radius-md);
+  box-shadow: var(--pn-shadow-raised);
+  pointer-events: auto;
+}
+
+.pn-toast-text {
+  flex: 1;
+  margin: 0;
+}
+
+.pn-toast[data-tone="positive"] {
+  border-left-color: var(--pn-color-positive);
+}
+
+.pn-toast[data-tone="notice"] {
+  border-left-color: var(--pn-color-notice);
+}
+
+.pn-toast[data-tone="negative"] {
+  border-left-color: var(--pn-color-negative);
+}
+
+/* Empty state */
+
+.pn-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pn-space-3);
+  padding: var(--pn-space-7) var(--pn-space-4);
+  text-align: center;
+  color: var(--pn-color-text-muted);
+  border: var(--pn-border-width) dashed var(--pn-color-border);
+  border-radius: var(--pn-radius-md);
+}
+
+.pn-empty-icon {
+  font-size: var(--pn-text-xl);
+}
+
+.pn-empty-title {
+  margin: 0;
+  font-size: var(--pn-text-md);
+  font-weight: var(--pn-weight-medium);
+  color: var(--pn-color-text);
+}
+
+.pn-empty-text {
+  max-width: 28rem;
+  margin: 0;
+  font-size: var(--pn-text-sm);
+}
+
+.pn-empty[data-tone="negative"] {
+  border-color: var(--pn-color-negative);
+}
+
+.pn-empty[data-tone="negative"] .pn-empty-icon {
+  color: var(--pn-color-negative);
+}
+
+/* ---------------------------------------------------------------
+   Shell and screens (Phase 2). Used by panel/templates.
+   --------------------------------------------------------------- */
+
+/* Help text and the empty error both collapse when there is nothing to say */
+
+.pn-help:empty {
+  display: none;
+}
+
+/* Layout: nav beside the main column; nav stacks on top at phone width */
+
+.pn-layout {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.pn-layout-nav {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--pn-color-surface);
+  border-right: var(--pn-border-width) solid var(--pn-color-border);
+}
+
+.pn-layout-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pn-layout-body {
+  flex: 1;
+  width: 100%;
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: var(--pn-space-5) var(--pn-space-5) var(--pn-space-7);
+}
+
+@media (max-width: 40rem) {
+  .pn-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pn-layout-nav {
+    position: static;
+    height: auto;
+    border-right: 0;
+    border-bottom: var(--pn-border-width) solid var(--pn-color-border);
+  }
+
+  .pn-layout-body {
+    padding: var(--pn-space-4) var(--pn-space-4) var(--pn-space-7);
+  }
+}
+
+/* Nav */
+
+.pn-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pn-space-4);
+  height: 100%;
+  padding: var(--pn-space-4) var(--pn-space-3);
+}
+
+.pn-nav-brand {
+  margin: 0;
+  padding: 0 var(--pn-space-2);
+  font-size: var(--pn-text-md);
+  font-weight: var(--pn-weight-bold);
+}
+
+.pn-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pn-nav-link {
+  display: flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 var(--pn-space-2);
+  font-size: var(--pn-text-sm);
+  color: var(--pn-color-text-muted);
+  text-decoration: none;
+  border-radius: var(--pn-radius-sm);
+}
+
+.pn-nav-link:hover,
+.pn-nav-link[data-force="hover"] {
+  color: var(--pn-color-text);
+  background: var(--pn-color-surface-hover);
+}
+
+.pn-nav-link[aria-current="page"] {
+  font-weight: var(--pn-weight-medium);
+  color: var(--pn-color-text);
+  background: var(--pn-color-surface-sunken);
+}
+
+.pn-nav-account {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--pn-space-1);
+  margin-top: auto;
+  padding: var(--pn-space-3) var(--pn-space-2) 0;
+  font-size: var(--pn-text-xs);
+  color: var(--pn-color-text-muted);
+  border-top: var(--pn-border-width) solid var(--pn-color-border);
+}
+
+.pn-nav-user {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 40rem) {
+  .pn-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--pn-space-2);
+    padding: var(--pn-space-2) var(--pn-space-3);
+  }
+
+  .pn-nav-list {
+    flex-direction: row;
+    flex: 1 1 100%;
+    order: 3;
+    overflow-x: auto;
+  }
+
+  .pn-nav-link {
+    white-space: nowrap;
+  }
+
+  .pn-nav-account {
+    flex-direction: row;
+    align-items: center;
+    margin: 0 0 0 auto;
+    padding: 0;
+    border-top: 0;
+  }
+
+  .pn-nav-user {
+    display: none;
+  }
+
+  .pn-nav-account-slot {
+    margin: 0 0 0 auto;
+  }
+}
+
+/* Top bar: breadcrumb */
+
+.pn-topbar {
+  display: flex;
+  align-items: center;
+  min-height: 3rem;
+  padding: var(--pn-space-2) var(--pn-space-5);
+  background: var(--pn-color-surface);
+  border-bottom: var(--pn-border-width) solid var(--pn-color-border);
+}
+
+@media (max-width: 40rem) {
+  .pn-topbar {
+    padding: var(--pn-space-2) var(--pn-space-4);
+  }
+}
+
+/* Screen: a header row, then regions chosen by data-state */
+
+.pn-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pn-space-5);
+}
+
+.pn-screen-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pn-space-3);
+}
+
+.pn-screen-title {
+  margin: 0;
+  font-size: var(--pn-text-xl);
+  font-weight: var(--pn-weight-bold);
+  line-height: var(--pn-leading-tight);
+  overflow-wrap: anywhere;
+}
+
+.pn-screen-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pn-space-2);
+}
+
+.pn-section-title {
+  margin: 0 0 var(--pn-space-2);
+  font-size: var(--pn-text-sm);
+  font-weight: var(--pn-weight-medium);
+  color: var(--pn-color-text-muted);
+}
+
+.pn-region-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--pn-space-2);
+  padding: var(--pn-space-6) 0;
+  color: var(--pn-color-text-muted);
+}
+
+.pn-screen > .pn-region-loading,
+.pn-screen > .pn-region-ready,
+.pn-screen > .pn-region-empty,
+.pn-screen > .pn-region-error {
+  display: none;
+}
+
+.pn-screen[data-state="loading"] > .pn-region-loading {
+  display: flex;
+}
+
+.pn-screen[data-state="ready"] > .pn-region-ready,
+.pn-screen[data-state="empty"] > .pn-region-empty,
+.pn-screen[data-state="error"] > .pn-region-error {
+  display: block;
+}
+
+/* Collection tools: search and sort above the list */
+
+.pn-collection-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pn-space-2);
+  margin-bottom: var(--pn-space-3);
+}
+
+.pn-collection-tools .pn-input {
+  flex: 1 1 14rem;
+  width: auto;
+}
+
+.pn-collection-tools .pn-select {
+  flex: 0 1 12rem;
+  width: auto;
+}
+
+/* Home: a list of everything that can be managed, then recent changes */
+
+.pn-home {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--pn-space-5);
+}
+
+/* Item: fields in the main column, status and meta in a sidebar */
+
+.pn-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 15rem;
+  align-items: start;
+  gap: var(--pn-space-6);
+}
+
+.pn-item[data-kind="singleton"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pn-item-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pn-space-4);
+  padding: var(--pn-space-4);
+  font-size: var(--pn-text-sm);
+  background: var(--pn-color-surface);
+  border: var(--pn-border-width) solid var(--pn-color-border);
+  border-radius: var(--pn-radius-md);
+}
+
+.pn-meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--pn-space-1) var(--pn-space-3);
+  margin: 0;
+}
+
+.pn-meta dt {
+  color: var(--pn-color-text-muted);
+}
+
+.pn-meta dd {
+  margin: 0;
+  font-family: var(--pn-font-mono);
+  font-size: var(--pn-text-xs);
+  line-height: 1.6;
+  text-align: right;
+}
+
+@media (max-width: 52rem) {
+  .pn-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Save bar: sticky at the bottom of the main column; data-state follows the save-state table */
+
+.pn-savebar {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pn-space-3);
+  padding: var(--pn-space-2) var(--pn-space-5);
+  font-size: var(--pn-text-sm);
+  background: var(--pn-color-surface);
+  border-top: var(--pn-border-width) solid var(--pn-color-border);
+}
+
+.pn-savebar-message {
+  display: flex;
+  align-items: center;
+  gap: var(--pn-space-2);
+  margin: 0;
+  color: var(--pn-color-text-muted);
+}
+
+.pn-savebar-message::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--pn-color-positive);
+}
+
+.pn-savebar[data-state="dirty"] .pn-savebar-message {
+  color: var(--pn-color-text);
+}
+
+.pn-savebar[data-state="dirty"] .pn-savebar-message::before {
+  background: var(--pn-color-notice);
+}
+
+.pn-savebar[data-state="saving"] .pn-savebar-message::before {
+  background: var(--pn-color-text-muted);
+}
+
+.pn-savebar[data-state="error"] .pn-savebar-message {
+  color: var(--pn-color-negative);
+}
+
+.pn-savebar[data-state="error"] .pn-savebar-message::before {
+  background: var(--pn-color-negative);
+}
+
+.pn-savebar-actions {
+  display: flex;
+  gap: var(--pn-space-2);
+}
+
+.pn-savebar .pn-spinner {
+  display: none;
+}
+
+.pn-savebar[data-state="saving"] .pn-spinner {
+  display: inline-block;
+}
+
+@media (max-width: 40rem) {
+  .pn-savebar {
+    padding: var(--pn-space-2) var(--pn-space-4);
+  }
+}
+
+/* Fields with an upload: data-state="empty" shows the dropzone, "filled" shows the file */
+
+.pn-field[data-state="empty"] .pn-file,
+.pn-field[data-state="filled"] .pn-dropzone {
+  display: none;
+}
+
+.pn-field-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pn-space-2);
+}
+
+/* Login: one centered card, no layout */
+
+.pn-login {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: var(--pn-space-4);
+}
+
+.pn-login-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pn-space-4);
+  width: min(24rem, 100%);
+  padding: var(--pn-space-6) var(--pn-space-5);
+  background: var(--pn-color-surface);
+  border: var(--pn-border-width) solid var(--pn-color-border);
+  border-radius: var(--pn-radius-md);
+}
+
+.pn-login-title {
+  margin: 0;
+  font-size: var(--pn-text-lg);
+  font-weight: var(--pn-weight-bold);
+}
+
+.pn-login-text {
+  margin: 0;
+  font-size: var(--pn-text-sm);
+  color: var(--pn-color-text-muted);
+}
+
+.pn-login-methods {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pn-space-2);
+}
+
+.pn-login-methods .pn-button {
+  width: 100%;
+}
+
+/* System screens: an empty or error block placed straight in the body */
+
+.pn-layout-body > .pn-empty {
+  max-width: 32rem;
+  margin: var(--pn-space-7) auto 0;
+}
+
+.pn-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--pn-space-2);
+}
+
+.pn-empty-actions:empty {
+  display: none;
+}
+
+/* Slot wrappers that must not create a box (keeps the save bar sticky) */
+
+.pn-layout-slot,
+.pn-tags-list,
+.pn-drawer-form {
+  display: contents;
+}
+
+.pn-nav-account-slot {
+  margin-top: auto;
+}
+
+/* Status with no workflow renders nothing */
+
+.pn-status:empty,
+.pn-status:has(> .pn-status-text:empty) {
+  display: none;
+}
+
+/* Skip link: hidden until focused */
+
+.pn-skip {
+  position: absolute;
+  top: var(--pn-space-2);
+  left: var(--pn-space-2);
+  z-index: var(--pn-layer-toast);
+  padding: var(--pn-space-2) var(--pn-space-3);
+  font-size: var(--pn-text-sm);
+  color: var(--pn-color-on-accent);
+  background: var(--pn-color-accent);
+  border-radius: var(--pn-radius-md);
+  transform: translateY(-200%);
+}
+
+.pn-skip:focus-visible {
+  transform: none;
+}
+
+  </style>
+  <style>
+.pg-bar { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; padding: 8px 12px; font: 13px/1.4 system-ui, sans-serif; background: #1d1d1b; color: #f3f3f1; }
+.pg-bar a { color: inherit; text-decoration: none; padding: 2px 6px; border-radius: 3px; }
+.pg-bar a[aria-current="page"] { background: #f3f3f1; color: #1d1d1b; }
+.pg-bar a:focus-visible, .pg-bar button:focus-visible { outline: 2px solid #8ab4ff; outline-offset: 2px; }
+.pg-bar button { margin-left: auto; font: inherit; color: inherit; background: none; border: 1px solid #77756f; border-radius: 3px; padding: 2px 8px; cursor: pointer; }
+  </style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="pn-icon-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="pn-icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="pn-icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></symbol>
+  <symbol id="pn-icon-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="pn-icon-alert" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/></symbol>
+  <symbol id="pn-icon-chevron-right" viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></symbol>
+  <symbol id="pn-icon-chevron-down" viewBox="0 0 24 24"><path d="M6 10l6 6 6-6"/></symbol>
+  <symbol id="pn-icon-upload" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5M4 15v4h16v-4"/></symbol>
+  <symbol id="pn-icon-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></symbol>
+  <symbol id="pn-icon-image" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="1"/><path d="M3.5 16l5-5 4 4 2.5-2.5 5.5 5.5"/></symbol>
+  <symbol id="pn-icon-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13"/></symbol>
+  <symbol id="pn-icon-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+</svg>
+<nav class="pg-bar" aria-label="Playground screens">
+  <a href="#home">Home</a>
+  <a href="#collection">Posts</a>
+  <a href="#collection-loading">Posts: loading</a>
+  <a href="#collection-empty">Posts: empty</a>
+  <a href="#collection-error">Posts: error</a>
+  <a href="#create">New post</a>
+  <a href="#item">Walking the old rail line</a>
+  <a href="#item-dirty">Walking the old rail line: unsaved</a>
+  <a href="#item-saving">Walking the old rail line: saving</a>
+  <a href="#item-save-error">Walking the old rail line: save failed</a>
+  <a href="#item-invalid">What the river kept: can't publish</a>
+  <a href="#confirm">Publish confirm</a>
+  <a href="#slide-over">Slide-over (unused)</a>
+  <a href="#settings">Site settings</a>
+  <a href="#login">Login</a>
+  <a href="#not-found">Not found</a>
+  <button type="button" data-pg-theme>Switch theme</button>
+</nav>
+<div id="pg-stage"></div>
+<template data-pg-screen="home" data-pg-label="Home">
+<div class="pn pn-layout" data-template="layout">
+  <a class="pn-skip" href="#pn-main">Skip to content</a>
+  <div class="pn-layout-nav" data-slot-children="nav"><nav class="pn-nav" aria-label="Panel" data-template="nav">
+  <p class="pn-nav-brand" data-slot="brand">Field Notes</p>
+  <ul class="pn-nav-list" data-slot-repeat="entry"><li><a class="pn-nav-link" href="#home" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a class="pn-nav-link" href="#collection" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a class="pn-nav-link" href="#settings" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ul>
+  <div class="pn-nav-account-slot" data-slot-children="account"><div class="pn-nav-account" data-template="account">
+  <span class="pn-nav-user" data-slot="user">me@example.com</span>
+  <button class="pn-button" data-variant="quiet" data-size="sm" type="button" data-action="logout">Log out</button>
+</div></div>
+</nav></div>
+  <div class="pn-layout-main">
+    <div class="pn-layout-slot" data-slot-children="header"><header class="pn-topbar" data-template="header">
+  <nav aria-label="Breadcrumb">
+    <ol class="pn-breadcrumb" data-slot-repeat="crumb"><li><a href="#home" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li></ol>
+  </nav>
+</header></div>
+    <main class="pn-layout-body" id="pn-main" tabindex="-1" data-slot-children="screen"><section class="pn-screen" data-state="ready" data-slot-attr="data-state:state" aria-labelledby="pn-screen-title" data-template="screen-home">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title">Field Notes</h1>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text">Loading…</span></div>
+  <div class="pn-region-ready">
+    <div class="pn-home">
+      <section aria-labelledby="pn-home-content">
+        <h2 class="pn-section-title" id="pn-home-content" data-slot="content-heading">Content</h2>
+        <ul class="pn-list" data-slot-repeat="entry"><li class="pn-list-item"><a class="pn-list-row" href="#collection" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title">Posts</span><span class="pn-list-subtitle" data-slot="subtitle">4 posts</span></span><span class="pn-list-meta" data-slot="meta"></span></a></li><li class="pn-list-item"><a class="pn-list-row" href="#settings" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title">Site settings</span><span class="pn-list-subtitle" data-slot="subtitle">Page</span></span><span class="pn-list-meta" data-slot="meta"></span></a></li></ul>
+      </section>
+      <section aria-labelledby="pn-home-recent">
+        <h2 class="pn-section-title" id="pn-home-recent" data-slot="recent-heading">Recently edited</h2>
+        <ul class="pn-list" data-slot-repeat="recent"><li class="pn-list-item"><a class="pn-list-row" href="#item" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title">What the river kept</span><span class="pn-list-subtitle" data-slot="subtitle">Posts</span></span><span class="pn-list-meta" data-slot="meta">Nov 1, 2026</span></a></li><li class="pn-list-item"><a class="pn-list-row" href="#item" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title">The bakery on Calder Street</span><span class="pn-list-subtitle" data-slot="subtitle">Posts</span></span><span class="pn-list-meta" data-slot="meta">Oct 31, 2026</span></a></li><li class="pn-list-item"><a class="pn-list-row" href="#item" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title">Walking the old rail line</span><span class="pn-list-subtitle" data-slot="subtitle">Posts</span></span><span class="pn-list-meta" data-slot="meta">Oct 30, 2026</span></a></li><li class="pn-list-item"><a class="pn-list-row" href="#item" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title">Notes on a slow autumn</span><span class="pn-list-subtitle" data-slot="subtitle">Posts</span></span><span class="pn-list-meta" data-slot="meta">Oct 22, 2026</span></a></li></ul>
+      </section>
+    </div>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section></main>
+    <div class="pn-layout-slot" data-slot-children="savebar"></div>
+  </div>
+  <div class="pn-layout-slot" data-slot-children="dialogs"></div>
+  <div class="pn-toasts" aria-live="polite" data-slot-children="toasts"></div>
+</div>
+</template>
+<template data-pg-screen="collection" data-pg-label="Posts">
+<div class="pn pn-layout" data-template="layout">
+  <a class="pn-skip" href="#pn-main">Skip to content</a>
+  <div class="pn-layout-nav" data-slot-children="nav"><nav class="pn-nav" aria-label="Panel" data-template="nav">
+  <p class="pn-nav-brand" data-slot="brand">Field Notes</p>
+  <ul class="pn-nav-list" data-slot-repeat="entry"><li><a class="pn-nav-link" href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a class="pn-nav-link" href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a class="pn-nav-link" href="#settings" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ul>
+  <div class="pn-nav-account-slot" data-slot-children="account"><div class="pn-nav-account" data-template="account">
+  <span class="pn-nav-user" data-slot="user">me@example.com</span>
+  <button class="pn-button" data-variant="quiet" data-size="sm" type="button" data-action="logout">Log out</button>
+</div></div>
+</nav></div>
+  <div class="pn-layout-main">
+    <div class="pn-layout-slot" data-slot-children="header"><header class="pn-topbar" data-template="header">
+  <nav aria-label="Breadcrumb">
+    <ol class="pn-breadcrumb" data-slot-repeat="crumb"><li><a href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li></ol>
+  </nav>
+</header></div>
+    <main class="pn-layout-body" id="pn-main" tabindex="-1" data-slot-children="screen"><section class="pn-screen" data-state="ready" data-type="post" data-slot-attr="data-state:state data-type:type-id" aria-labelledby="pn-screen-title" data-template="screen-collection">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title">Posts</h1>
+    <div class="pn-screen-actions">
+      <button class="pn-button" data-variant="primary" type="button" data-action="create"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-plus"></use></svg><span data-slot="create-label">New post</span></button>
+    </div>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text">Loading…</span></div>
+  <div class="pn-region-ready">
+    <div class="pn-collection-tools" role="search">
+      <label class="pn-visually-hidden" for="pn-search" data-slot="search-label">Search posts</label>
+      <input class="pn-input" type="search" id="pn-search" name="q" placeholder="Search posts" data-slot-attr="placeholder:search-placeholder">
+      <label class="pn-visually-hidden" for="pn-sort" data-slot="sort-label">Sort by</label>
+      <select class="pn-select" id="pn-sort" name="sort" data-slot-repeat="sort-option"><option value="-date" data-slot-attr="value:value" data-slot="text" selected="">Newest first</option><option value="date" data-slot-attr="value:value" data-slot="text">Oldest first</option><option value="title" data-slot-attr="value:value" data-slot="text">Title A–Z</option></select>
+    </div>
+    <ul class="pn-list" data-slot-repeat="row"><li class="pn-list-item"><a class="pn-list-row" href="#item" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title">What the river kept</span><span class="pn-list-subtitle" data-slot="subtitle">Nov 1, 2026</span></span><span class="pn-status" data-tone="neutral" data-slot-attr="data-tone:tone" data-slot="status">Draft</span></a></li><li class="pn-list-item"><a class="pn-list-row" href="#item" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title">The bakery on Calder Street</span><span class="pn-list-subtitle" data-slot="subtitle">Oct 31, 2026</span></span><span class="pn-status" data-tone="neutral" data-slot-attr="data-tone:tone" data-slot="status">Draft</span></a></li><li class="pn-list-item"><a class="pn-list-row" href="#item" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title">Walking the old rail line</span><span class="pn-list-subtitle" data-slot="subtitle">Oct 28, 2026</span></span><span class="pn-status" data-tone="positive" data-slot-attr="data-tone:tone" data-slot="status">Published</span></a></li><li class="pn-list-item"><a class="pn-list-row" href="#item" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title">Notes on a slow autumn</span><span class="pn-list-subtitle" data-slot="subtitle">Oct 21, 2026</span></span><span class="pn-status" data-tone="positive" data-slot-attr="data-tone:tone" data-slot="status">Published</span></a></li></ul>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section></main>
+    <div class="pn-layout-slot" data-slot-children="savebar"></div>
+  </div>
+  <div class="pn-layout-slot" data-slot-children="dialogs"></div>
+  <div class="pn-toasts" aria-live="polite" data-slot-children="toasts"></div>
+</div>
+</template>
+<template data-pg-screen="collection-loading" data-pg-label="Posts: loading">
+<div class="pn pn-layout" data-template="layout">
+  <a class="pn-skip" href="#pn-main">Skip to content</a>
+  <div class="pn-layout-nav" data-slot-children="nav"><nav class="pn-nav" aria-label="Panel" data-template="nav">
+  <p class="pn-nav-brand" data-slot="brand">Field Notes</p>
+  <ul class="pn-nav-list" data-slot-repeat="entry"><li><a class="pn-nav-link" href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a class="pn-nav-link" href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a class="pn-nav-link" href="#settings" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ul>
+  <div class="pn-nav-account-slot" data-slot-children="account"><div class="pn-nav-account" data-template="account">
+  <span class="pn-nav-user" data-slot="user">me@example.com</span>
+  <button class="pn-button" data-variant="quiet" data-size="sm" type="button" data-action="logout">Log out</button>
+</div></div>
+</nav></div>
+  <div class="pn-layout-main">
+    <div class="pn-layout-slot" data-slot-children="header"><header class="pn-topbar" data-template="header">
+  <nav aria-label="Breadcrumb">
+    <ol class="pn-breadcrumb" data-slot-repeat="crumb"><li><a href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li></ol>
+  </nav>
+</header></div>
+    <main class="pn-layout-body" id="pn-main" tabindex="-1" data-slot-children="screen"><section class="pn-screen" data-state="loading" data-type="post" data-slot-attr="data-state:state data-type:type-id" aria-labelledby="pn-screen-title" data-template="screen-collection">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title">Posts</h1>
+    <div class="pn-screen-actions">
+      <button class="pn-button" data-variant="primary" type="button" data-action="create"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-plus"></use></svg><span data-slot="create-label">New post</span></button>
+    </div>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text">Loading…</span></div>
+  <div class="pn-region-ready">
+    <div class="pn-collection-tools" role="search">
+      <label class="pn-visually-hidden" for="pn-search" data-slot="search-label">Search posts</label>
+      <input class="pn-input" type="search" id="pn-search" name="q" placeholder="Search posts" data-slot-attr="placeholder:search-placeholder">
+      <label class="pn-visually-hidden" for="pn-sort" data-slot="sort-label">Sort by</label>
+      <select class="pn-select" id="pn-sort" name="sort" data-slot-repeat="sort-option"><option value="-date" data-slot-attr="value:value" data-slot="text" selected="">Newest first</option><option value="date" data-slot-attr="value:value" data-slot="text">Oldest first</option><option value="title" data-slot-attr="value:value" data-slot="text">Title A–Z</option></select>
+    </div>
+    <ul class="pn-list" data-slot-repeat="row"></ul>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section></main>
+    <div class="pn-layout-slot" data-slot-children="savebar"></div>
+  </div>
+  <div class="pn-layout-slot" data-slot-children="dialogs"></div>
+  <div class="pn-toasts" aria-live="polite" data-slot-children="toasts"></div>
+</div>
+</template>
+<template data-pg-screen="collection-empty" data-pg-label="Posts: empty">
+<div class="pn pn-layout" data-template="layout">
+  <a class="pn-skip" href="#pn-main">Skip to content</a>
+  <div class="pn-layout-nav" data-slot-children="nav"><nav class="pn-nav" aria-label="Panel" data-template="nav">
+  <p class="pn-nav-brand" data-slot="brand">Field Notes</p>
+  <ul class="pn-nav-list" data-slot-repeat="entry"><li><a class="pn-nav-link" href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a class="pn-nav-link" href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a class="pn-nav-link" href="#settings" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ul>
+  <div class="pn-nav-account-slot" data-slot-children="account"><div class="pn-nav-account" data-template="account">
+  <span class="pn-nav-user" data-slot="user">me@example.com</span>
+  <button class="pn-button" data-variant="quiet" data-size="sm" type="button" data-action="logout">Log out</button>
+</div></div>
+</nav></div>
+  <div class="pn-layout-main">
+    <div class="pn-layout-slot" data-slot-children="header"><header class="pn-topbar" data-template="header">
+  <nav aria-label="Breadcrumb">
+    <ol class="pn-breadcrumb" data-slot-repeat="crumb"><li><a href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li></ol>
+  </nav>
+</header></div>
+    <main class="pn-layout-body" id="pn-main" tabindex="-1" data-slot-children="screen"><section class="pn-screen" data-state="empty" data-type="post" data-slot-attr="data-state:state data-type:type-id" aria-labelledby="pn-screen-title" data-template="screen-collection">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title">Posts</h1>
+    <div class="pn-screen-actions">
+      <button class="pn-button" data-variant="primary" type="button" data-action="create"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-plus"></use></svg><span data-slot="create-label">New post</span></button>
+    </div>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text">Loading…</span></div>
+  <div class="pn-region-ready">
+    <div class="pn-collection-tools" role="search">
+      <label class="pn-visually-hidden" for="pn-search" data-slot="search-label">Search posts</label>
+      <input class="pn-input" type="search" id="pn-search" name="q" placeholder="Search posts" data-slot-attr="placeholder:search-placeholder">
+      <label class="pn-visually-hidden" for="pn-sort" data-slot="sort-label">Sort by</label>
+      <select class="pn-select" id="pn-sort" name="sort" data-slot-repeat="sort-option"><option value="-date" data-slot-attr="value:value" data-slot="text" selected="">Newest first</option><option value="date" data-slot-attr="value:value" data-slot="text">Oldest first</option><option value="title" data-slot-attr="value:value" data-slot="text">Title A–Z</option></select>
+    </div>
+    <ul class="pn-list" data-slot-repeat="row"></ul>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"><div class="pn-empty" data-template="empty">
+  <svg class="pn-icon pn-empty-icon" aria-hidden="true"><use href="#pn-icon-file" data-slot-attr="href:icon"></use></svg>
+  <p class="pn-empty-title" data-slot="title">No posts yet</p>
+  <p class="pn-empty-text" data-slot="text">Create the first post.</p>
+  <div class="pn-empty-actions" data-slot-children="actions"><button class="pn-button" data-variant="primary" type="button" data-action="create"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-plus"></use></svg>New post</button></div>
+</div></div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section></main>
+    <div class="pn-layout-slot" data-slot-children="savebar"></div>
+  </div>
+  <div class="pn-layout-slot" data-slot-children="dialogs"></div>
+  <div class="pn-toasts" aria-live="polite" data-slot-children="toasts"></div>
+</div>
+</template>
+<template data-pg-screen="collection-error" data-pg-label="Posts: error">
+<div class="pn pn-layout" data-template="layout">
+  <a class="pn-skip" href="#pn-main">Skip to content</a>
+  <div class="pn-layout-nav" data-slot-children="nav"><nav class="pn-nav" aria-label="Panel" data-template="nav">
+  <p class="pn-nav-brand" data-slot="brand">Field Notes</p>
+  <ul class="pn-nav-list" data-slot-repeat="entry"><li><a class="pn-nav-link" href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a class="pn-nav-link" href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a class="pn-nav-link" href="#settings" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ul>
+  <div class="pn-nav-account-slot" data-slot-children="account"><div class="pn-nav-account" data-template="account">
+  <span class="pn-nav-user" data-slot="user">me@example.com</span>
+  <button class="pn-button" data-variant="quiet" data-size="sm" type="button" data-action="logout">Log out</button>
+</div></div>
+</nav></div>
+  <div class="pn-layout-main">
+    <div class="pn-layout-slot" data-slot-children="header"><header class="pn-topbar" data-template="header">
+  <nav aria-label="Breadcrumb">
+    <ol class="pn-breadcrumb" data-slot-repeat="crumb"><li><a href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li></ol>
+  </nav>
+</header></div>
+    <main class="pn-layout-body" id="pn-main" tabindex="-1" data-slot-children="screen"><section class="pn-screen" data-state="error" data-type="post" data-slot-attr="data-state:state data-type:type-id" aria-labelledby="pn-screen-title" data-template="screen-collection">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title">Posts</h1>
+    <div class="pn-screen-actions">
+      <button class="pn-button" data-variant="primary" type="button" data-action="create"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-plus"></use></svg><span data-slot="create-label">New post</span></button>
+    </div>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text">Loading…</span></div>
+  <div class="pn-region-ready">
+    <div class="pn-collection-tools" role="search">
+      <label class="pn-visually-hidden" for="pn-search" data-slot="search-label">Search posts</label>
+      <input class="pn-input" type="search" id="pn-search" name="q" placeholder="Search posts" data-slot-attr="placeholder:search-placeholder">
+      <label class="pn-visually-hidden" for="pn-sort" data-slot="sort-label">Sort by</label>
+      <select class="pn-select" id="pn-sort" name="sort" data-slot-repeat="sort-option"><option value="-date" data-slot-attr="value:value" data-slot="text" selected="">Newest first</option><option value="date" data-slot-attr="value:value" data-slot="text">Oldest first</option><option value="title" data-slot-attr="value:value" data-slot="text">Title A–Z</option></select>
+    </div>
+    <ul class="pn-list" data-slot-repeat="row"></ul>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"><div class="pn-empty" data-tone="negative" role="alert" data-template="error">
+  <svg class="pn-icon pn-empty-icon" aria-hidden="true"><use href="#pn-icon-alert"></use></svg>
+  <p class="pn-empty-title" data-slot="title">Could not load posts</p>
+  <p class="pn-empty-text" data-slot="text">Check your connection and try again.</p>
+  <div class="pn-empty-actions" data-slot-children="actions"><button class="pn-button" data-variant="primary" type="button" data-action="retry">Try again</button></div>
+</div></div>
+</section></main>
+    <div class="pn-layout-slot" data-slot-children="savebar"></div>
+  </div>
+  <div class="pn-layout-slot" data-slot-children="dialogs"></div>
+  <div class="pn-toasts" aria-live="polite" data-slot-children="toasts"></div>
+</div>
+</template>
+<template data-pg-screen="create" data-pg-label="New post">
+<div class="pn pn-layout" data-template="layout">
+  <a class="pn-skip" href="#pn-main">Skip to content</a>
+  <div class="pn-layout-nav" data-slot-children="nav"><nav class="pn-nav" aria-label="Panel" data-template="nav">
+  <p class="pn-nav-brand" data-slot="brand">Field Notes</p>
+  <ul class="pn-nav-list" data-slot-repeat="entry"><li><a class="pn-nav-link" href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a class="pn-nav-link" href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a class="pn-nav-link" href="#settings" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ul>
+  <div class="pn-nav-account-slot" data-slot-children="account"><div class="pn-nav-account" data-template="account">
+  <span class="pn-nav-user" data-slot="user">me@example.com</span>
+  <button class="pn-button" data-variant="quiet" data-size="sm" type="button" data-action="logout">Log out</button>
+</div></div>
+</nav></div>
+  <div class="pn-layout-main">
+    <div class="pn-layout-slot" data-slot-children="header"><header class="pn-topbar" data-template="header">
+  <nav aria-label="Breadcrumb">
+    <ol class="pn-breadcrumb" data-slot-repeat="crumb"><li><a href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li></ol>
+  </nav>
+</header></div>
+    <main class="pn-layout-body" id="pn-main" tabindex="-1" data-slot-children="screen"><section class="pn-screen" data-state="ready" data-type="post" data-slot-attr="data-state:state data-type:type-id" aria-labelledby="pn-screen-title" data-template="screen-collection">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title">Posts</h1>
+    <div class="pn-screen-actions">
+      <button class="pn-button" data-variant="primary" type="button" data-action="create"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-plus"></use></svg><span data-slot="create-label">New post</span></button>
+    </div>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text">Loading…</span></div>
+  <div class="pn-region-ready">
+    <div class="pn-collection-tools" role="search">
+      <label class="pn-visually-hidden" for="pn-search" data-slot="search-label">Search posts</label>
+      <input class="pn-input" type="search" id="pn-search" name="q" placeholder="Search posts" data-slot-attr="placeholder:search-placeholder">
+      <label class="pn-visually-hidden" for="pn-sort" data-slot="sort-label">Sort by</label>
+      <select class="pn-select" id="pn-sort" name="sort" data-slot-repeat="sort-option"><option value="-date" data-slot-attr="value:value" data-slot="text" selected="">Newest first</option><option value="date" data-slot-attr="value:value" data-slot="text">Oldest first</option><option value="title" data-slot-attr="value:value" data-slot="text">Title A–Z</option></select>
+    </div>
+    <ul class="pn-list" data-slot-repeat="row"><li class="pn-list-item"><a class="pn-list-row" href="#item" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title">What the river kept</span><span class="pn-list-subtitle" data-slot="subtitle">Nov 1, 2026</span></span><span class="pn-status" data-tone="neutral" data-slot-attr="data-tone:tone" data-slot="status">Draft</span></a></li><li class="pn-list-item"><a class="pn-list-row" href="#item" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title">The bakery on Calder Street</span><span class="pn-list-subtitle" data-slot="subtitle">Oct 31, 2026</span></span><span class="pn-status" data-tone="neutral" data-slot-attr="data-tone:tone" data-slot="status">Draft</span></a></li><li class="pn-list-item"><a class="pn-list-row" href="#item" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title">Walking the old rail line</span><span class="pn-list-subtitle" data-slot="subtitle">Oct 28, 2026</span></span><span class="pn-status" data-tone="positive" data-slot-attr="data-tone:tone" data-slot="status">Published</span></a></li><li class="pn-list-item"><a class="pn-list-row" href="#item" data-slot-attr="href:href"><span class="pn-list-text"><span class="pn-list-title" data-slot="title">Notes on a slow autumn</span><span class="pn-list-subtitle" data-slot="subtitle">Oct 21, 2026</span></span><span class="pn-status" data-tone="positive" data-slot-attr="data-tone:tone" data-slot="status">Published</span></a></li></ul>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section></main>
+    <div class="pn-layout-slot" data-slot-children="savebar"></div>
+  </div>
+  <div class="pn-layout-slot" data-slot-children="dialogs"><dialog class="pn-dialog" aria-labelledby="pn-create-title" data-template="screen-create" open="">
+  <form method="dialog" novalidate="">
+    <div class="pn-dialog-body">
+      <h2 class="pn-dialog-title" id="pn-create-title" data-slot="title">New post</h2>
+      <div class="pn-grid" data-slot-children="fields"><div class="pn-field" data-field="title" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-text">
+  <label class="pn-label" for="post-new-title-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Title</label>
+  <input class="pn-input" type="text" id="post-new-title-input" name="title" aria-required="true" aria-describedby="post-new-title-help post-new-title-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby">
+  <p class="pn-help" id="post-new-title-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-new-title-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="slug" data-width="1/2" data-from="title" data-slot-attr="data-field:name data-width:width data-from:from" data-template="field-slug">
+  <label class="pn-label" for="post-new-slug-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Slug</label>
+  <input class="pn-input" type="text" data-mono="" spellcheck="false" autocapitalize="off" id="post-new-slug-input" name="slug" aria-required="false" aria-describedby="post-new-slug-help post-new-slug-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby">
+  <p class="pn-help" id="post-new-slug-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-new-slug-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div></div>
+    </div>
+    <div class="pn-dialog-footer">
+      <button class="pn-button" value="cancel" data-action="cancel">Cancel</button>
+      <button class="pn-button" data-variant="primary" value="create" data-action="create">Create</button>
+    </div>
+  </form>
+</dialog></div>
+  <div class="pn-toasts" aria-live="polite" data-slot-children="toasts"></div>
+</div>
+</template>
+<template data-pg-screen="item" data-pg-label="Walking the old rail line">
+<div class="pn pn-layout" data-template="layout">
+  <a class="pn-skip" href="#pn-main">Skip to content</a>
+  <div class="pn-layout-nav" data-slot-children="nav"><nav class="pn-nav" aria-label="Panel" data-template="nav">
+  <p class="pn-nav-brand" data-slot="brand">Field Notes</p>
+  <ul class="pn-nav-list" data-slot-repeat="entry"><li><a class="pn-nav-link" href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a class="pn-nav-link" href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a class="pn-nav-link" href="#settings" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ul>
+  <div class="pn-nav-account-slot" data-slot-children="account"><div class="pn-nav-account" data-template="account">
+  <span class="pn-nav-user" data-slot="user">me@example.com</span>
+  <button class="pn-button" data-variant="quiet" data-size="sm" type="button" data-action="logout">Log out</button>
+</div></div>
+</nav></div>
+  <div class="pn-layout-main">
+    <div class="pn-layout-slot" data-slot-children="header"><header class="pn-topbar" data-template="header">
+  <nav aria-label="Breadcrumb">
+    <ol class="pn-breadcrumb" data-slot-repeat="crumb"><li><a href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a href="#collection" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a href="#item" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Walking the old rail line</a></li></ol>
+  </nav>
+</header></div>
+    <main class="pn-layout-body" id="pn-main" tabindex="-1" data-slot-children="screen"><section class="pn-screen" data-state="ready" data-type="post" data-slot-attr="data-state:state data-type:type-id" aria-labelledby="pn-screen-title" data-template="screen-item">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title">Walking the old rail line</h1>
+    <div class="pn-screen-actions">
+      <button class="pn-status" type="button" data-tone="positive" data-action="status" data-slot-attr="data-tone:tone"><span class="pn-visually-hidden">Status:</span> <span class="pn-status-text" data-slot="status">Published</span></button>
+    </div>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text">Loading…</span></div>
+  <div class="pn-region-ready">
+    <form class="pn-item" data-kind="collection" novalidate="">
+      <div class="pn-grid" data-slot-children="fields"><div class="pn-field" data-field="title" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-text">
+  <label class="pn-label" for="post-title-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Title</label>
+  <input class="pn-input" type="text" id="post-title-input" name="title" aria-required="true" aria-describedby="post-title-help post-title-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" value="Walking the old rail line">
+  <p class="pn-help" id="post-title-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-title-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="slug" data-width="1/2" data-from="title" data-slot-attr="data-field:name data-width:width data-from:from" data-template="field-slug">
+  <label class="pn-label" for="post-slug-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Slug</label>
+  <input class="pn-input" type="text" data-mono="" spellcheck="false" autocapitalize="off" id="post-slug-input" name="slug" aria-required="false" aria-describedby="post-slug-help post-slug-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" value="walking-the-old-rail-line">
+  <p class="pn-help" id="post-slug-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-slug-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="date" data-width="1/2" data-slot-attr="data-field:name data-width:width" data-template="field-date">
+  <label class="pn-label" for="post-date-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Date</label>
+  <input class="pn-input" type="date" data-mono="" id="post-date-input" name="date" aria-required="true" aria-describedby="post-date-help post-date-error" data-slot-attr="type:date-type id:input-id name:name aria-required:required aria-describedby:describedby" value="2026-10-28">
+  <p class="pn-help" id="post-date-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-date-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="cover" data-width="1/2" data-state="filled" data-slot-attr="data-field:name data-width:width data-state:upload-state" data-template="field-image">
+  <span class="pn-label" id="post-cover-label" data-required="false" data-slot-attr="id:label-id data-required:required" data-slot="label">Cover</span>
+  <div class="pn-field-controls">
+    <label class="pn-dropzone">
+      <svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-upload"></use></svg>
+      <span data-slot="prompt">Drop an image, or click to choose</span>
+      <input type="file" accept="image/*" id="post-cover-input" name="cover" aria-labelledby="post-cover-label" aria-describedby="post-cover-help post-cover-error" data-slot-attr="id:input-id name:name aria-labelledby:label-id aria-describedby:describedby">
+    </label>
+    <div class="pn-file">
+      <img class="pn-file-thumb" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'%3E%3Crect width='4' height='3' fill='%238a9a7b'/%3E%3Cpath d='M0 3l1.5-1.5 1 1 .5-.5 1 1z' fill='%23ffffff' fill-opacity='.5'/%3E%3C/svg%3E" alt="Cover: rail-line.jpg" data-slot-attr="src:src alt:alt">
+      <span class="pn-file-text"><span class="pn-file-name" data-slot="file-name">rail-line.jpg</span><span class="pn-file-meta" data-slot="file-meta">84 KB</span></span>
+      <button class="pn-button" data-variant="quiet" data-icon-only="" data-size="sm" type="button" aria-label="Remove cover" data-action="remove-file" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"></use></svg></button>
+    </div>
+  </div>
+  <p class="pn-help" id="post-cover-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-cover-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="tags" data-width="1/2" data-slot-attr="data-field:name data-width:width" data-template="field-tags">
+  <label class="pn-label" for="post-tags-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Tags</label>
+  <div class="pn-tags-input">
+    <span class="pn-tags-list" data-slot-repeat="tag"><span class="pn-tag"><span data-slot="text">walking</span><button class="pn-tag-remove" type="button" aria-label="Remove walking" data-action="remove-tag" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"></use></svg></button></span><span class="pn-tag"><span data-slot="text">local history</span><button class="pn-tag-remove" type="button" aria-label="Remove local history" data-action="remove-tag" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"></use></svg></button></span></span>
+    <input class="pn-tags-input-field" type="text" id="post-tags-input" name="tags" aria-required="false" aria-describedby="post-tags-help post-tags-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby">
+  </div>
+  <p class="pn-help" id="post-tags-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-tags-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="body" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-markdown">
+  <label class="pn-label" for="post-body-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Body</label>
+  <div class="pn-toolbar" role="toolbar" aria-label="Formatting" hidden="">
+    <button class="pn-button" data-size="sm" type="button" aria-label="Bold" data-action="bold"><b>B</b></button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Italic" data-action="italic"><i>I</i></button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Heading" data-action="heading">H</button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Link" data-action="link">Link</button>
+  </div>
+  <textarea class="pn-textarea" data-markdown="" id="post-body-input" name="body" aria-required="true" aria-describedby="post-body-help post-body-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby">The line closed in 1962, but the cuttings are still there if you know where to look.
+
+## From the station yard
+
+Start where the coal sheds stood. The ballast is mostly grass now, and the **mileposts** lean like old teeth. By the second bridge the path narrows to a single track between hawthorns, and you can hear the river before you see it.</textarea>
+  <p class="pn-help" id="post-body-help" data-slot-attr="id:help-id" data-slot="help">64 words</p>
+  <p class="pn-error" id="post-body-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="reading_time" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-custom">
+  <span class="pn-label" id="post-reading_time-label" data-required="false" data-slot-attr="id:label-id data-required:required" data-slot="label">Reading time</span>
+  <div class="pn-field-controls" data-slot-children="control"><input class="pn-input" type="text" readonly="" id="post-reading_time-input" aria-labelledby="post-reading_time-label" aria-describedby="post-reading_time-help post-reading_time-error" value="1 min"></div>
+  <p class="pn-help" id="post-reading_time-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-reading_time-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div></div>
+      <aside class="pn-item-sidebar" aria-label="Details">
+        <dl class="pn-meta">
+          <dt>Created</dt>
+          <dd data-slot="created">Oct 24, 2026</dd>
+          <dt>Updated</dt>
+          <dd data-slot="updated">Oct 30, 2026</dd>
+        </dl>
+        <button class="pn-button" data-variant="negative" type="button" data-action="delete"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"></use></svg>Delete</button>
+      </aside>
+    </form>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section></main>
+    <div class="pn-layout-slot" data-slot-children="savebar"><div class="pn-savebar" data-state="clean" data-slot-attr="data-state:save-state" data-template="savebar">
+  <p class="pn-savebar-message" role="status" data-slot="message">All changes saved</p>
+  <div class="pn-savebar-actions">
+    <span class="pn-spinner" aria-hidden="true"></span>
+    <button class="pn-button" data-variant="quiet" type="button" data-action="revert" disabled="">Revert</button>
+    <button class="pn-button" data-variant="primary" type="button" data-action="save" disabled="">Save</button>
+  </div>
+</div></div>
+  </div>
+  <div class="pn-layout-slot" data-slot-children="dialogs"></div>
+  <div class="pn-toasts" aria-live="polite" data-slot-children="toasts"></div>
+</div>
+</template>
+<template data-pg-screen="item-dirty" data-pg-label="Walking the old rail line: unsaved">
+<div class="pn pn-layout" data-template="layout">
+  <a class="pn-skip" href="#pn-main">Skip to content</a>
+  <div class="pn-layout-nav" data-slot-children="nav"><nav class="pn-nav" aria-label="Panel" data-template="nav">
+  <p class="pn-nav-brand" data-slot="brand">Field Notes</p>
+  <ul class="pn-nav-list" data-slot-repeat="entry"><li><a class="pn-nav-link" href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a class="pn-nav-link" href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a class="pn-nav-link" href="#settings" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ul>
+  <div class="pn-nav-account-slot" data-slot-children="account"><div class="pn-nav-account" data-template="account">
+  <span class="pn-nav-user" data-slot="user">me@example.com</span>
+  <button class="pn-button" data-variant="quiet" data-size="sm" type="button" data-action="logout">Log out</button>
+</div></div>
+</nav></div>
+  <div class="pn-layout-main">
+    <div class="pn-layout-slot" data-slot-children="header"><header class="pn-topbar" data-template="header">
+  <nav aria-label="Breadcrumb">
+    <ol class="pn-breadcrumb" data-slot-repeat="crumb"><li><a href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a href="#collection" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a href="#item" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Walking the old rail line</a></li></ol>
+  </nav>
+</header></div>
+    <main class="pn-layout-body" id="pn-main" tabindex="-1" data-slot-children="screen"><section class="pn-screen" data-state="ready" data-type="post" data-slot-attr="data-state:state data-type:type-id" aria-labelledby="pn-screen-title" data-template="screen-item">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title">Walking the old rail line</h1>
+    <div class="pn-screen-actions">
+      <button class="pn-status" type="button" data-tone="positive" data-action="status" data-slot-attr="data-tone:tone"><span class="pn-visually-hidden">Status:</span> <span class="pn-status-text" data-slot="status">Published</span></button>
+    </div>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text">Loading…</span></div>
+  <div class="pn-region-ready">
+    <form class="pn-item" data-kind="collection" novalidate="">
+      <div class="pn-grid" data-slot-children="fields"><div class="pn-field" data-field="title" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-text">
+  <label class="pn-label" for="post-title-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Title</label>
+  <input class="pn-input" type="text" id="post-title-input" name="title" aria-required="true" aria-describedby="post-title-help post-title-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" value="Walking the old rail line">
+  <p class="pn-help" id="post-title-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-title-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="slug" data-width="1/2" data-from="title" data-slot-attr="data-field:name data-width:width data-from:from" data-template="field-slug">
+  <label class="pn-label" for="post-slug-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Slug</label>
+  <input class="pn-input" type="text" data-mono="" spellcheck="false" autocapitalize="off" id="post-slug-input" name="slug" aria-required="false" aria-describedby="post-slug-help post-slug-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" value="walking-the-old-rail-line">
+  <p class="pn-help" id="post-slug-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-slug-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="date" data-width="1/2" data-slot-attr="data-field:name data-width:width" data-template="field-date">
+  <label class="pn-label" for="post-date-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Date</label>
+  <input class="pn-input" type="date" data-mono="" id="post-date-input" name="date" aria-required="true" aria-describedby="post-date-help post-date-error" data-slot-attr="type:date-type id:input-id name:name aria-required:required aria-describedby:describedby" value="2026-10-28">
+  <p class="pn-help" id="post-date-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-date-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="cover" data-width="1/2" data-state="filled" data-slot-attr="data-field:name data-width:width data-state:upload-state" data-template="field-image">
+  <span class="pn-label" id="post-cover-label" data-required="false" data-slot-attr="id:label-id data-required:required" data-slot="label">Cover</span>
+  <div class="pn-field-controls">
+    <label class="pn-dropzone">
+      <svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-upload"></use></svg>
+      <span data-slot="prompt">Drop an image, or click to choose</span>
+      <input type="file" accept="image/*" id="post-cover-input" name="cover" aria-labelledby="post-cover-label" aria-describedby="post-cover-help post-cover-error" data-slot-attr="id:input-id name:name aria-labelledby:label-id aria-describedby:describedby">
+    </label>
+    <div class="pn-file">
+      <img class="pn-file-thumb" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'%3E%3Crect width='4' height='3' fill='%238a9a7b'/%3E%3Cpath d='M0 3l1.5-1.5 1 1 .5-.5 1 1z' fill='%23ffffff' fill-opacity='.5'/%3E%3C/svg%3E" alt="Cover: rail-line.jpg" data-slot-attr="src:src alt:alt">
+      <span class="pn-file-text"><span class="pn-file-name" data-slot="file-name">rail-line.jpg</span><span class="pn-file-meta" data-slot="file-meta">84 KB</span></span>
+      <button class="pn-button" data-variant="quiet" data-icon-only="" data-size="sm" type="button" aria-label="Remove cover" data-action="remove-file" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"></use></svg></button>
+    </div>
+  </div>
+  <p class="pn-help" id="post-cover-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-cover-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="tags" data-width="1/2" data-slot-attr="data-field:name data-width:width" data-template="field-tags">
+  <label class="pn-label" for="post-tags-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Tags</label>
+  <div class="pn-tags-input">
+    <span class="pn-tags-list" data-slot-repeat="tag"><span class="pn-tag"><span data-slot="text">walking</span><button class="pn-tag-remove" type="button" aria-label="Remove walking" data-action="remove-tag" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"></use></svg></button></span><span class="pn-tag"><span data-slot="text">local history</span><button class="pn-tag-remove" type="button" aria-label="Remove local history" data-action="remove-tag" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"></use></svg></button></span></span>
+    <input class="pn-tags-input-field" type="text" id="post-tags-input" name="tags" aria-required="false" aria-describedby="post-tags-help post-tags-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby">
+  </div>
+  <p class="pn-help" id="post-tags-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-tags-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="body" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-markdown">
+  <label class="pn-label" for="post-body-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Body</label>
+  <div class="pn-toolbar" role="toolbar" aria-label="Formatting" hidden="">
+    <button class="pn-button" data-size="sm" type="button" aria-label="Bold" data-action="bold"><b>B</b></button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Italic" data-action="italic"><i>I</i></button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Heading" data-action="heading">H</button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Link" data-action="link">Link</button>
+  </div>
+  <textarea class="pn-textarea" data-markdown="" id="post-body-input" name="body" aria-required="true" aria-describedby="post-body-help post-body-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby">The line closed in 1962, but the cuttings are still there if you know where to look.
+
+## From the station yard
+
+Start where the coal sheds stood. The ballast is mostly grass now, and the **mileposts** lean like old teeth. By the second bridge the path narrows to a single track between hawthorns, and you can hear the river before you see it.
+
+At the far end, someone has painted the old signal box a bright, unlikely blue.</textarea>
+  <p class="pn-help" id="post-body-help" data-slot-attr="id:help-id" data-slot="help">79 words</p>
+  <p class="pn-error" id="post-body-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="reading_time" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-custom">
+  <span class="pn-label" id="post-reading_time-label" data-required="false" data-slot-attr="id:label-id data-required:required" data-slot="label">Reading time</span>
+  <div class="pn-field-controls" data-slot-children="control"><input class="pn-input" type="text" readonly="" id="post-reading_time-input" aria-labelledby="post-reading_time-label" aria-describedby="post-reading_time-help post-reading_time-error" value="1 min"></div>
+  <p class="pn-help" id="post-reading_time-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-reading_time-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div></div>
+      <aside class="pn-item-sidebar" aria-label="Details">
+        <dl class="pn-meta">
+          <dt>Created</dt>
+          <dd data-slot="created">Oct 24, 2026</dd>
+          <dt>Updated</dt>
+          <dd data-slot="updated">Oct 30, 2026</dd>
+        </dl>
+        <button class="pn-button" data-variant="negative" type="button" data-action="delete"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"></use></svg>Delete</button>
+      </aside>
+    </form>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section></main>
+    <div class="pn-layout-slot" data-slot-children="savebar"><div class="pn-savebar" data-state="dirty" data-slot-attr="data-state:save-state" data-template="savebar">
+  <p class="pn-savebar-message" role="status" data-slot="message">Unsaved changes</p>
+  <div class="pn-savebar-actions">
+    <span class="pn-spinner" aria-hidden="true"></span>
+    <button class="pn-button" data-variant="quiet" type="button" data-action="revert">Revert</button>
+    <button class="pn-button" data-variant="primary" type="button" data-action="save">Save</button>
+  </div>
+</div></div>
+  </div>
+  <div class="pn-layout-slot" data-slot-children="dialogs"></div>
+  <div class="pn-toasts" aria-live="polite" data-slot-children="toasts"></div>
+</div>
+</template>
+<template data-pg-screen="item-saving" data-pg-label="Walking the old rail line: saving">
+<div class="pn pn-layout" data-template="layout">
+  <a class="pn-skip" href="#pn-main">Skip to content</a>
+  <div class="pn-layout-nav" data-slot-children="nav"><nav class="pn-nav" aria-label="Panel" data-template="nav">
+  <p class="pn-nav-brand" data-slot="brand">Field Notes</p>
+  <ul class="pn-nav-list" data-slot-repeat="entry"><li><a class="pn-nav-link" href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a class="pn-nav-link" href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a class="pn-nav-link" href="#settings" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ul>
+  <div class="pn-nav-account-slot" data-slot-children="account"><div class="pn-nav-account" data-template="account">
+  <span class="pn-nav-user" data-slot="user">me@example.com</span>
+  <button class="pn-button" data-variant="quiet" data-size="sm" type="button" data-action="logout">Log out</button>
+</div></div>
+</nav></div>
+  <div class="pn-layout-main">
+    <div class="pn-layout-slot" data-slot-children="header"><header class="pn-topbar" data-template="header">
+  <nav aria-label="Breadcrumb">
+    <ol class="pn-breadcrumb" data-slot-repeat="crumb"><li><a href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a href="#collection" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a href="#item" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Walking the old rail line</a></li></ol>
+  </nav>
+</header></div>
+    <main class="pn-layout-body" id="pn-main" tabindex="-1" data-slot-children="screen"><section class="pn-screen" data-state="ready" data-type="post" data-slot-attr="data-state:state data-type:type-id" aria-labelledby="pn-screen-title" data-template="screen-item">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title">Walking the old rail line</h1>
+    <div class="pn-screen-actions">
+      <button class="pn-status" type="button" data-tone="positive" data-action="status" data-slot-attr="data-tone:tone"><span class="pn-visually-hidden">Status:</span> <span class="pn-status-text" data-slot="status">Published</span></button>
+    </div>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text">Loading…</span></div>
+  <div class="pn-region-ready">
+    <form class="pn-item" data-kind="collection" novalidate="">
+      <div class="pn-grid" data-slot-children="fields"><div class="pn-field" data-field="title" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-text">
+  <label class="pn-label" for="post-title-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Title</label>
+  <input class="pn-input" type="text" id="post-title-input" name="title" aria-required="true" aria-describedby="post-title-help post-title-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" value="Walking the old rail line" disabled="">
+  <p class="pn-help" id="post-title-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-title-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="slug" data-width="1/2" data-from="title" data-slot-attr="data-field:name data-width:width data-from:from" data-template="field-slug">
+  <label class="pn-label" for="post-slug-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Slug</label>
+  <input class="pn-input" type="text" data-mono="" spellcheck="false" autocapitalize="off" id="post-slug-input" name="slug" aria-required="false" aria-describedby="post-slug-help post-slug-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" value="walking-the-old-rail-line" disabled="">
+  <p class="pn-help" id="post-slug-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-slug-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="date" data-width="1/2" data-slot-attr="data-field:name data-width:width" data-template="field-date">
+  <label class="pn-label" for="post-date-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Date</label>
+  <input class="pn-input" type="date" data-mono="" id="post-date-input" name="date" aria-required="true" aria-describedby="post-date-help post-date-error" data-slot-attr="type:date-type id:input-id name:name aria-required:required aria-describedby:describedby" value="2026-10-28" disabled="">
+  <p class="pn-help" id="post-date-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-date-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="cover" data-width="1/2" data-state="filled" data-slot-attr="data-field:name data-width:width data-state:upload-state" data-template="field-image">
+  <span class="pn-label" id="post-cover-label" data-required="false" data-slot-attr="id:label-id data-required:required" data-slot="label">Cover</span>
+  <div class="pn-field-controls">
+    <label class="pn-dropzone">
+      <svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-upload"></use></svg>
+      <span data-slot="prompt">Drop an image, or click to choose</span>
+      <input type="file" accept="image/*" id="post-cover-input" name="cover" aria-labelledby="post-cover-label" aria-describedby="post-cover-help post-cover-error" data-slot-attr="id:input-id name:name aria-labelledby:label-id aria-describedby:describedby" disabled="">
+    </label>
+    <div class="pn-file">
+      <img class="pn-file-thumb" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'%3E%3Crect width='4' height='3' fill='%238a9a7b'/%3E%3Cpath d='M0 3l1.5-1.5 1 1 .5-.5 1 1z' fill='%23ffffff' fill-opacity='.5'/%3E%3C/svg%3E" alt="Cover: rail-line.jpg" data-slot-attr="src:src alt:alt">
+      <span class="pn-file-text"><span class="pn-file-name" data-slot="file-name">rail-line.jpg</span><span class="pn-file-meta" data-slot="file-meta">84 KB</span></span>
+      <button class="pn-button" data-variant="quiet" data-icon-only="" data-size="sm" type="button" aria-label="Remove cover" data-action="remove-file" data-slot-attr="aria-label:remove-label" disabled=""><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"></use></svg></button>
+    </div>
+  </div>
+  <p class="pn-help" id="post-cover-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-cover-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="tags" data-width="1/2" data-slot-attr="data-field:name data-width:width" data-template="field-tags">
+  <label class="pn-label" for="post-tags-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Tags</label>
+  <div class="pn-tags-input">
+    <span class="pn-tags-list" data-slot-repeat="tag"><span class="pn-tag"><span data-slot="text">walking</span><button class="pn-tag-remove" type="button" aria-label="Remove walking" data-action="remove-tag" data-slot-attr="aria-label:remove-label" disabled=""><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"></use></svg></button></span><span class="pn-tag"><span data-slot="text">local history</span><button class="pn-tag-remove" type="button" aria-label="Remove local history" data-action="remove-tag" data-slot-attr="aria-label:remove-label" disabled=""><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"></use></svg></button></span></span>
+    <input class="pn-tags-input-field" type="text" id="post-tags-input" name="tags" aria-required="false" aria-describedby="post-tags-help post-tags-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" disabled="">
+  </div>
+  <p class="pn-help" id="post-tags-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-tags-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="body" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-markdown">
+  <label class="pn-label" for="post-body-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Body</label>
+  <div class="pn-toolbar" role="toolbar" aria-label="Formatting" hidden="">
+    <button class="pn-button" data-size="sm" type="button" aria-label="Bold" data-action="bold" disabled=""><b>B</b></button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Italic" data-action="italic" disabled=""><i>I</i></button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Heading" data-action="heading" disabled="">H</button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Link" data-action="link" disabled="">Link</button>
+  </div>
+  <textarea class="pn-textarea" data-markdown="" id="post-body-input" name="body" aria-required="true" aria-describedby="post-body-help post-body-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" disabled="">The line closed in 1962, but the cuttings are still there if you know where to look.
+
+## From the station yard
+
+Start where the coal sheds stood. The ballast is mostly grass now, and the **mileposts** lean like old teeth. By the second bridge the path narrows to a single track between hawthorns, and you can hear the river before you see it.
+
+At the far end, someone has painted the old signal box a bright, unlikely blue.</textarea>
+  <p class="pn-help" id="post-body-help" data-slot-attr="id:help-id" data-slot="help">79 words</p>
+  <p class="pn-error" id="post-body-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="reading_time" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-custom">
+  <span class="pn-label" id="post-reading_time-label" data-required="false" data-slot-attr="id:label-id data-required:required" data-slot="label">Reading time</span>
+  <div class="pn-field-controls" data-slot-children="control"><input class="pn-input" type="text" readonly="" id="post-reading_time-input" aria-labelledby="post-reading_time-label" aria-describedby="post-reading_time-help post-reading_time-error" value="1 min" disabled=""></div>
+  <p class="pn-help" id="post-reading_time-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-reading_time-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div></div>
+      <aside class="pn-item-sidebar" aria-label="Details">
+        <dl class="pn-meta">
+          <dt>Created</dt>
+          <dd data-slot="created">Oct 24, 2026</dd>
+          <dt>Updated</dt>
+          <dd data-slot="updated">Oct 30, 2026</dd>
+        </dl>
+        <button class="pn-button" data-variant="negative" type="button" data-action="delete"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"></use></svg>Delete</button>
+      </aside>
+    </form>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section></main>
+    <div class="pn-layout-slot" data-slot-children="savebar"><div class="pn-savebar" data-state="saving" data-slot-attr="data-state:save-state" data-template="savebar">
+  <p class="pn-savebar-message" role="status" data-slot="message">Saving…</p>
+  <div class="pn-savebar-actions">
+    <span class="pn-spinner" aria-hidden="true"></span>
+    <button class="pn-button" data-variant="quiet" type="button" data-action="revert" disabled="">Revert</button>
+    <button class="pn-button" data-variant="primary" type="button" data-action="save" disabled="">Save</button>
+  </div>
+</div></div>
+  </div>
+  <div class="pn-layout-slot" data-slot-children="dialogs"></div>
+  <div class="pn-toasts" aria-live="polite" data-slot-children="toasts"></div>
+</div>
+</template>
+<template data-pg-screen="item-save-error" data-pg-label="Walking the old rail line: save failed">
+<div class="pn pn-layout" data-template="layout">
+  <a class="pn-skip" href="#pn-main">Skip to content</a>
+  <div class="pn-layout-nav" data-slot-children="nav"><nav class="pn-nav" aria-label="Panel" data-template="nav">
+  <p class="pn-nav-brand" data-slot="brand">Field Notes</p>
+  <ul class="pn-nav-list" data-slot-repeat="entry"><li><a class="pn-nav-link" href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a class="pn-nav-link" href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a class="pn-nav-link" href="#settings" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ul>
+  <div class="pn-nav-account-slot" data-slot-children="account"><div class="pn-nav-account" data-template="account">
+  <span class="pn-nav-user" data-slot="user">me@example.com</span>
+  <button class="pn-button" data-variant="quiet" data-size="sm" type="button" data-action="logout">Log out</button>
+</div></div>
+</nav></div>
+  <div class="pn-layout-main">
+    <div class="pn-layout-slot" data-slot-children="header"><header class="pn-topbar" data-template="header">
+  <nav aria-label="Breadcrumb">
+    <ol class="pn-breadcrumb" data-slot-repeat="crumb"><li><a href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a href="#collection" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a href="#item" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Walking the old rail line</a></li></ol>
+  </nav>
+</header></div>
+    <main class="pn-layout-body" id="pn-main" tabindex="-1" data-slot-children="screen"><section class="pn-screen" data-state="ready" data-type="post" data-slot-attr="data-state:state data-type:type-id" aria-labelledby="pn-screen-title" data-template="screen-item">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title">Walking the old rail line</h1>
+    <div class="pn-screen-actions">
+      <button class="pn-status" type="button" data-tone="positive" data-action="status" data-slot-attr="data-tone:tone"><span class="pn-visually-hidden">Status:</span> <span class="pn-status-text" data-slot="status">Published</span></button>
+    </div>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text">Loading…</span></div>
+  <div class="pn-region-ready">
+    <form class="pn-item" data-kind="collection" novalidate="">
+      <div class="pn-grid" data-slot-children="fields"><div class="pn-field" data-field="title" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-text">
+  <label class="pn-label" for="post-title-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Title</label>
+  <input class="pn-input" type="text" id="post-title-input" name="title" aria-required="true" aria-describedby="post-title-help post-title-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" value="Walking the old rail line">
+  <p class="pn-help" id="post-title-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-title-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="slug" data-width="1/2" data-from="title" data-slot-attr="data-field:name data-width:width data-from:from" data-template="field-slug">
+  <label class="pn-label" for="post-slug-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Slug</label>
+  <input class="pn-input" type="text" data-mono="" spellcheck="false" autocapitalize="off" id="post-slug-input" name="slug" aria-required="false" aria-describedby="post-slug-help post-slug-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" value="walking-the-old-rail-line">
+  <p class="pn-help" id="post-slug-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-slug-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="date" data-width="1/2" data-slot-attr="data-field:name data-width:width" data-template="field-date">
+  <label class="pn-label" for="post-date-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Date</label>
+  <input class="pn-input" type="date" data-mono="" id="post-date-input" name="date" aria-required="true" aria-describedby="post-date-help post-date-error" data-slot-attr="type:date-type id:input-id name:name aria-required:required aria-describedby:describedby" value="2026-10-28">
+  <p class="pn-help" id="post-date-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-date-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="cover" data-width="1/2" data-state="filled" data-slot-attr="data-field:name data-width:width data-state:upload-state" data-template="field-image">
+  <span class="pn-label" id="post-cover-label" data-required="false" data-slot-attr="id:label-id data-required:required" data-slot="label">Cover</span>
+  <div class="pn-field-controls">
+    <label class="pn-dropzone">
+      <svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-upload"></use></svg>
+      <span data-slot="prompt">Drop an image, or click to choose</span>
+      <input type="file" accept="image/*" id="post-cover-input" name="cover" aria-labelledby="post-cover-label" aria-describedby="post-cover-help post-cover-error" data-slot-attr="id:input-id name:name aria-labelledby:label-id aria-describedby:describedby">
+    </label>
+    <div class="pn-file">
+      <img class="pn-file-thumb" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'%3E%3Crect width='4' height='3' fill='%238a9a7b'/%3E%3Cpath d='M0 3l1.5-1.5 1 1 .5-.5 1 1z' fill='%23ffffff' fill-opacity='.5'/%3E%3C/svg%3E" alt="Cover: rail-line.jpg" data-slot-attr="src:src alt:alt">
+      <span class="pn-file-text"><span class="pn-file-name" data-slot="file-name">rail-line.jpg</span><span class="pn-file-meta" data-slot="file-meta">84 KB</span></span>
+      <button class="pn-button" data-variant="quiet" data-icon-only="" data-size="sm" type="button" aria-label="Remove cover" data-action="remove-file" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"></use></svg></button>
+    </div>
+  </div>
+  <p class="pn-help" id="post-cover-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-cover-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="tags" data-width="1/2" data-slot-attr="data-field:name data-width:width" data-template="field-tags">
+  <label class="pn-label" for="post-tags-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Tags</label>
+  <div class="pn-tags-input">
+    <span class="pn-tags-list" data-slot-repeat="tag"><span class="pn-tag"><span data-slot="text">walking</span><button class="pn-tag-remove" type="button" aria-label="Remove walking" data-action="remove-tag" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"></use></svg></button></span><span class="pn-tag"><span data-slot="text">local history</span><button class="pn-tag-remove" type="button" aria-label="Remove local history" data-action="remove-tag" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"></use></svg></button></span></span>
+    <input class="pn-tags-input-field" type="text" id="post-tags-input" name="tags" aria-required="false" aria-describedby="post-tags-help post-tags-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby">
+  </div>
+  <p class="pn-help" id="post-tags-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-tags-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="body" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-markdown">
+  <label class="pn-label" for="post-body-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Body</label>
+  <div class="pn-toolbar" role="toolbar" aria-label="Formatting" hidden="">
+    <button class="pn-button" data-size="sm" type="button" aria-label="Bold" data-action="bold"><b>B</b></button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Italic" data-action="italic"><i>I</i></button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Heading" data-action="heading">H</button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Link" data-action="link">Link</button>
+  </div>
+  <textarea class="pn-textarea" data-markdown="" id="post-body-input" name="body" aria-required="true" aria-describedby="post-body-help post-body-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby">The line closed in 1962, but the cuttings are still there if you know where to look.
+
+## From the station yard
+
+Start where the coal sheds stood. The ballast is mostly grass now, and the **mileposts** lean like old teeth. By the second bridge the path narrows to a single track between hawthorns, and you can hear the river before you see it.
+
+At the far end, someone has painted the old signal box a bright, unlikely blue.</textarea>
+  <p class="pn-help" id="post-body-help" data-slot-attr="id:help-id" data-slot="help">79 words</p>
+  <p class="pn-error" id="post-body-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="reading_time" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-custom">
+  <span class="pn-label" id="post-reading_time-label" data-required="false" data-slot-attr="id:label-id data-required:required" data-slot="label">Reading time</span>
+  <div class="pn-field-controls" data-slot-children="control"><input class="pn-input" type="text" readonly="" id="post-reading_time-input" aria-labelledby="post-reading_time-label" aria-describedby="post-reading_time-help post-reading_time-error" value="1 min"></div>
+  <p class="pn-help" id="post-reading_time-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-reading_time-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div></div>
+      <aside class="pn-item-sidebar" aria-label="Details">
+        <dl class="pn-meta">
+          <dt>Created</dt>
+          <dd data-slot="created">Oct 24, 2026</dd>
+          <dt>Updated</dt>
+          <dd data-slot="updated">Oct 30, 2026</dd>
+        </dl>
+        <button class="pn-button" data-variant="negative" type="button" data-action="delete"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"></use></svg>Delete</button>
+      </aside>
+    </form>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section></main>
+    <div class="pn-layout-slot" data-slot-children="savebar"><div class="pn-savebar" data-state="error" data-slot-attr="data-state:save-state" data-template="savebar">
+  <p class="pn-savebar-message" role="status" data-slot="message">Could not save. Your changes are kept.</p>
+  <div class="pn-savebar-actions">
+    <span class="pn-spinner" aria-hidden="true"></span>
+    <button class="pn-button" data-variant="quiet" type="button" data-action="revert">Revert</button>
+    <button class="pn-button" data-variant="primary" type="button" data-action="save">Save</button>
+  </div>
+</div></div>
+  </div>
+  <div class="pn-layout-slot" data-slot-children="dialogs"></div>
+  <div class="pn-toasts" aria-live="polite" data-slot-children="toasts"></div>
+</div>
+</template>
+<template data-pg-screen="item-invalid" data-pg-label="What the river kept: can't publish">
+<div class="pn pn-layout" data-template="layout">
+  <a class="pn-skip" href="#pn-main">Skip to content</a>
+  <div class="pn-layout-nav" data-slot-children="nav"><nav class="pn-nav" aria-label="Panel" data-template="nav">
+  <p class="pn-nav-brand" data-slot="brand">Field Notes</p>
+  <ul class="pn-nav-list" data-slot-repeat="entry"><li><a class="pn-nav-link" href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a class="pn-nav-link" href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a class="pn-nav-link" href="#settings" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ul>
+  <div class="pn-nav-account-slot" data-slot-children="account"><div class="pn-nav-account" data-template="account">
+  <span class="pn-nav-user" data-slot="user">me@example.com</span>
+  <button class="pn-button" data-variant="quiet" data-size="sm" type="button" data-action="logout">Log out</button>
+</div></div>
+</nav></div>
+  <div class="pn-layout-main">
+    <div class="pn-layout-slot" data-slot-children="header"><header class="pn-topbar" data-template="header">
+  <nav aria-label="Breadcrumb">
+    <ol class="pn-breadcrumb" data-slot-repeat="crumb"><li><a href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a href="#collection" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a href="#item" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">What the river kept</a></li></ol>
+  </nav>
+</header></div>
+    <main class="pn-layout-body" id="pn-main" tabindex="-1" data-slot-children="screen"><section class="pn-screen" data-state="ready" data-type="post" data-slot-attr="data-state:state data-type:type-id" aria-labelledby="pn-screen-title" data-template="screen-item">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title">What the river kept</h1>
+    <div class="pn-screen-actions">
+      <button class="pn-status" type="button" data-tone="neutral" data-action="status" data-slot-attr="data-tone:tone"><span class="pn-visually-hidden">Status:</span> <span class="pn-status-text" data-slot="status">Draft</span></button>
+    </div>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text">Loading…</span></div>
+  <div class="pn-region-ready">
+    <form class="pn-item" data-kind="collection" novalidate="">
+      <div class="pn-grid" data-slot-children="fields"><div class="pn-field" data-field="title" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-text">
+  <label class="pn-label" for="post-title-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Title</label>
+  <input class="pn-input" type="text" id="post-title-input" name="title" aria-required="true" aria-describedby="post-title-help post-title-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" value="What the river kept">
+  <p class="pn-help" id="post-title-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-title-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="slug" data-width="1/2" data-from="title" data-slot-attr="data-field:name data-width:width data-from:from" data-template="field-slug">
+  <label class="pn-label" for="post-slug-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Slug</label>
+  <input class="pn-input" type="text" data-mono="" spellcheck="false" autocapitalize="off" id="post-slug-input" name="slug" aria-required="false" aria-describedby="post-slug-help post-slug-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" value="what-the-river-kept">
+  <p class="pn-help" id="post-slug-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-slug-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="date" data-width="1/2" data-slot-attr="data-field:name data-width:width" data-template="field-date">
+  <label class="pn-label" for="post-date-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Date</label>
+  <input class="pn-input" type="date" data-mono="" id="post-date-input" name="date" aria-required="true" aria-describedby="post-date-help post-date-error" data-slot-attr="type:date-type id:input-id name:name aria-required:required aria-describedby:describedby" value="2026-11-01">
+  <p class="pn-help" id="post-date-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-date-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="cover" data-width="1/2" data-state="empty" data-slot-attr="data-field:name data-width:width data-state:upload-state" data-template="field-image">
+  <span class="pn-label" id="post-cover-label" data-required="false" data-slot-attr="id:label-id data-required:required" data-slot="label">Cover</span>
+  <div class="pn-field-controls">
+    <label class="pn-dropzone">
+      <svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-upload"></use></svg>
+      <span data-slot="prompt">Drop an image, or click to choose</span>
+      <input type="file" accept="image/*" id="post-cover-input" name="cover" aria-labelledby="post-cover-label" aria-describedby="post-cover-help post-cover-error" data-slot-attr="id:input-id name:name aria-labelledby:label-id aria-describedby:describedby" aria-invalid="true">
+    </label>
+    <div class="pn-file">
+      <img class="pn-file-thumb" src="" alt="" data-slot-attr="src:src alt:alt">
+      <span class="pn-file-text"><span class="pn-file-name" data-slot="file-name"></span><span class="pn-file-meta" data-slot="file-meta"></span></span>
+      <button class="pn-button" data-variant="quiet" data-icon-only="" data-size="sm" type="button" aria-label="Remove cover" data-action="remove-file" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"></use></svg></button>
+    </div>
+  </div>
+  <p class="pn-help" id="post-cover-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-cover-error" data-slot-attr="id:error-id" data-slot="error">Required to publish.</p>
+</div><div class="pn-field" data-field="tags" data-width="1/2" data-slot-attr="data-field:name data-width:width" data-template="field-tags">
+  <label class="pn-label" for="post-tags-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Tags</label>
+  <div class="pn-tags-input">
+    <span class="pn-tags-list" data-slot-repeat="tag"><span class="pn-tag"><span data-slot="text">river</span><button class="pn-tag-remove" type="button" aria-label="Remove river" data-action="remove-tag" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"></use></svg></button></span></span>
+    <input class="pn-tags-input-field" type="text" id="post-tags-input" name="tags" aria-required="false" aria-describedby="post-tags-help post-tags-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby">
+  </div>
+  <p class="pn-help" id="post-tags-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-tags-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="body" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-markdown">
+  <label class="pn-label" for="post-body-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Body</label>
+  <div class="pn-toolbar" role="toolbar" aria-label="Formatting" hidden="">
+    <button class="pn-button" data-size="sm" type="button" aria-label="Bold" data-action="bold"><b>B</b></button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Italic" data-action="italic"><i>I</i></button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Heading" data-action="heading">H</button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Link" data-action="link">Link</button>
+  </div>
+  <textarea class="pn-textarea" data-markdown="" id="post-body-input" name="body" aria-required="true" aria-describedby="post-body-help post-body-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" aria-invalid="true"></textarea>
+  <p class="pn-help" id="post-body-help" data-slot-attr="id:help-id" data-slot="help">0 words</p>
+  <p class="pn-error" id="post-body-error" data-slot-attr="id:error-id" data-slot="error">Required to publish.</p>
+</div><div class="pn-field" data-field="reading_time" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-custom">
+  <span class="pn-label" id="post-reading_time-label" data-required="false" data-slot-attr="id:label-id data-required:required" data-slot="label">Reading time</span>
+  <div class="pn-field-controls" data-slot-children="control"><input class="pn-input" type="text" readonly="" id="post-reading_time-input" aria-labelledby="post-reading_time-label" aria-describedby="post-reading_time-help post-reading_time-error" value="1 min"></div>
+  <p class="pn-help" id="post-reading_time-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-reading_time-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div></div>
+      <aside class="pn-item-sidebar" aria-label="Details">
+        <dl class="pn-meta">
+          <dt>Created</dt>
+          <dd data-slot="created">Nov 1, 2026</dd>
+          <dt>Updated</dt>
+          <dd data-slot="updated">Nov 1, 2026</dd>
+        </dl>
+        <button class="pn-button" data-variant="negative" type="button" data-action="delete"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"></use></svg>Delete</button>
+      </aside>
+    </form>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section></main>
+    <div class="pn-layout-slot" data-slot-children="savebar"><div class="pn-savebar" data-state="dirty" data-slot-attr="data-state:save-state" data-template="savebar">
+  <p class="pn-savebar-message" role="status" data-slot="message">Fix 2 fields to publish</p>
+  <div class="pn-savebar-actions">
+    <span class="pn-spinner" aria-hidden="true"></span>
+    <button class="pn-button" data-variant="quiet" type="button" data-action="revert">Revert</button>
+    <button class="pn-button" data-variant="primary" type="button" data-action="save">Save</button>
+  </div>
+</div></div>
+  </div>
+  <div class="pn-layout-slot" data-slot-children="dialogs"></div>
+  <div class="pn-toasts" aria-live="polite" data-slot-children="toasts"></div>
+</div>
+</template>
+<template data-pg-screen="confirm" data-pg-label="Publish confirm">
+<div class="pn pn-layout" data-template="layout">
+  <a class="pn-skip" href="#pn-main">Skip to content</a>
+  <div class="pn-layout-nav" data-slot-children="nav"><nav class="pn-nav" aria-label="Panel" data-template="nav">
+  <p class="pn-nav-brand" data-slot="brand">Field Notes</p>
+  <ul class="pn-nav-list" data-slot-repeat="entry"><li><a class="pn-nav-link" href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a class="pn-nav-link" href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a class="pn-nav-link" href="#settings" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ul>
+  <div class="pn-nav-account-slot" data-slot-children="account"><div class="pn-nav-account" data-template="account">
+  <span class="pn-nav-user" data-slot="user">me@example.com</span>
+  <button class="pn-button" data-variant="quiet" data-size="sm" type="button" data-action="logout">Log out</button>
+</div></div>
+</nav></div>
+  <div class="pn-layout-main">
+    <div class="pn-layout-slot" data-slot-children="header"><header class="pn-topbar" data-template="header">
+  <nav aria-label="Breadcrumb">
+    <ol class="pn-breadcrumb" data-slot-repeat="crumb"><li><a href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a href="#collection" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a href="#item" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">The bakery on Calder Street</a></li></ol>
+  </nav>
+</header></div>
+    <main class="pn-layout-body" id="pn-main" tabindex="-1" data-slot-children="screen"><section class="pn-screen" data-state="ready" data-type="post" data-slot-attr="data-state:state data-type:type-id" aria-labelledby="pn-screen-title" data-template="screen-item">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title">The bakery on Calder Street</h1>
+    <div class="pn-screen-actions">
+      <button class="pn-status" type="button" data-tone="neutral" data-action="status" data-slot-attr="data-tone:tone"><span class="pn-visually-hidden">Status:</span> <span class="pn-status-text" data-slot="status">Draft</span></button>
+    </div>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text">Loading…</span></div>
+  <div class="pn-region-ready">
+    <form class="pn-item" data-kind="collection" novalidate="">
+      <div class="pn-grid" data-slot-children="fields"><div class="pn-field" data-field="title" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-text">
+  <label class="pn-label" for="post-title-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Title</label>
+  <input class="pn-input" type="text" id="post-title-input" name="title" aria-required="true" aria-describedby="post-title-help post-title-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" value="The bakery on Calder Street">
+  <p class="pn-help" id="post-title-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-title-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="slug" data-width="1/2" data-from="title" data-slot-attr="data-field:name data-width:width data-from:from" data-template="field-slug">
+  <label class="pn-label" for="post-slug-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Slug</label>
+  <input class="pn-input" type="text" data-mono="" spellcheck="false" autocapitalize="off" id="post-slug-input" name="slug" aria-required="false" aria-describedby="post-slug-help post-slug-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" value="the-bakery-on-calder-street">
+  <p class="pn-help" id="post-slug-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-slug-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="date" data-width="1/2" data-slot-attr="data-field:name data-width:width" data-template="field-date">
+  <label class="pn-label" for="post-date-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Date</label>
+  <input class="pn-input" type="date" data-mono="" id="post-date-input" name="date" aria-required="true" aria-describedby="post-date-help post-date-error" data-slot-attr="type:date-type id:input-id name:name aria-required:required aria-describedby:describedby" value="2026-10-31">
+  <p class="pn-help" id="post-date-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-date-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="cover" data-width="1/2" data-state="filled" data-slot-attr="data-field:name data-width:width data-state:upload-state" data-template="field-image">
+  <span class="pn-label" id="post-cover-label" data-required="false" data-slot-attr="id:label-id data-required:required" data-slot="label">Cover</span>
+  <div class="pn-field-controls">
+    <label class="pn-dropzone">
+      <svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-upload"></use></svg>
+      <span data-slot="prompt">Drop an image, or click to choose</span>
+      <input type="file" accept="image/*" id="post-cover-input" name="cover" aria-labelledby="post-cover-label" aria-describedby="post-cover-help post-cover-error" data-slot-attr="id:input-id name:name aria-labelledby:label-id aria-describedby:describedby">
+    </label>
+    <div class="pn-file">
+      <img class="pn-file-thumb" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'%3E%3Crect width='4' height='3' fill='%23c7a27c'/%3E%3Cpath d='M0 3l1.5-1.5 1 1 .5-.5 1 1z' fill='%23ffffff' fill-opacity='.5'/%3E%3C/svg%3E" alt="Cover: calder-bakery.jpg" data-slot-attr="src:src alt:alt">
+      <span class="pn-file-text"><span class="pn-file-name" data-slot="file-name">calder-bakery.jpg</span><span class="pn-file-meta" data-slot="file-meta">96 KB</span></span>
+      <button class="pn-button" data-variant="quiet" data-icon-only="" data-size="sm" type="button" aria-label="Remove cover" data-action="remove-file" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"></use></svg></button>
+    </div>
+  </div>
+  <p class="pn-help" id="post-cover-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-cover-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="tags" data-width="1/2" data-slot-attr="data-field:name data-width:width" data-template="field-tags">
+  <label class="pn-label" for="post-tags-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Tags</label>
+  <div class="pn-tags-input">
+    <span class="pn-tags-list" data-slot-repeat="tag"><span class="pn-tag"><span data-slot="text">neighbourhood</span><button class="pn-tag-remove" type="button" aria-label="Remove neighbourhood" data-action="remove-tag" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"></use></svg></button></span><span class="pn-tag"><span data-slot="text">food</span><button class="pn-tag-remove" type="button" aria-label="Remove food" data-action="remove-tag" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"></use></svg></button></span></span>
+    <input class="pn-tags-input-field" type="text" id="post-tags-input" name="tags" aria-required="false" aria-describedby="post-tags-help post-tags-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby">
+  </div>
+  <p class="pn-help" id="post-tags-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-tags-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="body" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-markdown">
+  <label class="pn-label" for="post-body-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Body</label>
+  <div class="pn-toolbar" role="toolbar" aria-label="Formatting" hidden="">
+    <button class="pn-button" data-size="sm" type="button" aria-label="Bold" data-action="bold"><b>B</b></button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Italic" data-action="italic"><i>I</i></button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Heading" data-action="heading">H</button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Link" data-action="link">Link</button>
+  </div>
+  <textarea class="pn-textarea" data-markdown="" id="post-body-input" name="body" aria-required="true" aria-describedby="post-body-help post-body-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby">They open at six, and by seven the queue reaches the bus stop. The owner's mother still shapes the rye loaves by hand.</textarea>
+  <p class="pn-help" id="post-body-help" data-slot-attr="id:help-id" data-slot="help">23 words</p>
+  <p class="pn-error" id="post-body-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="reading_time" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-custom">
+  <span class="pn-label" id="post-reading_time-label" data-required="false" data-slot-attr="id:label-id data-required:required" data-slot="label">Reading time</span>
+  <div class="pn-field-controls" data-slot-children="control"><input class="pn-input" type="text" readonly="" id="post-reading_time-input" aria-labelledby="post-reading_time-label" aria-describedby="post-reading_time-help post-reading_time-error" value="1 min"></div>
+  <p class="pn-help" id="post-reading_time-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-reading_time-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div></div>
+      <aside class="pn-item-sidebar" aria-label="Details">
+        <dl class="pn-meta">
+          <dt>Created</dt>
+          <dd data-slot="created">Oct 29, 2026</dd>
+          <dt>Updated</dt>
+          <dd data-slot="updated">Oct 31, 2026</dd>
+        </dl>
+        <button class="pn-button" data-variant="negative" type="button" data-action="delete"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"></use></svg>Delete</button>
+      </aside>
+    </form>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section></main>
+    <div class="pn-layout-slot" data-slot-children="savebar"><div class="pn-savebar" data-state="clean" data-slot-attr="data-state:save-state" data-template="savebar">
+  <p class="pn-savebar-message" role="status" data-slot="message">All changes saved</p>
+  <div class="pn-savebar-actions">
+    <span class="pn-spinner" aria-hidden="true"></span>
+    <button class="pn-button" data-variant="quiet" type="button" data-action="revert" disabled="">Revert</button>
+    <button class="pn-button" data-variant="primary" type="button" data-action="save" disabled="">Save</button>
+  </div>
+</div></div>
+  </div>
+  <div class="pn-layout-slot" data-slot-children="dialogs"><dialog class="pn-dialog" aria-labelledby="pn-dialog-title" aria-describedby="pn-dialog-text" data-template="screen-dialog" open="">
+  <form method="dialog">
+    <div class="pn-dialog-body">
+      <h2 class="pn-dialog-title" id="pn-dialog-title" data-slot="title">Publish this post?</h2>
+      <p class="pn-dialog-text" id="pn-dialog-text" data-slot="text">It will be visible on the site.</p>
+    </div>
+    <div class="pn-dialog-footer">
+      <button class="pn-button" value="cancel" data-action="cancel">Cancel</button>
+      <button class="pn-button" data-variant="primary" value="confirm" data-action="confirm" data-slot-attr="data-variant:variant" data-slot="confirm-label">Published</button>
+    </div>
+  </form>
+</dialog></div>
+  <div class="pn-toasts" aria-live="polite" data-slot-children="toasts"></div>
+</div>
+</template>
+<template data-pg-screen="slide-over" data-pg-label="Slide-over (unused)">
+<div class="pn pn-layout" data-template="layout">
+  <a class="pn-skip" href="#pn-main">Skip to content</a>
+  <div class="pn-layout-nav" data-slot-children="nav"><nav class="pn-nav" aria-label="Panel" data-template="nav">
+  <p class="pn-nav-brand" data-slot="brand">Field Notes</p>
+  <ul class="pn-nav-list" data-slot-repeat="entry"><li><a class="pn-nav-link" href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a class="pn-nav-link" href="#collection" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a class="pn-nav-link" href="#settings" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ul>
+  <div class="pn-nav-account-slot" data-slot-children="account"><div class="pn-nav-account" data-template="account">
+  <span class="pn-nav-user" data-slot="user">me@example.com</span>
+  <button class="pn-button" data-variant="quiet" data-size="sm" type="button" data-action="logout">Log out</button>
+</div></div>
+</nav></div>
+  <div class="pn-layout-main">
+    <div class="pn-layout-slot" data-slot-children="header"><header class="pn-topbar" data-template="header">
+  <nav aria-label="Breadcrumb">
+    <ol class="pn-breadcrumb" data-slot-repeat="crumb"><li><a href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a href="#collection" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a href="#item" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Walking the old rail line</a></li></ol>
+  </nav>
+</header></div>
+    <main class="pn-layout-body" id="pn-main" tabindex="-1" data-slot-children="screen"><section class="pn-screen" data-state="ready" data-type="post" data-slot-attr="data-state:state data-type:type-id" aria-labelledby="pn-screen-title" data-template="screen-item">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title">Walking the old rail line</h1>
+    <div class="pn-screen-actions">
+      <button class="pn-status" type="button" data-tone="positive" data-action="status" data-slot-attr="data-tone:tone"><span class="pn-visually-hidden">Status:</span> <span class="pn-status-text" data-slot="status">Published</span></button>
+    </div>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text">Loading…</span></div>
+  <div class="pn-region-ready">
+    <form class="pn-item" data-kind="collection" novalidate="">
+      <div class="pn-grid" data-slot-children="fields"><div class="pn-field" data-field="title" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-text">
+  <label class="pn-label" for="post-title-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Title</label>
+  <input class="pn-input" type="text" id="post-title-input" name="title" aria-required="true" aria-describedby="post-title-help post-title-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" value="Walking the old rail line">
+  <p class="pn-help" id="post-title-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-title-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="slug" data-width="1/2" data-from="title" data-slot-attr="data-field:name data-width:width data-from:from" data-template="field-slug">
+  <label class="pn-label" for="post-slug-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Slug</label>
+  <input class="pn-input" type="text" data-mono="" spellcheck="false" autocapitalize="off" id="post-slug-input" name="slug" aria-required="false" aria-describedby="post-slug-help post-slug-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" value="walking-the-old-rail-line">
+  <p class="pn-help" id="post-slug-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-slug-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="date" data-width="1/2" data-slot-attr="data-field:name data-width:width" data-template="field-date">
+  <label class="pn-label" for="post-date-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Date</label>
+  <input class="pn-input" type="date" data-mono="" id="post-date-input" name="date" aria-required="true" aria-describedby="post-date-help post-date-error" data-slot-attr="type:date-type id:input-id name:name aria-required:required aria-describedby:describedby" value="2026-10-28">
+  <p class="pn-help" id="post-date-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-date-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="cover" data-width="1/2" data-state="filled" data-slot-attr="data-field:name data-width:width data-state:upload-state" data-template="field-image">
+  <span class="pn-label" id="post-cover-label" data-required="false" data-slot-attr="id:label-id data-required:required" data-slot="label">Cover</span>
+  <div class="pn-field-controls">
+    <label class="pn-dropzone">
+      <svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-upload"></use></svg>
+      <span data-slot="prompt">Drop an image, or click to choose</span>
+      <input type="file" accept="image/*" id="post-cover-input" name="cover" aria-labelledby="post-cover-label" aria-describedby="post-cover-help post-cover-error" data-slot-attr="id:input-id name:name aria-labelledby:label-id aria-describedby:describedby">
+    </label>
+    <div class="pn-file">
+      <img class="pn-file-thumb" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'%3E%3Crect width='4' height='3' fill='%238a9a7b'/%3E%3Cpath d='M0 3l1.5-1.5 1 1 .5-.5 1 1z' fill='%23ffffff' fill-opacity='.5'/%3E%3C/svg%3E" alt="Cover: rail-line.jpg" data-slot-attr="src:src alt:alt">
+      <span class="pn-file-text"><span class="pn-file-name" data-slot="file-name">rail-line.jpg</span><span class="pn-file-meta" data-slot="file-meta">84 KB</span></span>
+      <button class="pn-button" data-variant="quiet" data-icon-only="" data-size="sm" type="button" aria-label="Remove cover" data-action="remove-file" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"></use></svg></button>
+    </div>
+  </div>
+  <p class="pn-help" id="post-cover-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-cover-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="tags" data-width="1/2" data-slot-attr="data-field:name data-width:width" data-template="field-tags">
+  <label class="pn-label" for="post-tags-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Tags</label>
+  <div class="pn-tags-input">
+    <span class="pn-tags-list" data-slot-repeat="tag"><span class="pn-tag"><span data-slot="text">walking</span><button class="pn-tag-remove" type="button" aria-label="Remove walking" data-action="remove-tag" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"></use></svg></button></span><span class="pn-tag"><span data-slot="text">local history</span><button class="pn-tag-remove" type="button" aria-label="Remove local history" data-action="remove-tag" data-slot-attr="aria-label:remove-label"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"></use></svg></button></span></span>
+    <input class="pn-tags-input-field" type="text" id="post-tags-input" name="tags" aria-required="false" aria-describedby="post-tags-help post-tags-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby">
+  </div>
+  <p class="pn-help" id="post-tags-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-tags-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="body" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-markdown">
+  <label class="pn-label" for="post-body-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Body</label>
+  <div class="pn-toolbar" role="toolbar" aria-label="Formatting" hidden="">
+    <button class="pn-button" data-size="sm" type="button" aria-label="Bold" data-action="bold"><b>B</b></button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Italic" data-action="italic"><i>I</i></button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Heading" data-action="heading">H</button>
+    <button class="pn-button" data-size="sm" type="button" aria-label="Link" data-action="link">Link</button>
+  </div>
+  <textarea class="pn-textarea" data-markdown="" id="post-body-input" name="body" aria-required="true" aria-describedby="post-body-help post-body-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby">The line closed in 1962, but the cuttings are still there if you know where to look.
+
+## From the station yard
+
+Start where the coal sheds stood. The ballast is mostly grass now, and the **mileposts** lean like old teeth. By the second bridge the path narrows to a single track between hawthorns, and you can hear the river before you see it.</textarea>
+  <p class="pn-help" id="post-body-help" data-slot-attr="id:help-id" data-slot="help">64 words</p>
+  <p class="pn-error" id="post-body-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="reading_time" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-custom">
+  <span class="pn-label" id="post-reading_time-label" data-required="false" data-slot-attr="id:label-id data-required:required" data-slot="label">Reading time</span>
+  <div class="pn-field-controls" data-slot-children="control"><input class="pn-input" type="text" readonly="" id="post-reading_time-input" aria-labelledby="post-reading_time-label" aria-describedby="post-reading_time-help post-reading_time-error" value="1 min"></div>
+  <p class="pn-help" id="post-reading_time-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="post-reading_time-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div></div>
+      <aside class="pn-item-sidebar" aria-label="Details">
+        <dl class="pn-meta">
+          <dt>Created</dt>
+          <dd data-slot="created">Oct 24, 2026</dd>
+          <dt>Updated</dt>
+          <dd data-slot="updated">Oct 30, 2026</dd>
+        </dl>
+        <button class="pn-button" data-variant="negative" type="button" data-action="delete"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-trash"></use></svg>Delete</button>
+      </aside>
+    </form>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section></main>
+    <div class="pn-layout-slot" data-slot-children="savebar"><div class="pn-savebar" data-state="clean" data-slot-attr="data-state:save-state" data-template="savebar">
+  <p class="pn-savebar-message" role="status" data-slot="message">All changes saved</p>
+  <div class="pn-savebar-actions">
+    <span class="pn-spinner" aria-hidden="true"></span>
+    <button class="pn-button" data-variant="quiet" type="button" data-action="revert" disabled="">Revert</button>
+    <button class="pn-button" data-variant="primary" type="button" data-action="save" disabled="">Save</button>
+  </div>
+</div></div>
+  </div>
+  <div class="pn-layout-slot" data-slot-children="dialogs"><dialog class="pn-drawer" aria-labelledby="pn-drawer-title" data-template="screen-slide-over" open="">
+  <form class="pn-drawer-form" method="dialog" novalidate="">
+    <div class="pn-drawer-header">
+      <h2 class="pn-drawer-title" id="pn-drawer-title" data-slot="title">Status</h2>
+      <button class="pn-button" data-variant="quiet" data-icon-only="" data-size="sm" value="close" aria-label="Close" data-action="close"><svg class="pn-icon" aria-hidden="true"><use href="#pn-icon-close"></use></svg></button>
+    </div>
+    <div class="pn-drawer-body" data-slot-children="body"><ul class="pn-list"><li class="pn-list-item"><button class="pn-list-row" type="button" aria-pressed="false"><span class="pn-list-text"><span class="pn-list-title">Draft</span></span><span class="pn-status" data-tone="neutral">Draft</span></button></li><li class="pn-list-item"><button class="pn-list-row" type="button" aria-pressed="true"><span class="pn-list-text"><span class="pn-list-title">Published</span></span><span class="pn-status" data-tone="positive">Published</span></button></li></ul></div>
+    <div class="pn-drawer-footer">
+      <button class="pn-button" value="cancel" data-action="cancel">Cancel</button>
+      <button class="pn-button" data-variant="primary" value="done" data-action="done">Done</button>
+    </div>
+  </form>
+</dialog></div>
+  <div class="pn-toasts" aria-live="polite" data-slot-children="toasts"></div>
+</div>
+</template>
+<template data-pg-screen="settings" data-pg-label="Site settings">
+<div class="pn pn-layout" data-template="layout">
+  <a class="pn-skip" href="#pn-main">Skip to content</a>
+  <div class="pn-layout-nav" data-slot-children="nav"><nav class="pn-nav" aria-label="Panel" data-template="nav">
+  <p class="pn-nav-brand" data-slot="brand">Field Notes</p>
+  <ul class="pn-nav-list" data-slot-repeat="entry"><li><a class="pn-nav-link" href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a class="pn-nav-link" href="#collection" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a class="pn-nav-link" href="#settings" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ul>
+  <div class="pn-nav-account-slot" data-slot-children="account"><div class="pn-nav-account" data-template="account">
+  <span class="pn-nav-user" data-slot="user">me@example.com</span>
+  <button class="pn-button" data-variant="quiet" data-size="sm" type="button" data-action="logout">Log out</button>
+</div></div>
+</nav></div>
+  <div class="pn-layout-main">
+    <div class="pn-layout-slot" data-slot-children="header"><header class="pn-topbar" data-template="header">
+  <nav aria-label="Breadcrumb">
+    <ol class="pn-breadcrumb" data-slot-repeat="crumb"><li><a href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a href="#settings" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ol>
+  </nav>
+</header></div>
+    <main class="pn-layout-body" id="pn-main" tabindex="-1" data-slot-children="screen"><section class="pn-screen" data-state="ready" data-singleton="settings" data-slot-attr="data-state:state data-singleton:singleton-id" aria-labelledby="pn-screen-title" data-template="screen-singleton">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title">Site settings</h1>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text">Loading…</span></div>
+  <div class="pn-region-ready">
+    <form class="pn-item" data-kind="singleton" novalidate="">
+      <div class="pn-grid" data-slot-children="fields"><div class="pn-field" data-field="site_title" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-text">
+  <label class="pn-label" for="settings-site_title-input" data-required="true" data-slot-attr="for:input-id data-required:required" data-slot="label">Site title</label>
+  <input class="pn-input" type="text" id="settings-site_title-input" name="site_title" aria-required="true" aria-describedby="settings-site_title-help settings-site_title-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby" value="Field Notes">
+  <p class="pn-help" id="settings-site_title-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="settings-site_title-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div><div class="pn-field" data-field="description" data-width="1/1" data-slot-attr="data-field:name data-width:width" data-template="field-textarea">
+  <label class="pn-label" for="settings-description-input" data-required="false" data-slot-attr="for:input-id data-required:required" data-slot="label">Description</label>
+  <textarea class="pn-textarea" id="settings-description-input" name="description" aria-required="false" aria-describedby="settings-description-help settings-description-error" data-slot-attr="id:input-id name:name aria-required:required aria-describedby:describedby">Long walks, short notes, and the odd recipe from a small town by the river.</textarea>
+  <p class="pn-help" id="settings-description-help" data-slot-attr="id:help-id" data-slot="help"></p>
+  <p class="pn-error" id="settings-description-error" data-slot-attr="id:error-id" data-slot="error"></p>
+</div></div>
+    </form>
+  </div>
+  <div class="pn-region-error" data-slot-children="error"></div>
+</section></main>
+    <div class="pn-layout-slot" data-slot-children="savebar"><div class="pn-savebar" data-state="clean" data-slot-attr="data-state:save-state" data-template="savebar">
+  <p class="pn-savebar-message" role="status" data-slot="message">All changes saved</p>
+  <div class="pn-savebar-actions">
+    <span class="pn-spinner" aria-hidden="true"></span>
+    <button class="pn-button" data-variant="quiet" type="button" data-action="revert" disabled="">Revert</button>
+    <button class="pn-button" data-variant="primary" type="button" data-action="save" disabled="">Save</button>
+  </div>
+</div></div>
+  </div>
+  <div class="pn-layout-slot" data-slot-children="dialogs"></div>
+  <div class="pn-toasts" aria-live="polite" data-slot-children="toasts"></div>
+</div>
+</template>
+<template data-pg-screen="login" data-pg-label="Login">
+<main class="pn pn-login" data-template="screen-login">
+  <div class="pn-login-card">
+    <h1 class="pn-login-title" data-slot="title">Field Notes</h1>
+    <p class="pn-login-text" data-slot="text">Sign in to edit the site.</p>
+    <div class="pn-login-methods" data-slot-children="methods"><button class="pn-button" data-variant="primary" type="button" data-action="login">Sign in with Google</button></div>
+    <p class="pn-error" role="alert" data-slot="error"></p>
+  </div>
+</main>
+</template>
+<template data-pg-screen="not-found" data-pg-label="Not found">
+<div class="pn pn-layout" data-template="layout">
+  <a class="pn-skip" href="#pn-main">Skip to content</a>
+  <div class="pn-layout-nav" data-slot-children="nav"><nav class="pn-nav" aria-label="Panel" data-template="nav">
+  <p class="pn-nav-brand" data-slot="brand">Field Notes</p>
+  <ul class="pn-nav-list" data-slot-repeat="entry"><li><a class="pn-nav-link" href="#home" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li><li><a class="pn-nav-link" href="#collection" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Posts</a></li><li><a class="pn-nav-link" href="#settings" aria-current="false" data-slot-attr="href:href aria-current:current" data-slot="text">Site settings</a></li></ul>
+  <div class="pn-nav-account-slot" data-slot-children="account"><div class="pn-nav-account" data-template="account">
+  <span class="pn-nav-user" data-slot="user">me@example.com</span>
+  <button class="pn-button" data-variant="quiet" data-size="sm" type="button" data-action="logout">Log out</button>
+</div></div>
+</nav></div>
+  <div class="pn-layout-main">
+    <div class="pn-layout-slot" data-slot-children="header"><header class="pn-topbar" data-template="header">
+  <nav aria-label="Breadcrumb">
+    <ol class="pn-breadcrumb" data-slot-repeat="crumb"><li><a href="#home" aria-current="page" data-slot-attr="href:href aria-current:current" data-slot="text">Home</a></li></ol>
+  </nav>
+</header></div>
+    <main class="pn-layout-body" id="pn-main" tabindex="-1" data-slot-children="screen"><section class="pn-screen" data-state="error" data-slot-attr="data-state:state" aria-labelledby="pn-screen-title" data-template="screen-home">
+  <header class="pn-screen-header">
+    <h1 class="pn-screen-title" id="pn-screen-title" data-slot="title">Field Notes</h1>
+  </header>
+  <div class="pn-region-loading" role="status"><span class="pn-spinner" aria-hidden="true"></span><span data-slot="loading-text">Loading…</span></div>
+  <div class="pn-region-ready">
+    <div class="pn-home">
+      <section aria-labelledby="pn-home-content">
+        <h2 class="pn-section-title" id="pn-home-content" data-slot="content-heading">Content</h2>
+        <ul class="pn-list" data-slot-repeat="entry"></ul>
+      </section>
+      <section aria-labelledby="pn-home-recent">
+        <h2 class="pn-section-title" id="pn-home-recent" data-slot="recent-heading">Recently edited</h2>
+        <ul class="pn-list" data-slot-repeat="recent"></ul>
+      </section>
+    </div>
+  </div>
+  <div class="pn-region-empty" data-slot-children="empty"></div>
+  <div class="pn-region-error" data-slot-children="error"><div class="pn-empty" data-tone="negative" role="alert" data-template="error">
+  <svg class="pn-icon pn-empty-icon" aria-hidden="true"><use href="#pn-icon-alert"></use></svg>
+  <p class="pn-empty-title" data-slot="title">This page doesn't exist</p>
+  <p class="pn-empty-text" data-slot="text"></p>
+  <div class="pn-empty-actions" data-slot-children="actions"></div>
+</div></div>
+</section></main>
+    <div class="pn-layout-slot" data-slot-children="savebar"></div>
+  </div>
+  <div class="pn-layout-slot" data-slot-children="dialogs"></div>
+  <div class="pn-toasts" aria-live="polite" data-slot-children="toasts"></div>
+</div>
+</template>
+<script>
+  const stage = document.getElementById("pg-stage");
+  const screens = [...document.querySelectorAll("template[data-pg-screen]")];
+  function show() {
+    const id = location.hash.slice(1);
+    const screen = screens.find((s) => s.dataset.pgScreen === id) ?? screens[0];
+    stage.replaceChildren(screen.content.cloneNode(true));
+    for (const dialog of stage.querySelectorAll("dialog[open]")) dialog.close(), dialog.showModal();
+    for (const a of document.querySelectorAll(".pg-bar a")) a.setAttribute("aria-current", a.hash === `#${screen.dataset.pgScreen}` ? "page" : "false");
+    document.title = `${screen.dataset.pgLabel} · Playground`;
+  }
+  document.querySelector("[data-pg-theme]").addEventListener("click", () => {
+    const dark = document.documentElement.dataset.theme === "dark" || (!document.documentElement.dataset.theme && matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.dataset.theme = dark ? "light" : "dark";
+  });
+  addEventListener("hashchange", show);
+  show();
+</script>
+</body>
+</html>

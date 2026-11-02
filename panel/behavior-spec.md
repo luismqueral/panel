@@ -23,7 +23,7 @@ The save bar's `data-state` always shows the current state.
 | --- | --- |
 | S1 | A loaded item is `clean`. |
 | S2 | Any edit that makes the values differ from the saved values enters `dirty`. An edit that makes them equal again returns to `clean`. |
-| S3 | Save or Cmd+S / Ctrl+S in `dirty` or `error` enters `saving`, disables every field, and sends the current values. |
+| S3 | Save or Cmd+S / Ctrl+S in `dirty` or `error` enters `saving`, disables every control inside the form (fields and their own buttons, such as remove-tag), and sends the current values. The header's status button and Delete stay enabled. |
 | S4 | A successful save stores the sent values as saved values and enters `clean`. |
 | S5 | A failed save enters `error`, re-enables fields, and keeps every edit. |
 | S6 | Revert restores the saved values and enters `clean`. |

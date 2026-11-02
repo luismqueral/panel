@@ -37,7 +37,7 @@ Stop after each step that ends in a question or a preview, and wait for the pers
 | --- | --- |
 | Intake | `intake.md` |
 | Schema | `schema-guide.md`; `panel.schema.json`; one similar file in `examples/` |
-| Preview | `playground.md`; `templates/README.md` |
+| Preview | `playground.md`; `templates/README.md`; `build.md` steps 4, 5, and 7; `behavior-spec.md` sections 1 and 2; `snippets/fields.js`; `recipes/<auth recipe>.md` |
 | Build | `build.md`; `templates/README.md`; `behavior-spec.md`; `recipes/contracts.md` and `recipes/<name>.md` for each adapter in the schema; `flavors/<flavor>.md` unless the flavor is vanilla |
 | Conformance | `schema-guide.md` section 8; `build.md` step 8 |
 

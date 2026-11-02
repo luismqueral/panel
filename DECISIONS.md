@@ -386,3 +386,9 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Host shapes:** Vite SPA is verified by the fixture. Next.js and Nuxt sections are unverified.
 - **Reverse:** Ship translation rules only and let the model write components.
 - **Tag:** default
+
+## D-055 Playground: one fixed page, checked like a build
+
+- **Choice:** `panel/playground.md` fixes the page (a screen switcher over `template[data-pg-screen]`, open dialogs shown as modals), the screen list, and the rule that every screen is filled exactly as a build would fill it. `tools/check-playground.mjs` (`npm run check:playground`) checks fidelity, axe, and width on every screen in both themes, no network requests, and that every screen in the list is present. `panel/examples/blog/playground.html` is the example.
+- **How it was tested:** A fresh subagent wrote the example from the skill files only, without reading `evals/` or the reference build. The check passed on the first run. Its report of unclear instructions became rules: screen details in `build.md` step 4 (nav entries, home row slots, sort text, empty and error states, the status slide-over, not found, `publishRequires` fields, computed fields), the S3 scope ("every control inside the form"), a valid draft for `confirm`, the Preview step's reading list, and a playground stand-in for Google's button. Where its guesses differed from the reference build, the example was corrected to match.
+- **Tag:** default

@@ -47,7 +47,7 @@
     }
     attrs.sort((x, y) => (x[0] < y[0] ? -1 : x[0] > y[0] ? 1 : 0));
     const out = { tag: el.localName, attrs, children: [] };
-    if (el.hasAttribute("data-slot") || el.hasAttribute("data-slot-children")) return out;
+    if (el.hasAttribute("data-slot") || el.hasAttribute("data-slot-children") || el.localName === "textarea") return out;
     const kids = [...(el.content ? el.content.childNodes : el.childNodes)].map(normalize).filter(Boolean);
     if (el.hasAttribute("data-slot-repeat")) out.repeat = kids;
     else out.children = kids;
