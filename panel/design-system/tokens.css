@@ -9,20 +9,20 @@
 [data-theme="light"] {
   color-scheme: light;
 
-  --pn-color-bg: #f3f3f1;
+  --pn-color-bg: #efefee;
   --pn-color-surface: #ffffff;
-  --pn-color-surface-sunken: #ebebe8;
-  --pn-color-surface-hover: #f0f0ed;
-  --pn-color-text: #1d1f23;
-  --pn-color-text-muted: #5c6068;
-  --pn-color-border: #dcdcd7;
-  --pn-color-border-control: #868a91;
-  --pn-color-overlay: rgb(20 21 23 / 0.45);
+  --pn-color-surface-sunken: #e5e5e3;
+  --pn-color-surface-hover: #f6f6f5;
+  --pn-color-text: #16171a;
+  --pn-color-text-muted: #64676d;
+  --pn-color-border: #e0e0de;
+  --pn-color-border-control: #8e9197;
+  --pn-color-overlay: rgb(20 21 23 / 0.5);
 
-  --pn-color-accent: #2d5bc8;
-  --pn-color-accent-hover: #234aa6;
+  --pn-color-accent: #16171a;
+  --pn-color-accent-hover: #3a3c41;
   --pn-color-on-accent: #ffffff;
-  --pn-color-focus: #2d5bc8;
+  --pn-color-focus: #3466d1;
 
   --pn-color-positive: #1d7039;
   --pn-color-positive-soft: #e3f2e7;
@@ -33,25 +33,30 @@
   --pn-color-info: #2d5bc8;
   --pn-color-info-soft: #e4ebfa;
 
-  --pn-shadow-raised: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px rgb(0 0 0 / 0.12);
+  --pn-color-attention: #f3a24c;
+  --pn-color-on-attention: #16171a;
+  --pn-color-on-tone: #ffffff;
+
+  --pn-shadow-card: 0 1px 2px rgb(0 0 0 / 0.07), 0 0 0 1px rgb(0 0 0 / 0.025);
+  --pn-shadow-raised: 0 1px 2px rgb(0 0 0 / 0.06), 0 10px 28px rgb(0 0 0 / 0.14);
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --pn-color-bg: #141517;
-  --pn-color-surface: #1d1e21;
+  --pn-color-bg: #17181a;
+  --pn-color-surface: #232427;
   --pn-color-surface-sunken: #111214;
-  --pn-color-surface-hover: #26282b;
+  --pn-color-surface-hover: #2c2e31;
   --pn-color-text: #ececee;
   --pn-color-text-muted: #a3a6ad;
   --pn-color-border: #33353a;
   --pn-color-border-control: #7b7f87;
-  --pn-color-overlay: rgb(0 0 0 / 0.6);
+  --pn-color-overlay: rgb(0 0 0 / 0.65);
 
-  --pn-color-accent: #7fa3ff;
-  --pn-color-accent-hover: #a2bcff;
-  --pn-color-on-accent: #0f1420;
+  --pn-color-accent: #ececee;
+  --pn-color-accent-hover: #ffffff;
+  --pn-color-on-accent: #16171a;
   --pn-color-focus: #7fa3ff;
 
   --pn-color-positive: #63cf85;
@@ -63,26 +68,31 @@
   --pn-color-info: #7fa3ff;
   --pn-color-info-soft: #1c2540;
 
-  --pn-shadow-raised: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.5);
+  --pn-color-attention: #f0a04b;
+  --pn-color-on-attention: #16171a;
+  --pn-color-on-tone: #111214;
+
+  --pn-shadow-card: 0 1px 2px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(255 255 255 / 0.04);
+  --pn-shadow-raised: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 28px rgb(0 0 0 / 0.55);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 
-    --pn-color-bg: #141517;
-    --pn-color-surface: #1d1e21;
+    --pn-color-bg: #17181a;
+    --pn-color-surface: #232427;
     --pn-color-surface-sunken: #111214;
-    --pn-color-surface-hover: #26282b;
+    --pn-color-surface-hover: #2c2e31;
     --pn-color-text: #ececee;
     --pn-color-text-muted: #a3a6ad;
     --pn-color-border: #33353a;
     --pn-color-border-control: #7b7f87;
-    --pn-color-overlay: rgb(0 0 0 / 0.6);
+    --pn-color-overlay: rgb(0 0 0 / 0.65);
 
-    --pn-color-accent: #7fa3ff;
-    --pn-color-accent-hover: #a2bcff;
-    --pn-color-on-accent: #0f1420;
+    --pn-color-accent: #ececee;
+    --pn-color-accent-hover: #ffffff;
+    --pn-color-on-accent: #16171a;
     --pn-color-focus: #7fa3ff;
 
     --pn-color-positive: #63cf85;
@@ -94,7 +104,12 @@
     --pn-color-info: #7fa3ff;
     --pn-color-info-soft: #1c2540;
 
-    --pn-shadow-raised: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.5);
+    --pn-color-attention: #f0a04b;
+    --pn-color-on-attention: #16171a;
+    --pn-color-on-tone: #111214;
+
+    --pn-shadow-card: 0 1px 2px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(255 255 255 / 0.04);
+    --pn-shadow-raised: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 28px rgb(0 0 0 / 0.55);
   }
 }
 
@@ -106,14 +121,14 @@
   --pn-text-sm: 0.875rem;
   --pn-text-md: 1rem;
   --pn-text-lg: 1.25rem;
-  --pn-text-xl: 1.5rem;
+  --pn-text-xl: 1.625rem;
 
   --pn-leading-tight: 1.25;
   --pn-leading-normal: 1.5;
 
   --pn-weight-normal: 400;
   --pn-weight-medium: 500;
-  --pn-weight-bold: 600;
+  --pn-weight-bold: 650;
 
   --pn-space-1: 0.25rem;
   --pn-space-2: 0.5rem;
@@ -130,7 +145,7 @@
   --pn-control-height-sm: 1.75rem;
 
   --pn-radius-sm: 3px;
-  --pn-radius-md: 5px;
+  --pn-radius-md: 4px;
   --pn-radius-pill: 999px;
   --pn-border-width: 1px;
 

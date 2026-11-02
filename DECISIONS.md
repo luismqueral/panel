@@ -399,3 +399,10 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Choice:** Tests are not changed. The scorer requires only the templates `build.md` step 1 asks for.
 - **Open:** Whether to fix the spec gaps and rerun, or treat the result as a stop. Decided by the person.
 - **Tag:** philosophy-dependent
+
+## D-057 A look closer to Kirby's panel
+
+- **Choice:** Tokens and component CSS restyled toward Kirby's panel, written fresh with no Kirby code or assets: a gray page with the nav on it and no top-bar strip; white controls and cards with soft shadows instead of hard borders; list rows as separate cards 2px apart; 14px base type, bold dark labels, a larger bold screen title; near-black primary buttons and tags (light in dark mode); solid toasts by tone; a save bar that turns orange with unsaved changes and red on error. New tokens: `--pn-color-attention`, `--pn-color-on-attention`, `--pn-color-on-tone`, `--pn-shadow-card`. Class names and templates are unchanged, so fidelity and every behavior test still pass. Control borders stay at 3:1 against white.
+- **Consequence:** The example playground's inlined CSS was refreshed. The runs in `evals/runs/blog-vanilla/` copied the earlier CSS; rescoring them against this commit would flag their CSS as modified.
+- **Requested by:** the person ("resemble Kirby's CMS a bit more closely").
+- **Tag:** philosophy-dependent
