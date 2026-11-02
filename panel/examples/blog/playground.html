@@ -21,7 +21,7 @@
   --pn-color-surface-sunken: #e5e5e3;
   --pn-color-surface-hover: #f6f6f5;
   --pn-color-text: #16171a;
-  --pn-color-text-muted: #64676d;
+  --pn-color-text-muted: #5f6268;
   --pn-color-border: #e0e0de;
   --pn-color-border-control: #8e9197;
   --pn-color-overlay: rgb(20 21 23 / 0.5);
@@ -39,6 +39,10 @@
   --pn-color-negative-soft: #fbe4e2;
   --pn-color-info: #2d5bc8;
   --pn-color-info-soft: #e4ebfa;
+
+  --pn-color-rail: #e3e3e1;
+  --pn-color-rail-hover: rgb(255 255 255 / 0.55);
+  --pn-color-rail-line: rgb(0 0 0 / 0.08);
 
   --pn-color-attention: #f3a24c;
   --pn-color-on-attention: #16171a;
@@ -75,6 +79,10 @@
   --pn-color-info: #7fa3ff;
   --pn-color-info-soft: #1c2540;
 
+  --pn-color-rail: #111214;
+  --pn-color-rail-hover: rgb(255 255 255 / 0.06);
+  --pn-color-rail-line: rgb(255 255 255 / 0.08);
+
   --pn-color-attention: #f0a04b;
   --pn-color-on-attention: #16171a;
   --pn-color-on-tone: #111214;
@@ -110,6 +118,10 @@
     --pn-color-negative-soft: #3d1c1a;
     --pn-color-info: #7fa3ff;
     --pn-color-info-soft: #1c2540;
+
+    --pn-color-rail: #111214;
+    --pn-color-rail-hover: rgb(255 255 255 / 0.06);
+    --pn-color-rail-line: rgb(255 255 255 / 0.08);
 
     --pn-color-attention: #f0a04b;
     --pn-color-on-attention: #16171a;
@@ -165,7 +177,7 @@
   --pn-layer-dialog: 200;
   --pn-layer-toast: 300;
 }
-  </style>
+</style>
   <style>
 /*
   Panel components. Requires tokens.css.
@@ -1375,7 +1387,7 @@ button.pn-list-row {
 
 .pn-layout {
   display: grid;
-  grid-template-columns: 15rem minmax(0, 1fr);
+  grid-template-columns: 14.5rem minmax(0, 1fr);
   min-height: 100vh;
 }
 
@@ -1384,7 +1396,7 @@ button.pn-list-row {
   top: 0;
   height: 100vh;
   overflow-y: auto;
-  background: var(--pn-color-bg);
+  background: var(--pn-color-rail);
 }
 
 .pn-layout-main {
@@ -1409,7 +1421,7 @@ button.pn-list-row {
   .pn-layout-nav {
     position: static;
     height: auto;
-    border-bottom: var(--pn-border-width) solid var(--pn-color-border);
+    border-bottom: var(--pn-border-width) solid var(--pn-color-rail-line);
   }
 
   .pn-layout-body {
@@ -1456,7 +1468,7 @@ button.pn-list-row {
 
 .pn-nav-link:hover,
 .pn-nav-link[data-force="hover"] {
-  background: rgb(127 127 127 / 0.1);
+  background: var(--pn-color-rail-hover);
 }
 
 .pn-nav-link[aria-current="page"] {
@@ -1474,7 +1486,7 @@ button.pn-list-row {
   padding: var(--pn-space-3) var(--pn-space-3) 0;
   font-size: var(--pn-text-xs);
   color: var(--pn-color-text-muted);
-  border-top: var(--pn-border-width) solid var(--pn-color-border);
+  border-top: var(--pn-border-width) solid var(--pn-color-rail-line);
 }
 
 .pn-nav-user {

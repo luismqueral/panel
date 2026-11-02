@@ -1206,7 +1206,7 @@ button.pn-list-row {
 
 .pn-layout {
   display: grid;
-  grid-template-columns: 15rem minmax(0, 1fr);
+  grid-template-columns: 14.5rem minmax(0, 1fr);
   min-height: 100vh;
 }
 
@@ -1215,7 +1215,7 @@ button.pn-list-row {
   top: 0;
   height: 100vh;
   overflow-y: auto;
-  background: var(--pn-color-bg);
+  background: var(--pn-color-rail);
 }
 
 .pn-layout-main {
@@ -1240,7 +1240,7 @@ button.pn-list-row {
   .pn-layout-nav {
     position: static;
     height: auto;
-    border-bottom: var(--pn-border-width) solid var(--pn-color-border);
+    border-bottom: var(--pn-border-width) solid var(--pn-color-rail-line);
   }
 
   .pn-layout-body {
@@ -1287,7 +1287,7 @@ button.pn-list-row {
 
 .pn-nav-link:hover,
 .pn-nav-link[data-force="hover"] {
-  background: rgb(127 127 127 / 0.1);
+  background: var(--pn-color-rail-hover);
 }
 
 .pn-nav-link[aria-current="page"] {
@@ -1305,7 +1305,7 @@ button.pn-list-row {
   padding: var(--pn-space-3) var(--pn-space-3) 0;
   font-size: var(--pn-text-xs);
   color: var(--pn-color-text-muted);
-  border-top: var(--pn-border-width) solid var(--pn-color-border);
+  border-top: var(--pn-border-width) solid var(--pn-color-rail-line);
 }
 
 .pn-nav-user {

@@ -14,7 +14,7 @@
   --pn-color-surface-sunken: #e5e5e3;
   --pn-color-surface-hover: #f6f6f5;
   --pn-color-text: #16171a;
-  --pn-color-text-muted: #64676d;
+  --pn-color-text-muted: #5f6268;
   --pn-color-border: #e0e0de;
   --pn-color-border-control: #8e9197;
   --pn-color-overlay: rgb(20 21 23 / 0.5);
@@ -32,6 +32,10 @@
   --pn-color-negative-soft: #fbe4e2;
   --pn-color-info: #2d5bc8;
   --pn-color-info-soft: #e4ebfa;
+
+  --pn-color-rail: #e3e3e1;
+  --pn-color-rail-hover: rgb(255 255 255 / 0.55);
+  --pn-color-rail-line: rgb(0 0 0 / 0.08);
 
   --pn-color-attention: #f3a24c;
   --pn-color-on-attention: #16171a;
@@ -68,6 +72,10 @@
   --pn-color-info: #7fa3ff;
   --pn-color-info-soft: #1c2540;
 
+  --pn-color-rail: #111214;
+  --pn-color-rail-hover: rgb(255 255 255 / 0.06);
+  --pn-color-rail-line: rgb(255 255 255 / 0.08);
+
   --pn-color-attention: #f0a04b;
   --pn-color-on-attention: #16171a;
   --pn-color-on-tone: #111214;
@@ -103,6 +111,10 @@
     --pn-color-negative-soft: #3d1c1a;
     --pn-color-info: #7fa3ff;
     --pn-color-info-soft: #1c2540;
+
+    --pn-color-rail: #111214;
+    --pn-color-rail-hover: rgb(255 255 255 / 0.06);
+    --pn-color-rail-line: rgb(255 255 255 / 0.08);
 
     --pn-color-attention: #f0a04b;
     --pn-color-on-attention: #16171a;
