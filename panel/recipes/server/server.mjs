@@ -9,7 +9,7 @@ import { isAllowed } from "./google.mjs";
 import { MAX_UPLOAD } from "./local-disk.mjs";
 
 // Only these kinds are served from the panel folder; anything else (notes, reports) is a 404.
-const STATIC = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".json": "application/json", ".png": "image/png", ".ico": "image/x-icon", ".webp": "image/webp" };
+const STATIC = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".json": "application/json", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".webp": "image/webp", ".ico": "image/x-icon" };
 const MAX_JSON = 1024 * 1024;
 
 // auth: { recipe: "google-login", allow, verify(credential) → { email, hd }, sessions, clientId }

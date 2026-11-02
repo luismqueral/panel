@@ -39,7 +39,7 @@ Don't: add a framework, a bundler, or a dependency to a vanilla build.
 
 ## Step 1: Write `index.html`
 
-Use exactly this page. Replace the two comments.
+Use exactly this page. Replace the two comments, and put the schema's `name` in `<title>`.
 
 ```html
 <!doctype html>
@@ -81,6 +81,11 @@ Write the schema as one exported object. Add every key the build needs, each wit
 ```js
 export const PANEL = {
   name: "Field Notes",
+  // auth: google-login (the allow list goes in allow.mjs, not here)
+  auth: { recipe: "google-login" },
+  // data: json-files, files: local-disk; start.mjs reads these paths
+  data: { recipe: "json-files", via: "server", path: "content" },
+  files: { recipe: "local-disk", path: "uploads", url: "/uploads" },
   types: [
     {
       id: "post",
@@ -163,7 +168,7 @@ Screen details:
 | Sort options | Value `-<field>` then `<field>`, then `<list.title>`. Text for a date field: "Newest first", "Oldest first"; for another field: "<Field>, descending", "<Field>, ascending"; then "Title A–Z". "Sort by" as the label |
 | Search | Label and placeholder "Search <label in lower case>" |
 | Collection `empty` | Icon `#pn-icon-file`, "No <label in lower case> yet", "Create the first <singular>.", and a primary "New <singular>" button with `data-action="create"` |
-| Load errors | `error` with "Could not load the panel" (home), "Could not load <label in lower case>", or "Could not load this <singular>"; "Check your connection and try again."; and a "Try again" button with `data-action="retry"` that reruns the route |
+| Load errors | `error` with "Could not load the panel" (home), "Could not load <label in lower case>" (collection or singleton, "Could not load site settings"), or "Could not load this <singular>"; "Check your connection and try again."; and a "Try again" button (no variant) with `data-action="retry"` that reruns the route. A singleton keeps its label as `title` |
 | Missing item | `error` with "This <singular> doesn't exist", "It may have been deleted.", and no button |
 | Status slide-over | Title "Status". `body`: a `fieldset.pn-choices` with a visually hidden legend "Status" and one `label.pn-choice` holding `input.pn-radio` (name `pn-status`) per status, the current one checked |
 | Not found | `screen-home` with `title` "Not found", no rows, and `error`: "This page doesn't exist", "Check the address, or go back home.", a "Try again" button (`data-action="retry"`) that goes to `#/`. Crumbs: Home / Not found |
@@ -176,6 +181,9 @@ Screen details:
 | Search with no matches | No rows; the screen stays `ready` (the `empty` state is only for a type with no items) |
 | Sorting | Blank values sort last in both directions |
 | Home | `recent` lists items only, never singletons. Home never uses its `empty` state |
+| What is mounted | Only what the current state shows. Fill the `empty` and `error` regions only when entering that state. On the not-found screen, repeat `entry` and `recent` with no rows. Add the status slide-over when it opens and remove it when it closes. The layout, the confirm dialog, and the toasts region stay mounted across routes |
+| Item title while editing | The header title and last crumb change on a successful save, not while typing |
+| Account `user` slot | The signed-in address from `auth.session()` |
 
 ### Routing
 
@@ -213,11 +221,13 @@ window.addEventListener("hashchange", async () => {
 | 1. Save state | `save-state.js` | The item or singleton `form` and the `savebar`. Pass `autosave` only when a `behavior` line asks for it. It also stops Enter submitting the form (K7) |
 | 2. Validation | `validation.js` | Every form, including the create dialog. Run `"publish"` before a status moves past the first, with `conformance` fields added as required. On a singleton's save, run `"required"` (V7). Write the save bar message with `fixMessage(n, "publish")` or `fixMessage(n, "save")` |
 | 3. Dialogs | `dialogs.js` | Every confirm, the create dialog, and the slide-over |
-| 4. Keyboard | `keyboard.js` | `save` on item and singleton screens, `search` on collections |
+| 4. Keyboard | `keyboard.js` | Every screen in the layout, so Cmd+S never reaches the browser (S7). Pass `save` on item and singleton screens, `search` on collections |
 | 5. Create flow | `create-flow.js` | The collection's add button, and the empty state's button |
-| 6. Status | your `panel.js` | The item's status button (P1–P5) |
+| 6. Status | your `panel.js` | The item's status button (P1–P5). Any move to a status other than the first runs the publish checks (P3, V8); only leaving the first status asks for confirmation (P4) |
 | 8. Field controls | `fields.js` | Every field |
 | Toasts | `toast.js` | The layout's `toasts` container |
+
+Pass `errorMessage` to `createSaveState` for the codes in `recipes/contracts.md` that name a save bar message: `(error) => (error?.code === "conflict" ? "Changed elsewhere. Copy your edits, then reload." : null)`.
 
 When a save throws `unauthorized` or `forbidden`, rethrow it so the save bar enters `error` with every edit kept, and show the toast "You were signed out. Copy your edits, then reload to sign in." (negative). A load that throws either shows `screen-login`.
 
@@ -299,11 +309,12 @@ Check every default check in `schema-guide.md` section 8, every project check un
 
 - The page passes the template fidelity check on every screen (`templates/README.md`).
 - Every rule in `behavior-spec.md` holds. In this repository, run `PANEL_URL=<url> npm run test:behavior`. Elsewhere, walk the rules by hand.
+- Elsewhere, check fidelity by hand: on each screen, for each element with `data-template`, blank every slot (`templates/README.md`) and compare it with the template file. The tags, classes, and attributes must match. For K5, Tab through each screen and look for a ring on every stop. Report axe as `needs the person` when it cannot run.
 - In an existing project, the build follows the host profile.
 
 Write the report as one table. A failed check is fixed, or raised with the person, never skipped.
 
-Some checks need the person: a recipe's "Ask" step, or a hand checklist with real credentials (Google sign-in). In an unattended run, take the default the recipe names, record it in the intake record under `open_questions` with `assumed: true`, and report the check as `needs the person`, with what they must do. That is not a pass, and it is not a skip.
+Some checks need the person: a recipe's "Ask" step, or a hand checklist with real credentials (Google sign-in). In an unattended run, take the default the recipe names, record it in the intake record under `open_questions` with `assumed: true` (`- question: Commit content to git?`, `assumed: true`, `answer: yes`), and report the check as `needs the person`, with what they must do. That is not a pass, and it is not a skip.
 
 ```markdown
 # Conformance: Field Notes

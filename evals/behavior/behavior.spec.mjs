@@ -173,6 +173,36 @@ test.describe("validation", () => {
     await expect(statusButton(page)).toContainText("Draft");
     expect(await calls(page, "update")).toHaveLength(0);
   });
+
+  test("V4 V5 after a failed publish, publish-only required fields stay checked while editing", async ({ page }) => {
+    await open(page, "#/post/small-maps");
+    await statusButton(page).click();
+    const cover = field(page, "cover");
+    await expect(cover.locator(".pn-error")).toHaveText("Required to publish.");
+    await cover.locator('input[type="file"]').setInputFiles(png);
+    await expect(cover.locator(".pn-error")).toHaveText("");
+    await cover.locator('[data-action="remove-file"]').click();
+    await expect(cover.locator(".pn-error")).toHaveText("Required to publish.");
+  });
+
+  test("V8 saving an item past its first status runs the publish checks", async ({ page }) => {
+    await open(page, "#/post/winter-light");
+    await control(page, "body").fill("");
+    await saveButton(page).click();
+    await expect(field(page, "body").locator(".pn-error")).toHaveText("Required to publish.");
+    await expect(page.locator(".pn-savebar-message")).toHaveText("Fix 1 field to publish");
+    expect(await calls(page, "update")).toHaveLength(0);
+  });
+
+  test("S5 a conflict says the item changed elsewhere", async ({ page }) => {
+    await open(page, "#/post/rail-line");
+    await control(page, "title").fill("Edited here");
+    await fail(page, "update", "conflict");
+    await saveButton(page).click();
+    await expect(savebar(page)).toHaveAttribute("data-state", "error");
+    await expect(page.locator(".pn-savebar-message")).toHaveText("Changed elsewhere. Copy your edits, then reload.");
+    await expect(control(page, "title")).toHaveValue("Edited here");
+  });
 });
 
 test.describe("status", () => {

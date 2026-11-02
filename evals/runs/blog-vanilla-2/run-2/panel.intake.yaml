@@ -1,0 +1,44 @@
+# The answers a person gave in intake, for unattended runs of the blog experiment.
+intake: 1
+
+situation:
+  mode: new
+  stack: none
+  flavor: vanilla
+  users: me
+  manages: A personal blog of long-form posts, plus a site settings page.
+
+adapters:
+  auth: google-login
+  data: json-files
+  files: local-disk
+  via: server
+  mount: standalone
+
+shape:
+  collections: true
+  singletons: true
+  status:
+    - draft
+    - published
+  behavior:
+    - Autosave drafts every 10 seconds
+    - Show word count under the body field
+    - Publishing asks for confirmation
+
+open_questions:
+  - question: Does the content folder go in version control? (recipes/json-files.md, step 4)
+    assumed: true
+    answer: Yes, so edits have history. ./content is not ignored.
+  - question: Do uploads belong in git? (recipes/local-disk.md, step 6)
+    assumed: true
+    answer: No. uploads/ is in .gitignore.
+  - question: Is the public site served by something else, so uploads must be published with it? (recipes/local-disk.md, step 4)
+    assumed: true
+    answer: No. The panel server serves ./uploads at /uploads; mount is standalone.
+  - question: Where will the panel be deployed? (recipes/google-login.md, step 8)
+    assumed: true
+    answer: Not deployed. It runs on 127.0.0.1:4810. Deploying needs HOST, the origin added to the Google client, and HTTPS.
+  - question: Run the google-login and json-files and local-disk hand checklists with real Google credentials.
+    assumed: true
+    answer: Not done. Needs the person (see panel/CONFORMANCE.md).

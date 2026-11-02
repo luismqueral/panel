@@ -431,3 +431,15 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Tests:** 4 new behavior tests (64 in all) and 1 new recipe test. The scorer allows a dependency-free `package.json` and fails a run whose served config holds the allow list.
 - **Requested by:** the person ("keep going and wrap this up"), after review of the first experiment.
 - **Tag:** philosophy-dependent (the copy and the unauthorized-save choice)
+
+## D-060 Second experiment passes; close the gaps it reported
+
+- **Result:** At `921218a`, 5 of 5 fresh sessions conform (64 of 64 tests, 20 of 20 fidelity, identical copy). The kill criterion passes. See `evals/results/blog-vanilla-2/REPORT.md`.
+- **Choice:** Every gap two or more sessions reported is now written down.
+  - **`behavior-spec.md`:** "publish" means moving to any status after the first. V3 limits the draft rule to the first status. New V8: saving an item past its first status runs the publish checks. S5 gives the conflict copy.
+  - **`build.md`:** `<title>` is the schema name. The config example has `auth`, `data`, and `files`. New rows for what is mounted, the item title while editing, the account `user`, and the singleton load error. Keyboard shortcuts apply on every screen. It gives a hand procedure for fidelity and K5, and the `open_questions` shape.
+  - **Snippets:** `save-state.js` and `useSaveState` take `errorMessage(error)`, and a save note clears only when the values change. `server.mjs` serves `.jpg`, `.jpeg`, and `.gif`.
+- **Bug fixed:** `validation.js` (and `useValidation`) stopped checking publish-only required fields after the first edit following a failed publish.
+- **Tests:** 3 new behavior tests (67 in all). Rescored against them, the experiment-2 runs would fail V8, and runs 1 to 4 also V4/V5. A third experiment would confirm the current skill.
+- **Requested by:** the person ("keep going and wrap this up").
+- **Tag:** philosophy-dependent (the publish meaning and the conflict copy)

@@ -8,6 +8,7 @@
 //   validate: (values, { background, extra }) => true, // false blocks the save (V3, V4)
 //   autosave: { every: 10000, when: () => isDraft },   // only when a behavior line asks for it
 //   onRevert: () => {},
+//   errorMessage: (error) => "…",                    // optional: the save bar message for a failed save
 // });
 
 const MESSAGES = {
@@ -17,11 +18,12 @@ const MESSAGES = {
   error: "Could not save. Your changes are kept.",
 };
 
-export function createSaveState({ form, savebar, read, write, save, validate, autosave, onRevert }) {
+export function createSaveState({ form, savebar, read, write, save, validate, autosave, onRevert, errorMessage }) {
   let saved = read();
   let state = "clean";
   let background = false;
   let note = null;
+  let noteValues = null;
   const locked = new Set();
   const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   const message = savebar.querySelector(".pn-savebar-message");
@@ -48,7 +50,7 @@ export function createSaveState({ form, savebar, read, write, save, validate, au
 
   function onEdit() {
     if (state === "saving") return;
-    note = null;
+    if (note && !same(read(), noteValues)) note = null;
     state = same(read(), saved) ? "clean" : "dirty";
     render();
   }
@@ -70,10 +72,12 @@ export function createSaveState({ form, savebar, read, write, save, validate, au
       state = same(read(), saved) ? "clean" : "dirty";
       render();
       return true;
-    } catch {
+    } catch (error) {
       background = false;
       lock(false);
       state = "error";
+      note = errorMessage?.(error) || null;
+      noteValues = read();
       render();
       return false;
     }
@@ -118,6 +122,7 @@ export function createSaveState({ form, savebar, read, write, save, validate, au
     // Show a one-off message (for example V4's "Fix N fields to publish") until the next edit or save.
     say(text) {
       note = text;
+      noteValues = read();
       render();
     },
     destroy() {

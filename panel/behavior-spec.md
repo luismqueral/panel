@@ -6,7 +6,7 @@ Words used below:
 
 - **Saved values**: the values last loaded from, or written to, the data adapter.
 - **First status**: the first entry of a type's `status`. Items without `status` have no workflow.
-- **Publish**: moving an item out of its first status.
+- **Publish**: moving an item to any status other than its first. Leaving the first status is the move that asks for confirmation (P4).
 
 ## 1. Save state
 
@@ -25,7 +25,7 @@ The save bar's `data-state` always shows the current state.
 | S2 | Any edit that makes the values differ from the saved values enters `dirty`. An edit that makes them equal again returns to `clean`. |
 | S3 | Save or Cmd+S / Ctrl+S in `dirty` or `error` enters `saving`, disables every control inside the form (fields and their own buttons, such as remove-tag), and sends the current values. The header's status button stays enabled; pressing it while saving does nothing. Delete is inside the form, so it is disabled with the fields. |
 | S4 | A successful save stores the sent values as saved values and enters `clean`. |
-| S5 | A failed save enters `error`, re-enables fields, and keeps every edit. |
+| S5 | A failed save enters `error`, re-enables fields, and keeps every edit. A `conflict` shows "Changed elsewhere. Copy your edits, then reload." as the message. |
 | S6 | Revert restores the saved values and enters `clean`. |
 | S7 | Cmd+S / Ctrl+S never opens the browser's save dialog on a panel screen. In `clean` it does nothing. |
 | S8 | Leaving the page while `dirty` or `error` asks the browser to confirm (`beforeunload`). |
@@ -48,11 +48,12 @@ Autosave exists only when a `behavior` line asks for it ("Autosave drafts every 
 | --- | --- |
 | V1 | No error appears while a person types in a field they have not left yet, unless a save, publish, or create was attempted. |
 | V2 | Leaving a field checks its format only: number within `min` and `max`, slug pattern, date format. Missing required values are not errors on blur. |
-| V3 | Saving is blocked only by format errors. A draft with empty required fields saves. |
+| V3 | Saving an item in its first status is blocked only by format errors. A draft with empty required fields saves. |
 | V4 | Publishing is blocked by any format error or empty required field. Every invalid field shows its error, the first one receives focus, and the save bar message reads "Fix N fields to publish" ("Fix 1 field to publish"). When V3 blocks a save, it reads "Fix N fields to save". |
 | V5 | An error is shown as `aria-invalid="true"` on the control and a message in the field's error slot. It clears as soon as the value becomes valid. |
 | V6 | In the create dialog, required fields must be filled before Create succeeds. |
 | V7 | A singleton has no status, so nothing is ever published: saving it is blocked by empty required fields as well as format errors. Errors show as V4 does, with "Required.", and the message reads "Fix N fields to save". |
+| V8 | Saving an item that is already past its first status runs V4's checks, so a published item cannot be saved with an empty required field. |
 
 Messages:
 

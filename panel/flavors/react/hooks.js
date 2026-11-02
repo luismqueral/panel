@@ -18,7 +18,8 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 // 1. Save state (S1–S9, A1–A4).
 // save(values, extra) writes through the adapter and throws on failure.
 // validate(values, { background, extra }) returns false to block (V3, V4).
-export function useSaveState({ initial, save, validate, autosave, onRevert }) {
+// errorMessage(error) optionally returns the save bar message for a failed save.
+export function useSaveState({ initial, save, validate, autosave, onRevert, errorMessage }) {
   const [values, setValues] = useState(initial);
   const [saved, setSaved] = useState(initial);
   const [phase, setPhase] = useState("idle"); // idle | saving | error
@@ -26,7 +27,7 @@ export function useSaveState({ initial, save, validate, autosave, onRevert }) {
   const [note, setNote] = useState(null);
   const live = useRef({});
   const state = phase === "saving" ? "saving" : phase === "error" ? "error" : same(values, saved) ? "clean" : "dirty";
-  live.current = { values, state, background, save, validate, autosave };
+  live.current = { values, state, background, save, validate, autosave, errorMessage };
 
   const setValue = useCallback((name, value) => {
     setValues((prev) => ({ ...prev, [name]: value }));
@@ -47,8 +48,9 @@ export function useSaveState({ initial, save, validate, autosave, onRevert }) {
       setSaved(sent);
       setPhase("idle");
       return true;
-    } catch {
+    } catch (error) {
       setPhase("error");
+      setNote(live.current.errorMessage?.(error) || null);
       return false;
     } finally {
       setBackground(false);
@@ -97,16 +99,18 @@ export function useSaveState({ initial, save, validate, autosave, onRevert }) {
   };
 }
 
-// 2. Validation (V1–V6). Errors show on blur (format only), live once shown, and all at once on run().
+// 2. Validation (V1–V8). Errors show on blur (format only), live once shown, and all at once on run().
 export function useValidation(fields, values, prefix) {
   const [errors, setErrors] = useState({});
   const mode = useRef(null);
+  const extra = useRef([]);
+  const rule = (f) => (extra.current.includes(f.name) ? { ...f, required: true } : f);
   const byName = useMemo(() => new Map(fields.map((f) => [f.name, f])), [fields]);
 
   useEffect(() => {
     setErrors((prev) => {
       const next = { ...prev };
-      for (const f of fields) if (prev[f.name] || mode.current) next[f.name] = check(f, values[f.name], mode.current ?? "format");
+      for (const f of fields) if (prev[f.name] || mode.current) next[f.name] = check(rule(f), values[f.name], mode.current ?? "format");
       return same(next, prev) ? prev : next;
     });
   }, [values, fields]);
@@ -115,12 +119,13 @@ export function useValidation(fields, values, prefix) {
     errors,
     blur(name) {
       const f = byName.get(name);
-      if (f) setErrors((prev) => ({ ...prev, [name]: check(f, values[name], mode.current ?? "format") }));
+      if (f) setErrors((prev) => ({ ...prev, [name]: check(rule(f), values[name], mode.current ?? "format") }));
     },
     run(runMode, extraRequired = []) {
       mode.current = runMode;
+      extra.current = extraRequired;
       const next = {};
-      for (const f of fields) next[f.name] = check(extraRequired.includes(f.name) ? { ...f, required: true } : f, values[f.name], runMode);
+      for (const f of fields) next[f.name] = check(rule(f), values[f.name], runMode);
       setErrors(next);
       return fields.filter((f) => next[f.name]).map((f) => f.name);
     },
@@ -128,6 +133,7 @@ export function useValidation(fields, values, prefix) {
     focus: (name) => document.getElementById(`${prefix}-${name}-input`)?.focus(),
     clear() {
       mode.current = null;
+      extra.current = [];
       setErrors({});
     },
   };

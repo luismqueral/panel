@@ -14,6 +14,8 @@ import { installShortcuts } from "./snippets/keyboard.js";
 import { createFlow } from "./snippets/create-flow.js";
 import { showToast } from "./snippets/toast.js";
 
+// recipes/contracts.md, error codes: conflict
+const saveError = (error) => (error?.code === "conflict" ? "Changed elsewhere. Copy your edits, then reload." : null);
 const words = (text) => (text ?? "").trim().split(/\s+/).filter(Boolean).length;
 const COMPUTED = {
   readingTime: {
@@ -336,6 +338,7 @@ async function start({ data, files, auth, test }) {
       },
       autosave: type.autosave && { every: type.autosave.every, when: () => !type.autosave.drafts || record.status === first },
       onRevert: () => validation.clear(),
+      errorMessage: saveError,
     });
     const off = installShortcuts({ save: () => saveState.save() });
 
@@ -438,6 +441,7 @@ async function start({ data, files, auth, test }) {
       },
       save: async (values) => (record = await data.saveSingleton(def.id, values).catch(saveFailed)),
       onRevert: () => set.validation.clear(),
+      errorMessage: saveError,
     });
     const off = installShortcuts({ save: () => saveState.save() });
     current = {

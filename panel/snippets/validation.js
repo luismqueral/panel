@@ -57,6 +57,8 @@ export function createValidation({ root, fields, get }) {
   const byName = new Map(fields.map((f) => [f.name, f]));
   const showing = new Set();
   let mode = null;
+  let extra = [];
+  const rule = (name) => (extra.includes(name) ? { ...byName.get(name), required: true } : byName.get(name));
 
   const fieldRoot = (name) => root.querySelector(`[data-field="${name}"]`);
 
@@ -80,13 +82,13 @@ export function createValidation({ root, fields, get }) {
     const name = nameOf(event.target);
     if (!name || !byName.has(name)) return;
     if (fieldRoot(name).contains(event.relatedTarget)) return;
-    show(name, check(byName.get(name), get(name), mode ?? "format"));
+    show(name, check(rule(name), get(name), mode ?? "format"));
   }
 
   function onInput(event) {
     const name = nameOf(event.target);
     if (!name || !byName.has(name)) return;
-    if (showing.has(name) || mode) show(name, check(byName.get(name), get(name), mode ?? "format"));
+    if (showing.has(name) || mode) show(name, check(rule(name), get(name), mode ?? "format"));
   }
 
   root.addEventListener("focusout", onLeave);
@@ -97,10 +99,10 @@ export function createValidation({ root, fields, get }) {
     // Checks every field in a mode, shows the errors, and returns the invalid names (V4, V6).
     run(runMode, extraRequired = []) {
       mode = runMode;
+      extra = extraRequired;
       const invalid = [];
       for (const field of fields) {
-        const rule = extraRequired.includes(field.name) ? { ...field, required: true } : field;
-        const message = check(rule, get(field.name), runMode);
+        const message = check(rule(field.name), get(field.name), runMode);
         show(field.name, message);
         if (message) invalid.push(field.name);
       }
@@ -115,6 +117,7 @@ export function createValidation({ root, fields, get }) {
     },
     clear() {
       mode = null;
+      extra = [];
       for (const name of [...showing]) show(name, "");
     },
     destroy() {

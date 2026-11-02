@@ -32,6 +32,8 @@ const singletonById = (id) => PANEL.singletons.find((s) => s.id === id);
 const defaults = (fields) => Object.fromEntries(fields.filter((f) => "default" in f).map((f) => [f.name, f.default]));
 const withComputed = (fields, values) =>
   Object.fromEntries(fields.map((f) => [f.name, f.type === "custom" && COMPUTED[f.compute] ? COMPUTED[f.compute].value(values) : values[f.name] ?? null]));
+// recipes/contracts.md, error codes: conflict
+const saveError = (error) => (error?.code === "conflict" ? "Changed elsewhere. Copy your edits, then reload." : null);
 const signedOutError = (e) => e?.code === "unauthorized" || e?.code === "forbidden";
 
 function parseRoute(hash) {
@@ -421,6 +423,7 @@ function ItemEditor({ ctx, type, initial, base, go }) {
     },
     autosave: type.autosave && { every: type.autosave.every, when: () => !type.autosave.drafts || live.current.status === first },
     onRevert: () => validation.clear(),
+    errorMessage: saveError,
   });
   validation = useValidation(type.fields, saveState.values, type.id);
   ctx.dirty.current = () => saveState.dirty;
@@ -526,6 +529,7 @@ function SingletonEditor({ ctx, def, initial }) {
     },
     save: (values) => ctx.data.saveSingleton(def.id, withComputed(def.fields, values)).catch(ctx.saveFailed),
     onRevert: () => validation.clear(),
+    errorMessage: saveError,
   });
   validation = useValidation(def.fields, saveState.values, def.id);
   ctx.dirty.current = () => saveState.dirty;

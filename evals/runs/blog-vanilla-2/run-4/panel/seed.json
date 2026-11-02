@@ -1,0 +1,61 @@
+{
+  "items": {
+    "post": [
+      {
+        "id": "rail-line",
+        "type": "post",
+        "status": "draft",
+        "values": {
+          "title": "Walking the old rail line",
+          "slug": "walking-the-old-rail-line",
+          "date": "2026-10-28",
+          "cover": null,
+          "tags": ["walking", "history"],
+          "body": "The line closed in 1962. Most of the sleepers are gone, but the cuttings remain.",
+          "reading_time": 1
+        },
+        "createdAt": "2026-10-20T09:00:00.000Z",
+        "updatedAt": "2026-10-28T18:30:00.000Z"
+      },
+      {
+        "id": "first-frost",
+        "type": "post",
+        "status": "published",
+        "values": {
+          "title": "First frost",
+          "slug": "first-frost",
+          "date": "2026-10-12",
+          "cover": { "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='3'%3E%3Crect width='4' height='3' fill='%2399aabb'/%3E%3C/svg%3E", "name": "frost.svg", "size": 120, "type": "image/svg+xml" },
+          "tags": ["seasons"],
+          "body": "The garden turned white overnight.",
+          "reading_time": 1
+        },
+        "createdAt": "2026-10-10T08:00:00.000Z",
+        "updatedAt": "2026-10-12T07:15:00.000Z"
+      },
+      {
+        "id": "notes-on-nothing",
+        "type": "post",
+        "status": "draft",
+        "values": {
+          "title": "",
+          "slug": "",
+          "date": "",
+          "cover": null,
+          "tags": [],
+          "body": "",
+          "reading_time": 1
+        },
+        "createdAt": "2026-10-30T12:00:00.000Z",
+        "updatedAt": "2026-10-30T12:00:00.000Z"
+      }
+    ]
+  },
+  "singletons": {
+    "settings": {
+      "values": { "site_title": "Field Notes", "description": "Walks, weather, and small observations." },
+      "createdAt": "2026-09-01T00:00:00.000Z",
+      "updatedAt": "2026-09-01T00:00:00.000Z"
+    }
+  }
+}

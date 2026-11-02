@@ -1,0 +1,38 @@
+# The answers a person gave in intake, for unattended runs of the blog experiment.
+intake: 1
+
+situation:
+  mode: new
+  stack: none
+  flavor: vanilla
+  users: me
+  manages: A personal blog of long-form posts, plus a site settings page.
+
+adapters:
+  auth: google-login
+  data: json-files
+  files: local-disk
+  via: server
+  mount: standalone
+
+shape:
+  collections: true
+  singletons: true
+  status:
+    - draft
+    - published
+  behavior:
+    - Autosave drafts every 10 seconds
+    - Show word count under the body field
+    - Publishing asks for confirmation
+
+open_questions:
+  - question: Does the content folder (./content) go in version control? (json-files step 4)
+    assumed: true
+    answer: Yes, so edits have history.
+  - question: Do uploads (./uploads) belong in git? (local-disk step 6)
+    assumed: true
+    answer: No. ./uploads is in .gitignore.
+  - question: Where will the panel be deployed? (google-login step 8)
+    assumed: true
+    answer: Nowhere yet. It runs on 127.0.0.1:4810. Deploying means setting HOST, adding the site's origin to the Google OAuth client, and serving it over HTTPS.
