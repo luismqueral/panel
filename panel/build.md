@@ -20,8 +20,9 @@ panel/
     components.css    copied verbatim from design-system/
   snippets/           copied verbatim from snippets/ (the ones you use)
   adapters/
-    memory.js         the test adapters (behavior-spec.md section 7)
+    memory.js         the test adapters, copied from recipes/client/ (behavior-spec.md section 7)
     <recipe>.js       one file per recipe in the schema, written from the recipe
+  seed.json           test data, loaded only with ?test (step 6)
   CONFORMANCE.md      the conformance report (last step)
 server/               when a recipe needs the project server (recipes/contracts.md)
   *.mjs               copied from recipes/server/
@@ -191,11 +192,29 @@ Then implement each `behavior` line. A behavior line that changes a spec rule wi
 
 `recipes/contracts.md` defines the auth, data, and files contracts. Write one file per recipe in the schema, following that recipe's steps exactly, and run its verification checklist.
 
-Always also copy `recipes/client/memory.js` to `adapters/memory.js`. It implements the same contracts in memory and provides the `fail`, `delay`, `calls`, and `reset` parts of `window.panelTest` (behavior-spec.md section 7). `panel.js` uses it when the URL has `?test`, and the recipes otherwise. The seed is a JSON file of the schema's types, a few records each, covering every status:
+Always also copy `recipes/client/memory.js` to `adapters/memory.js`. It implements the same contracts in memory and provides the `fail`, `delay`, `calls`, and `reset` parts of `window.panelTest` (behavior-spec.md section 7). `panel.js` uses it when the URL has `?test`, and the recipes otherwise. The seed is `seed.json`, next to `index.html`, fetched only in test mode. Tests may replace it, so read nothing else from it:
 
 ```js
 const params = new URLSearchParams(location.search);
-const adapters = params.has("test") ? createMemoryAdapters(seed) : createRecipeAdapters();
+const adapters = params.has("test")
+  ? createMemoryAdapters(await (await fetch("./seed.json")).json())
+  : createRecipeAdapters();
+```
+
+Write a few records per type, covering every status, in this shape:
+
+```json
+{
+  "items": {
+    "post": [
+      { "id": "rail-line", "type": "post", "status": "draft", "values": { "title": "Walking the old rail line" },
+        "createdAt": "2026-10-20T09:00:00.000Z", "updatedAt": "2026-10-28T18:30:00.000Z" }
+    ]
+  },
+  "singletons": {
+    "settings": { "values": { "site_title": "Field Notes" }, "createdAt": "2026-09-01T00:00:00.000Z", "updatedAt": "2026-09-01T00:00:00.000Z" }
+  }
+}
 ```
 
 ## Step 7: Use this copy
