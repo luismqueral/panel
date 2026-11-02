@@ -307,3 +307,26 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Choice for now:** The validator stays dev-time in `tools/`. `schema-guide.md` section 10 gives a manual checklist that covers the same rules for when it is unavailable.
 - **Options later:** publish it as a package run with `npx`, or write a dependency-free validator for the YAML subset Panel allows.
 - **Tag:** default, needs human decision
+
+## D-043 Behavior tests are implementation-agnostic
+
+- **Choice:** `evals/behavior/` drives a panel only through template classes, `data-action`, `data-field`, `data-template`, and the `window.panelTest` hook (behavior-spec.md section 7). Any build, in any flavor, runs the same suite with `PANEL_URL=... npm run test:behavior`. Every screen also runs template fidelity, axe, and 400px checks.
+- **Why:** Phase 8 must pass the same tests in React. Tests that read framework state would not transfer.
+- **Tag:** default
+
+## D-044 The reference build mirrors the schema in its own config
+
+- **Choice:** `evals/fixtures/vanilla-blog/src/blog.js` restates the blog schema as plain JS, with each key traced to a schema, behavior, or conformance line. Nothing parses `panel.yaml` at runtime (D-005).
+- **Why:** It is what a model writes when it builds from the schema; the build owns its code.
+- **Tag:** default
+
+## D-045 Rules added while writing the behavior spec
+
+- **Choice:**
+  - S9: moving to another panel screen with unsaved changes asks "Discard unsaved changes?" first. `beforeunload` (S8) only covers leaving the page.
+  - Saving an item already past its first status checks required fields like publishing does (V4), so a published item cannot lose a required value.
+  - A published item does not autosave ("Autosave drafts").
+  - With exactly two statuses, the status button toggles. With more, it opens a slide-over of choices.
+  - Confirm dialogs focus Cancel when the action is negative (D1).
+  - `.pn [hidden]` always hides, so behavior such as "Toolbar hidden until text is selected" can use the `hidden` state attribute on components that set `display`.
+- **Tag:** philosophy-dependent (S9, published saves, autosave scope); default (the rest)

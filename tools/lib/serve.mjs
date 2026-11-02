@@ -14,7 +14,7 @@ export function serve(root, { port = 0, routes = {} } = {}) {
       const { type, body } = routes[path]();
       return res.writeHead(200, { "content-type": type, "cache-control": "no-store" }).end(body);
     }
-    const file = join(root, normalize(path));
+    const file = join(root, normalize(path.endsWith("/") ? `${path}index.html` : path));
     if (!file.startsWith(root)) return res.writeHead(403).end();
     let body;
     try {
