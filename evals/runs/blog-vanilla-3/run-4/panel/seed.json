@@ -1,0 +1,61 @@
+{
+  "items": {
+    "post": [
+      {
+        "id": "rail-line",
+        "type": "post",
+        "status": "draft",
+        "values": {
+          "title": "Walking the old rail line",
+          "slug": "walking-the-old-rail-line",
+          "date": "2026-10-28",
+          "cover": null,
+          "tags": ["walking", "maps"],
+          "body": "The rail line closed in 1962. The ballast is still there, under the ferns.",
+          "reading_time": 1
+        },
+        "createdAt": "2026-10-20T09:00:00.000Z",
+        "updatedAt": "2026-10-28T18:30:00.000Z"
+      },
+      {
+        "id": "river-fog",
+        "type": "post",
+        "status": "published",
+        "values": {
+          "title": "Fog over the river",
+          "slug": "fog-over-the-river",
+          "date": "2026-10-12",
+          "cover": { "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8+P9/PQAJYwPNcc8hWwAAAABJRU5ErkJggg==", "name": "fog.png", "size": 70, "type": "image/png" },
+          "tags": ["river"],
+          "body": "Most mornings in October the river disappears until nine.",
+          "reading_time": 1
+        },
+        "createdAt": "2026-10-10T07:00:00.000Z",
+        "updatedAt": "2026-10-12T08:15:00.000Z"
+      },
+      {
+        "id": "maps-i-keep",
+        "type": "post",
+        "status": "draft",
+        "values": {
+          "title": "",
+          "slug": "",
+          "date": "",
+          "cover": null,
+          "tags": [],
+          "body": "",
+          "reading_time": 1
+        },
+        "createdAt": "2026-10-02T10:00:00.000Z",
+        "updatedAt": "2026-10-02T10:00:00.000Z"
+      }
+    ]
+  },
+  "singletons": {
+    "settings": {
+      "values": { "site_title": "Field Notes", "description": "Notes from walks, rivers, and old maps." },
+      "createdAt": "2026-09-01T00:00:00.000Z",
+      "updatedAt": "2026-09-01T00:00:00.000Z"
+    }
+  }
+}

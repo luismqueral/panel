@@ -1,0 +1,38 @@
+# The answers a person gave in intake, for unattended runs of the blog experiment.
+intake: 1
+
+situation:
+  mode: new
+  stack: none
+  flavor: vanilla
+  users: me
+  manages: A personal blog of long-form posts, plus a site settings page.
+
+adapters:
+  auth: google-login
+  data: json-files
+  files: local-disk
+  via: server
+  mount: standalone
+
+shape:
+  collections: true
+  singletons: true
+  status:
+    - draft
+    - published
+  behavior:
+    - Autosave drafts every 10 seconds
+    - Show word count under the body field
+    - Publishing asks for confirmation
+
+open_questions:
+  - question: Commit the content folder to git?
+    assumed: true
+    answer: yes
+  - question: Commit uploads to git?
+    assumed: true
+    answer: no
+  - question: Where will the panel be served from?
+    assumed: true
+    answer: 127.0.0.1:4810 only, for now
