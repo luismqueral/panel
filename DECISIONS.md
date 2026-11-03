@@ -457,6 +457,6 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 
 - **Result:** At `e329118`, 5 of 5 fresh sessions conform against all 67 tests, with 20 of 20 fidelity and identical copy. 7 of 8 views now have one DOM structure across runs (0 of 8 in experiment 2). See `evals/results/blog-vanilla-3/REPORT.md`.
 - **Choice:** The one remaining structure difference was the create dialog's lifetime. `build.md` "What is mounted" now says to add it, closed, with the collection screen and remove it when the route leaves, as the reference build does.
-- **Not changed:** the other gaps the sessions raised. Every run guessed the same way and passed, so they wait for a run that guesses differently.
+- **Not changed:** the other gaps the sessions raised. Every guess passed the tests. Two split across runs (date-only values in UTC or local time; whether Delete on a dirty item asks to discard first) and have no test yet.
 - **Requested by:** the person ("run this").
 - **Tag:** process

@@ -22,20 +22,20 @@ One structure difference, on the collection screen: run 1 keeps the create dialo
 
 ## What the sessions reported missing
 
-No gap blocked a run. The ones raised by three or more:
+No gap blocked a run. The ones raised by two or more:
 
 | Gap | Runs |
 | --- | --- |
 | When the create dialog is mounted | 5 |
 | A `forbidden` load: how the panel gets "This account isn't allowed" to the login screen | 5 |
-| Publish checks before or after the confirm dialog | 4 |
 | Whether the status button shows while loading, and how to hide it for types without status | 4 |
+| Publish checks before or after the confirm dialog | 3 |
 | Home's breadcrumb and page title; the last crumb's `href` | 3 |
-| `.gitignore` for uploads is named by `local-disk.md` but not by `build.md` | 3 |
-| Create: send every field, or only the dialog's, and whether computed values are included | 3 |
-| Date-only values shifting a day by time zone | 3 |
+| `.gitignore` for uploads is named by `local-disk.md` but not by `build.md` | 2 |
+| Create: send every field, or only the dialog's, and whether computed values are included | 2 |
+| Date-only values shifting a day by time zone | 2 |
 
-Every run made the same guess on each, and the tests pass, so these are wording to add, not behavior to change.
+Most runs guessed the same way on these, and every guess passed the tests. Two guesses split: run 3 formats date-only values in UTC while the others read them as local dates, and runs disagree on whether Delete on a dirty item asks to discard first. Neither is covered by a test yet.
 
 ## Incidents
 
