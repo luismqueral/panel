@@ -125,6 +125,8 @@ window.panelTest = {
 
 `reset(seed)` also drops the current screen's state without asking (no S9 dialog) and renders the current route again from the new data, so a test that resets on a collection sees the new rows at once. The memory adapter's own `reset` only replaces data; the panel wraps it (`build.md` step 6).
 
+In test mode the memory auth adapter starts signed in. Log out shows `screen-login` with one primary button, "View panel", which signs back in and opens the route in the address. Reloading the page also starts signed in, with the seed data.
+
 Every screen also passes template fidelity, axe, and a 400px width with no sideways scroll (`evals/behavior/quality.spec.mjs`).
 
 Routes use the hash: `#/` home, `#/<type id>` collection, `#/<type id>/<item id>` item, `#/<singleton id>` singleton.

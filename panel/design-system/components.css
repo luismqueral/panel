@@ -1670,6 +1670,12 @@ button.pn-list-row {
   width: 100%;
 }
 
+.pn-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pn-space-4);
+}
+
 /* System screens: an empty or error block placed straight in the body */
 
 .pn-layout-body > .pn-empty {

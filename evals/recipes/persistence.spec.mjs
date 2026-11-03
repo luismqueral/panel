@@ -1,4 +1,4 @@
-// Verification for google-login, json-files, local-disk, and none (recipes/*.md, Verify).
+// Verification for google-login, password, json-files, local-disk, and none (recipes/*.md, Verify).
 // Google itself is replaced by a stub sign-in button and a fake token verifier (D-015).
 
 import { test, expect } from "@playwright/test";
@@ -11,10 +11,12 @@ import { createSessions } from "../../panel/recipes/server/session.mjs";
 import { createJsonFiles } from "../../panel/recipes/server/json-files.mjs";
 import { createLocalDisk } from "../../panel/recipes/server/local-disk.mjs";
 import { fail } from "../../panel/recipes/server/errors.mjs";
+import { createPasswordCheck } from "../../panel/recipes/server/password.mjs";
 
 const dist = fileURLToPath(new URL("../fixtures/vanilla-blog/dist/", import.meta.url));
 const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", "base64");
 const TOKENS = { "token-me": { email: "me@example.com" }, "token-other": { email: "other@example.com" } };
+const PASSWORD = "blue-rail-line-38";
 
 async function start({ recipe = "google-login", allow = ["me@example.com"], secret = "s".repeat(40), dir } = {}) {
   dir ??= await mkdtemp(join(tmpdir(), "panel-recipes-"));
@@ -22,7 +24,9 @@ async function start({ recipe = "google-login", allow = ["me@example.com"], secr
   const auth =
     recipe === "none"
       ? { recipe }
-      : { recipe, allow, clientId: "test-client", sessions: createSessions(secret), verify: async (c) => TOKENS[c] ?? Promise.reject(fail("unauthorized", "bad token")) };
+      : recipe === "password"
+        ? { recipe, check: createPasswordCheck(PASSWORD), sessions: createSessions(secret) }
+        : { recipe, allow, clientId: "test-client", sessions: createSessions(secret), verify: async (c) => TOKENS[c] ?? Promise.reject(fail("unauthorized", "bad token")) };
   const server = createPanelServer({
     root: dist,
     config: PANEL,
@@ -46,6 +50,14 @@ async function stubGoogle(page, credential = "token-me") {
       } } };`,
     }),
   );
+}
+
+// Serves the build's panel.config.js with another auth recipe, so the browser picks that recipe's adapter.
+async function useAuth(page, recipe) {
+  const source = await readFile(join(dist, "panel.config.js"), "utf8");
+  const body = source.replace(/auth: \{ recipe: "google-login" \}/, `auth: { recipe: "${recipe}" }`);
+  if (body === source) throw new Error("panel.config.js has no google-login auth line to replace");
+  await page.route("**/panel.config.js", (route) => route.fulfill({ contentType: "text/javascript", body }));
 }
 
 const signIn = (page, url, credential = "token-me") => page.request.post(`${url}/api/session`, { data: { credential }, headers: { "x-panel": "1" } });
@@ -232,15 +244,119 @@ test.describe("json-files and local-disk", () => {
   });
 });
 
-test.describe("none", () => {
-  test("with no login, the panel opens and saves directly", async ({ page }) => {
-    server = await start({ recipe: "none" });
-    await page.goto(`${server.url}/#/settings`);
+test.describe("password", () => {
+  const typePassword = async (page, value) => {
+    await page.getByLabel("Password").fill(value);
+    await page.getByRole("button", { name: "Sign in" }).click();
+  };
+
+  test("signed out: the API refuses and the page asks for the password", async ({ page }) => {
+    server = await start({ recipe: "password" });
+    await useAuth(page, "password");
+    expect((await page.request.get(`${server.url}/api/items/post`)).status()).toBe(401);
+    await page.goto(`${server.url}/`);
+    await expect(page.getByLabel("Password")).toBeFocused();
+    await expect(page.getByLabel("Password")).toHaveAttribute("type", "password");
+  });
+
+  test("an empty or wrong password is refused with a message", async ({ page }) => {
+    server = await start({ recipe: "password" });
+    await useAuth(page, "password");
+    await page.goto(`${server.url}/`);
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page.locator(".pn-login .pn-error")).toHaveText("Enter the password.");
+    await typePassword(page, "not-the-password");
+    await expect(page.locator(".pn-login .pn-error")).toHaveText("That password isn't right. Try again.");
+    await expect(page.getByLabel("Password")).toHaveValue("");
+    expect((await page.context().cookies()).some((c) => c.name === "pn_session")).toBe(false);
+  });
+
+  test("the right password opens the panel as editor, with an HttpOnly cookie", async ({ page }) => {
+    server = await start({ recipe: "password" });
+    await useAuth(page, "password");
+    await page.goto(`${server.url}/`);
+    await page.getByLabel("Password").fill(PASSWORD);
+    await page.keyboard.press("Enter");
     await screenReady(page);
+    await expect(page.locator(".pn-nav-user")).toHaveText("editor");
+    const session = (await page.context().cookies()).find((c) => c.name === "pn_session");
+    expect(session.httpOnly).toBe(true);
+    expect(session.sameSite).toBe("Lax");
+    await page.reload();
+    await screenReady(page);
+  });
+
+  test("signing in needs the x-panel header", async ({ page }) => {
+    server = await start({ recipe: "password" });
+    expect((await page.request.post(`${server.url}/api/session`, { data: { password: PASSWORD } })).status()).toBe(403);
+  });
+
+  test("after 10 wrong tries, even the right password waits", async ({ page }) => {
+    server = await start({ recipe: "password" });
+    await useAuth(page, "password");
+    for (let i = 0; i < 10; i++) {
+      const res = await page.request.post(`${server.url}/api/session`, { data: { password: "guess" }, headers: { "x-panel": "1" } });
+      expect(res.status()).toBe(401);
+    }
+    await page.goto(`${server.url}/`);
+    await typePassword(page, PASSWORD);
+    await expect(page.locator(".pn-login .pn-error")).toHaveText("Too many tries. Wait a few minutes, then try again.");
+  });
+
+  test("a session cookie for anyone but editor is refused", async ({ page }) => {
+    const secret = "s".repeat(40);
+    server = await start({ recipe: "password", secret });
+    const cookie = createSessions(secret).issue("me@example.com", { secure: false }).split(";")[0];
+    expect((await page.request.get(`${server.url}/api/session`, { headers: { cookie } })).status()).toBe(401);
+  });
+
+  test("logging out shows the password screen again", async ({ page }) => {
+    server = await start({ recipe: "password" });
+    await useAuth(page, "password");
+    await page.goto(`${server.url}/`);
+    await typePassword(page, PASSWORD);
+    await screenReady(page);
+    await page.locator('[data-action="logout"]').click();
+    await expect(page.getByLabel("Password")).toBeVisible();
+    expect((await page.request.get(`${server.url}/api/session`)).status()).toBe(401);
+  });
+});
+
+test.describe("none", () => {
+  test("one button opens the panel, which then saves directly", async ({ page }) => {
+    server = await start({ recipe: "none" });
+    await useAuth(page, "none");
+    await page.goto(`${server.url}/#/settings`);
+    await page.getByRole("button", { name: "View panel" }).click();
+    await screenReady(page);
+    await expect(page.locator(".pn-nav-user")).toHaveText("local");
     expect(await (await page.request.get(`${server.url}/api/session`)).json()).toEqual({ user: "local" });
     await page.locator('[data-field="site_title"] input').fill("Local only");
     await page.keyboard.press(process.platform === "darwin" ? "Meta+s" : "Control+s");
     await expect(page.locator(".pn-savebar")).toHaveAttribute("data-state", "clean");
     expect(JSON.parse(await readFile(join(server.dir, "content", "settings.json"), "utf8")).values.site_title).toBe("Local only");
+  });
+
+  test("the panel stays open on reload, and logging out shows the button again", async ({ page }) => {
+    server = await start({ recipe: "none" });
+    await useAuth(page, "none");
+    await page.goto(`${server.url}/`);
+    await page.getByRole("button", { name: "View panel" }).click();
+    await screenReady(page);
+    await page.reload();
+    await screenReady(page);
+    await page.locator('[data-action="logout"]').click();
+    await expect(page.getByRole("button", { name: "View panel" })).toBeVisible();
+  });
+
+  test("a schema with no auth line works the same as none", async ({ page }) => {
+    server = await start({ recipe: "none" });
+    const source = await readFile(join(dist, "panel.config.js"), "utf8");
+    const body = source.replace(/^\s*auth: \{ recipe: "google-login" \},\n/m, "");
+    expect(body).not.toContain("auth:");
+    await page.route("**/panel.config.js", (route) => route.fulfill({ contentType: "text/javascript", body }));
+    await page.goto(`${server.url}/`);
+    await page.getByRole("button", { name: "View panel" }).click();
+    await screenReady(page);
   });
 });

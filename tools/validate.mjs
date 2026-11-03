@@ -259,6 +259,7 @@ export function validateSource(text, filename = "panel.yaml") {
     }
   }
   if (data.auth?.recipe === "none") warn(lineOf(nodeAt(["auth"])?.range?.[0]), ["auth"], "no login: this panel must only ever run locally");
+  else if (data.auth === undefined) warn(1, ["auth"], "no auth, so it is none: anyone who opens the panel can edit, and it must only ever run locally. For a shared password, use the password recipe");
 
   const ids = new Map();
   for (const [group, list] of [["types", types], ["singletons", singletons]]) {

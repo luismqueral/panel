@@ -180,22 +180,20 @@ export default function App({ adapters }) {
           brand={PANEL.name}
           entries={entries}
           account={
-            PANEL.auth.recipe !== "none" && (
-              <Account
-                user={user.user}
-                onLogout={async () => {
-                  if (dirty.current() && !(await discard())) return;
-                  try {
-                    await auth.logout();
-                  } catch {
-                    toast("Could not log out. Try again.", "negative");
-                    return;
-                  }
-                  dirty.current = () => false;
-                  setUser(null);
-                }}
-              />
-            )
+            <Account
+              user={user.user}
+              onLogout={async () => {
+                if (dirty.current() && !(await discard())) return;
+                try {
+                  await auth.logout();
+                } catch {
+                  toast("Could not log out. Try again.", "negative");
+                  return;
+                }
+                dirty.current = () => false;
+                setUser(null);
+              }}
+            />
           }
         />
       }

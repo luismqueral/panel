@@ -10,7 +10,7 @@ Answers: who is signed in?
 
 | Function | Input | Returns | Throws |
 | --- | --- | --- | --- |
-| `session()` | none | `{ user }`, where `user` is the signed-in email address, or `null` when no one is signed in | `unavailable` |
+| `session()` | none | `{ user }`, where `user` is the signed-in email address (`editor` for `password`, `local` for `none`), or `null` when no one is signed in | `unavailable` |
 | `renderMethods(container, { onSignedIn, onError })` | The `screen-login` `methods` container | Nothing. Builds the sign-in controls from design-system components and wires them. Calls `onSignedIn()` after a successful sign-in, `onError(message)` with a sentence for the person otherwise | never; reports through `onError` |
 | `logout()` | none | Nothing. The next `session()` returns `null` | `unavailable` |
 
@@ -86,11 +86,12 @@ Rules:
 | `invalid` | The request broke the schema | The save bar's error state; report the message in the console |
 | `conflict` | The item changed elsewhere since it loaded | The save bar's error state: "Changed elsewhere. Copy your edits, then reload." |
 | `too-large` | The upload is over the limit | The field's error: "That file is too large." |
+| `rate-limited` | Too many wrong sign-in tries | `screen-login` with the recipe's message (`password.md`) |
 | `unavailable` | Network or server failure | The save bar's or screen's error state |
 
 ## The project server
 
-`json-files` and `local-disk` with `via: server`, and every login recipe, run in one small server the project owns. It is a single dependency-free Node file, `server.mjs`, written once and extended by each recipe. The recipes describe their part; this is the shared frame.
+`json-files` and `local-disk` with `via: server`, and every auth recipe, run in one small server the project owns. It is a single dependency-free Node file, `server.mjs`, written once and extended by each recipe. The recipes describe their part; this is the shared frame.
 
 ```
 GET    /api/config                   → { auth, googleClientId }, public, for the sign-in button
@@ -109,8 +110,8 @@ GET    /uploads/...                  → an uploaded file
 GET    anything else                 → the panel's static files: .html, .js, .css, .svg, .json, and images only
 ```
 
-- Errors are `{ "error": { "code": "not-found", "message": "..." } }` with the matching HTTP status (401, 403, 404, 400, 409, 413, 503).
+- Errors are `{ "error": { "code": "not-found", "message": "..." } }` with the matching HTTP status (401, 403, 404, 400, 409, 413, 429, 503).
 - Every `/api/` request except `GET /api/config`, `GET /api/session`, and `POST /api/session` needs a valid session cookie.
 - Every request that changes something must send `x-panel: 1`. Browsers cannot send a custom header across sites without permission, so this blocks cross-site requests. Reject a request without it with 403.
-- The server reads `panel.config.js` for the types, singletons, and field names it accepts, and `allow.mjs` for the allow list. `allow.mjs` sits outside the served folder.
+- The server reads `panel.config.js` for the types, singletons, and field names it accepts, and, for `google-login` and `email-link`, `allow.mjs` for the allow list. `allow.mjs` sits outside the served folder.
 - Bind to `127.0.0.1` unless the person deploys it; never to every address by default when auth is `none`.

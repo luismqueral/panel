@@ -26,7 +26,7 @@ panel/
   CONFORMANCE.md      the conformance report (last step)
 server/               when a recipe needs the project server (recipes/contracts.md)
   *.mjs               copied from recipes/server/
-allow.mjs             the login allow list, read by the server only (recipes/google-login.md step 3)
+allow.mjs             the login allow list, read by the server only (google-login and email-link)
 start.mjs             builds the adapters from panel.config.js and the environment, then listens (step 6)
 package.json          { "private": true, "type": "module" }, so Node can import panel.config.js
 ```
@@ -81,7 +81,7 @@ Write the schema as one exported object. Add every key the build needs, each wit
 ```js
 export const PANEL = {
   name: "Field Notes",
-  // auth: google-login (the allow list goes in allow.mjs, not here)
+  // auth: google-login (the allow list goes in allow.mjs, not here). With no auth block, write { recipe: "none" }
   auth: { recipe: "google-login" },
   // data: json-files, files: local-disk; start.mjs reads these paths
   data: { recipe: "json-files", via: "server", path: "content" },
@@ -183,7 +183,7 @@ Screen details:
 | Home | `recent` lists items only, never singletons. Home never uses its `empty` state |
 | What is mounted | Only what the current state shows. Fill the `empty` and `error` regions only when entering that state. On the not-found screen, repeat `entry` and `recent` with no rows. Add the status slide-over when it opens and remove it when it closes. The layout, the confirm dialog, and the toasts region stay mounted across routes |
 | Item title while editing | The header title and last crumb change on a successful save, not while typing |
-| Account `user` slot | The signed-in address from `auth.session()` |
+| Account `user` slot | The `user` from `auth.session()`: the signed-in address, `editor` for `password`, `local` for `none`. Every recipe shows `account` |
 
 ### Routing
 
@@ -278,7 +278,7 @@ Write a few records per type, covering every status, in this shape:
 }
 ```
 
-Write `start.mjs` at the project root when a recipe needs the project server. It imports `PANEL` from the panel's `panel.config.js` and `ALLOW` from `allow.mjs`, builds each recipe's part exactly as the recipe shows, then listens on `PORT` (default 4810) and `HOST` (default `127.0.0.1`), serving the panel folder as `root`. With auth `none`, it refuses any host but `127.0.0.1`, `localhost`, or `::1`. Add the `package.json` above so Node 18 or later can import the ES-module config. The server serves only `.html`, `.js`, `.css`, `.svg`, `.json`, and image files from `root`, so `CONFORMANCE.md` and notes stay private.
+Write `start.mjs` at the project root when a recipe needs the project server. It imports `PANEL` from the panel's `panel.config.js` and, when the recipe has an allow list, `ALLOW` from `allow.mjs`, builds each recipe's part exactly as the recipe shows, then listens on `PORT` (default 4810) and `HOST` (default `127.0.0.1`), serving the panel folder as `root`. With auth `none`, it refuses any host but `127.0.0.1`, `localhost`, or `::1`. Add the `package.json` above so Node 18 or later can import the ES-module config. The server serves only `.html`, `.js`, `.css`, `.svg`, `.json`, and image files from `root`, so `CONFORMANCE.md` and notes stay private.
 
 ## Step 7: Use this copy
 
@@ -301,7 +301,7 @@ Use these words exactly, so every build reads the same. `{label}` is the type la
 | Counts | Singular at 1: "1 post", "1 word", "Fix 1 field to publish" |
 | Upload prompt | "Drop an image, or click to choose" · "Drop a file, or click to choose" |
 | Save bar, validation | As `behavior-spec.md` sections 1 and 2 say |
-| Login | Panel name · "Sign in to edit the site." · page title "Sign in · {panel name}" |
+| Login | Panel name · "Sign in to edit the site." · page title "Sign in · {panel name}". The controls and their messages are the auth recipe's |
 
 ## Step 8: Run conformance and write `CONFORMANCE.md`
 

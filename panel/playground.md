@@ -88,7 +88,7 @@ Each `<template data-pg-screen>` holds one whole screen, already filled: `layout
 | `login` | Login | `screen-login`, with the auth recipe's sign-in control in `methods` |
 | `not-found` | Not found | `screen-home` with `data-state="error"` and `error`: "This page doesn't exist" |
 
-Repeat `collection` through `item-invalid` for each type, prefixing the ID with the type id when there is more than one type (`post-collection`). Repeat `singleton` for each singleton (`settings`). Skip `item-invalid` and `confirm`'s publish form for a type without `status`. Skip `login` when `auth` is `none`.
+Repeat `collection` through `item-invalid` for each type, prefixing the ID with the type id when there is more than one type (`post-collection`). Repeat `singleton` for each singleton (`settings`). Skip `item-invalid` and `confirm`'s publish form for a type without `status`.
 
 When the schema never uses a screen (the blog has two statuses, so its slide-over is unused), keep it and add " (unused)" to its label. Fill a slide-over with what it would hold for this schema: status choices, or a related item.
 

@@ -3,7 +3,7 @@
 import { PANEL } from "./panel.config.js";
 import { createMemoryAdapters } from "./adapters/memory.js";
 import { createRequest, createHttpAdapters } from "./adapters/http.js";
-import { createGoogleAuth, createNoAuth } from "./adapters/auth.js";
+import { createGoogleAuth, createPasswordAuth, createNoAuth } from "./adapters/auth.js";
 import { formatDate, button } from "./dom.js";
 import { tpl, fill, repeat, slotRepeat, slotChildren } from "./snippets/templates.js";
 import { makeField } from "./snippets/fields.js";
@@ -47,22 +47,20 @@ async function start({ data, files, auth, test }) {
     layout = tpl("layout");
     const nav = tpl("nav");
     fill(nav, { text: { brand: PANEL.name } });
-    if (PANEL.auth.recipe !== "none") {
-      const account = tpl("account");
-      fill(account, { text: { user: user.user } });
-      account.querySelector('[data-action="logout"]').addEventListener("click", async () => {
-        if (current.dirty() && !(await discard())) return;
-        try {
-          await auth.logout();
-        } catch {
-          toast("Could not log out. Try again.", "negative");
-          return;
-        }
-        current.cleanup();
-        boot();
-      });
-      slotChildren(nav, "account").append(account);
-    }
+    const account = tpl("account");
+    fill(account, { text: { user: user.user } });
+    account.querySelector('[data-action="logout"]').addEventListener("click", async () => {
+      if (current.dirty() && !(await discard())) return;
+      try {
+        await auth.logout();
+      } catch {
+        toast("Could not log out. Try again.", "negative");
+        return;
+      }
+      current.cleanup();
+      boot();
+    });
+    slotChildren(nav, "account").append(account);
     slotChildren(layout, "nav").append(nav);
     slotChildren(layout, "header").append(tpl("header"));
     confirm = tpl("screen-dialog");
@@ -522,7 +520,7 @@ async function start({ data, files, auth, test }) {
 async function adapters() {
   if (new URLSearchParams(location.search).has("test")) return createMemoryAdapters(await (await fetch("./seed.json")).json());
   const request = createRequest();
-  const auth = PANEL.auth.recipe === "google-login" ? createGoogleAuth(request) : createNoAuth(request);
+  const auth = ({ "google-login": createGoogleAuth, password: createPasswordAuth }[PANEL.auth?.recipe] ?? createNoAuth)(request);
   return { ...createHttpAdapters(request), auth };
 }
 

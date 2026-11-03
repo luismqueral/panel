@@ -5,12 +5,12 @@ import App from "./App.jsx";
 import { PANEL } from "./panel.config.js";
 import { createMemoryAdapters } from "./adapters/memory.js";
 import { createRequest, createHttpAdapters } from "./adapters/http.js";
-import { createGoogleAuth, createNoAuth } from "./adapters/auth.js";
+import { createGoogleAuth, createPasswordAuth, createNoAuth } from "./adapters/auth.js";
 
 async function adapters() {
   if (new URLSearchParams(location.search).has("test")) return createMemoryAdapters((await import("./seed.json")).default);
   const request = createRequest();
-  const auth = PANEL.auth.recipe === "google-login" ? createGoogleAuth(request) : createNoAuth(request);
+  const auth = ({ "google-login": createGoogleAuth, password: createPasswordAuth }[PANEL.auth?.recipe] ?? createNoAuth)(request);
   return { ...createHttpAdapters(request), auth };
 }
 

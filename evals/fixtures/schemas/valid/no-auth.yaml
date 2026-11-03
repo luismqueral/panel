@@ -1,0 +1,15 @@
+panel: 1
+name: Notes
+
+data:
+  recipe: json-files
+  path: ./content
+
+types:
+  - id: note
+    label: Notes
+    list:
+      title: title
+    fields:
+      - name: title
+        type: text

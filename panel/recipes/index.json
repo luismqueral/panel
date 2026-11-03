@@ -5,7 +5,7 @@
     "none": {
       "kind": "auth",
       "status": "verified",
-      "summary": "No login. Only for panels that run locally and are never exposed to a network.",
+      "summary": "No sign-in: one button opens the panel. Also used when the schema names no auth. Only for panels that run locally and are never exposed to a network.",
       "settings": {
         "type": "object",
         "additionalProperties": false,
@@ -13,6 +13,24 @@
       },
       "verification": "evals/recipes/",
       "file": "none.md"
+    },
+    "password": {
+      "kind": "auth",
+      "status": "verified",
+      "summary": "One shared password, kept in an environment variable on the server.",
+      "settings": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "password_env": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$",
+            "description": "Name of the environment variable holding the password. Default PANEL_PASSWORD. Never the password itself."
+          }
+        }
+      },
+      "verification": "evals/recipes/",
+      "file": "password.md"
     },
     "google-login": {
       "kind": "auth",

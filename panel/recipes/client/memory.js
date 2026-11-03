@@ -75,7 +75,18 @@ export function createMemoryAdapters(seed, { user = "me@example.com" } = {}) {
   let signedIn = true;
   const auth = {
     session: async () => (signedIn ? { user } : null),
-    renderMethods: () => {},
+    renderMethods(container, { onSignedIn }) {
+      const enter = document.createElement("button");
+      enter.className = "pn-button";
+      enter.dataset.variant = "primary";
+      enter.type = "button";
+      enter.textContent = "View panel";
+      enter.addEventListener("click", () => {
+        signedIn = true;
+        onSignedIn();
+      });
+      container.replaceChildren(enter);
+    },
     logout: async () => {
       signedIn = false;
     },

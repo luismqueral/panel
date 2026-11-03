@@ -45,14 +45,14 @@ for (const type of types) {
 }
 expected.set("slide-over", { dialog: "screen-slide-over" });
 for (const s of schema.singletons ?? []) expected.set(s.id, { state: "ready", save: "clean" });
-if (schema.auth?.recipe !== "none") expected.set("login", { login: true });
+expected.set("login", { login: true });
 expected.set("not-found", { state: "error" });
 
 const fieldTypes = new Set([...types, ...(schema.singletons ?? [])].flatMap((t) => t.fields.map((f) => f.type)));
 const neededTemplates = new Set([
   "layout", "nav", "header", "savebar", "empty", "error",
   "screen-home", "screen-collection", "screen-item", "screen-create", "screen-dialog", "screen-slide-over",
-  ...(schema.auth?.recipe !== "none" ? ["account", "screen-login"] : []),
+  "account", "screen-login",
   ...(schema.singletons?.length ? ["screen-singleton"] : []),
   ...[...fieldTypes].map((t) => `field-${t}`),
 ]);
