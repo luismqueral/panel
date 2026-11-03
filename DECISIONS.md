@@ -452,3 +452,11 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Tests:** 4 unit and 7 browser tests for `password`, 3 browser tests for `none` (one for a config with no `auth`), 1 behavior test for test mode (68 in all), and 4 schema fixtures. Breaking the password check fails 2 of the browser tests.
 - **Requested by:** the person ("if auth isnt set up, lets default to having \"Click to view Panel\" … the second line of defense is a simple password").
 - **Tag:** philosophy-dependent (the copy, and that `none` now shows a login screen)
+
+## D-062 Third experiment confirms the current skill
+
+- **Result:** At `e329118`, 5 of 5 fresh sessions conform against all 67 tests, with 20 of 20 fidelity and identical copy. 7 of 8 views now have one DOM structure across runs (0 of 8 in experiment 2). See `evals/results/blog-vanilla-3/REPORT.md`.
+- **Choice:** The one remaining structure difference was the create dialog's lifetime. `build.md` "What is mounted" now says to add it, closed, with the collection screen and remove it when the route leaves, as the reference build does.
+- **Not changed:** the other gaps the sessions raised. Every run guessed the same way and passed, so they wait for a run that guesses differently.
+- **Requested by:** the person ("run this").
+- **Tag:** process

@@ -181,7 +181,7 @@ Screen details:
 | Search with no matches | No rows; the screen stays `ready` (the `empty` state is only for a type with no items) |
 | Sorting | Blank values sort last in both directions |
 | Home | `recent` lists items only, never singletons. Home never uses its `empty` state |
-| What is mounted | Only what the current state shows. Fill the `empty` and `error` regions only when entering that state. On the not-found screen, repeat `entry` and `recent` with no rows. Add the status slide-over when it opens and remove it when it closes. The layout, the confirm dialog, and the toasts region stay mounted across routes |
+| What is mounted | Only what the current state shows. Fill the `empty` and `error` regions only when entering that state. On the not-found screen, repeat `entry` and `recent` with no rows. Add the status slide-over when it opens and remove it when it closes. Add the create dialog, closed, with the collection screen, and remove it when the route leaves that collection. The layout, the confirm dialog, and the toasts region stay mounted across routes |
 | Item title while editing | The header title and last crumb change on a successful save, not while typing |
 | Account `user` slot | The `user` from `auth.session()`: the signed-in address, `editor` for `password`, `local` for `none`. Every recipe shows `account` |
 
