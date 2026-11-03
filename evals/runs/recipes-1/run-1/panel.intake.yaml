@@ -1,0 +1,48 @@
+intake: 1
+
+situation:
+  mode: new
+  stack: none
+  flavor: vanilla
+  users: team
+  manages: A small family recipe site, Sunday Table. Recipes go from an idea someone suggests, to testing in the kitchen, to ready for the site, and some are eventually retired (kept, never deleted). Each recipe has a name, a photo, how many it serves, prep and cook time in minutes, ingredients with their amounts, the steps, and the family member it comes from; a few are marked as favorites. Plus a list of the family cooks, each with a short bio and a photo, and one About page.
+
+adapters:
+  auth: password
+  data: json-files
+  files: local-disk
+  via: server
+  mount: standalone
+
+shape:
+  collections: true
+  singletons: true
+  status:
+    - idea
+    - testing
+    - ready
+    - retired
+  behavior: []
+
+open_questions:
+  - question: Which flavor?
+    assumed: true
+    answer: Vanilla, single file (recommended).
+  - question: Where does the panel mount?
+    assumed: true
+    answer: A standalone page.
+  - question: How should the panel write files?
+    assumed: true
+    answer: A small Node server in the project (recommended when there is login).
+  - question: Anything special the panel should do (autosave, asking before publishing)?
+    assumed: true
+    answer: Nothing beyond the request. No autosave, no publish confirmation.
+  - question: Should recipes be deletable at all, given "we keep retired ones, we don't delete them"?
+    assumed: true
+    answer: Yes. Retired is a status, so recipes leave the site without being deleted. Delete stays on the item screen (the spec puts it there) for mistakes such as a duplicate idea.
+  - question: Commit content to git?
+    assumed: true
+    answer: yes (json-files default). The content folder is kept in version control.
+  - question: Do uploads belong in git?
+    assumed: true
+    answer: no (local-disk default). The uploads folder goes in .gitignore.

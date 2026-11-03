@@ -460,3 +460,11 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Not changed:** the other gaps the sessions raised. Every guess passed the tests. Two split across runs (date-only values in UTC or local time; whether Delete on a dirty item asks to discard first) and have no test yet.
 - **Requested by:** the person ("run this").
 - **Tag:** process
+
+## D-063 First divergent project: a recipe site designed from a request
+
+- **Result:** At `dbf35c5`, two fresh sessions designed the Sunday Table schema from the person's words, previewed it, and built it. Both schemas validate, both builds copy every shipped file unchanged, and the two schemas share the same types, statuses, adapters, and nearly the same fields. See `evals/results/recipes-1/REPORT.md`.
+- **Choice:** Each run now gets a trace (`evals/harness/trace.mjs`: what it read, ran, and wrote, with forbidden paths flagged) and screenshots from any schema (`evals/harness/shots.mjs`).
+- **Not changed yet:** the gaps both runs raised: the last status is always positive, there is no repeating-rows field, types can't opt out of Delete, types without statuses have no save rule, and the playground's screen list assumes one type with a publish confirm.
+- **Requested by:** the person ("lets have each test start with the schema and a prompt").
+- **Tag:** process
