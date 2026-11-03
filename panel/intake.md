@@ -67,7 +67,7 @@ Then ask in chat: "What will the panel manage? Describe it in your own words." K
 
 | Question | Options |
 | --- | --- |
-| How do people log in? | Google login · Email link · No login, local only · The host app's existing auth |
+| How do people log in? | Google login · Email link · A shared password · No login, local only · The host app's existing auth |
 | Where does the data live? | JSON files · Postgres · Supabase · The host app's existing database |
 | Where do uploaded files live? | Local disk · Cloud storage (S3 or R2) · No uploads |
 | Where does the panel mount? | A standalone page · A route in the host app · A separate subdomain |
@@ -101,7 +101,8 @@ Then ask in chat: "Which parts of the app must the panel not touch?"
 - A new project skips Round 4.
 - A server framework (Django, Rails, Laravel) defaults login and data to the host's existing setup, and always runs Round 4.
 - A static site generator defaults data to files committed with git, and login to the edge (for example GitHub login). "Publish" means a commit and a rebuild. Say so in the playback.
-- "No login, local only" sets `auth: recipe: none`. Warn once if the panel will be reachable on a network.
+- "No login, local only" sets `auth: recipe: none`. Warn once if the panel will be reachable on a network, and offer "A shared password" instead.
+- "A shared password" sets `auth: recipe: password`. Never ask for the password itself: the person sets it in `PANEL_PASSWORD` on the server.
 - "No uploads" means no `files` block, and no `image` or `file` fields later.
 - A recommended option you already detected is recorded, not asked.
 
@@ -114,6 +115,7 @@ Don't: offer "JSON files" to a Django project as the recommended data option.
 | --- | --- |
 | Google login | `google-login` |
 | Email link | `email-link` |
+| A shared password | `password` |
 | No login, local only | `none` |
 | JSON files | `json-files` |
 | Postgres | `postgres` |

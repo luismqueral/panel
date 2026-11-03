@@ -198,5 +198,19 @@
       "Did you mean \"label\"?",
       "missing \"label\""
     ]
+  },
+  "password-in-schema": {
+    "errors": 1,
+    "messages": [
+      "password has no setting \"password\"",
+      "Settings: password_env"
+    ]
+  },
+  "password-env-value": {
+    "errors": 1,
+    "messages": [
+      "names an environment variable",
+      "Never put the secret itself in the schema"
+    ]
   }
 }

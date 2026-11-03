@@ -59,7 +59,7 @@ Don't:
 | --- | --- | --- |
 | `panel` | Yes | `1` |
 | `name` | Yes | The project's display name |
-| `auth` | Yes | Adapter: who can log in |
+| `auth` | No | Adapter: who can log in. Absent means `none` |
 | `data` | Yes | Adapter: where items are stored |
 | `files` | When any field is `image` or `file` | Adapter: where uploads are stored |
 | `types` | One of `types` or `singletons` | Collections |
@@ -90,14 +90,14 @@ auth: google-login
 
 | Slot | Recipes |
 | --- | --- |
-| `auth` | `google-login` (`allow`), `email-link` (`allow`), `none` |
+| `auth` | `google-login` (`allow`), `email-link` (`allow`), `password` (`password_env`), `none` |
 | `data` | `json-files` (`path`, `via`, `repo`, `branch`), `postgres` (`url_env`, `schema`), `supabase` (`url_env`, `key_env`) |
 | `files` | `local-disk` (`path`, `url`, `via`), `s3` (`bucket`, `region`, `url`), `r2` (`bucket`, `account_env`, `url`) |
 
 Rules:
 
 - **3.1** `allow` lists email addresses or `*@domain`. A login recipe without `allow` is invalid.
-- **3.2** `auth: recipe: none` means the panel has no login. Use it only for panels that never leave the person's machine.
+- **3.2** `auth: recipe: none`, or no `auth` block, means the panel has no login: one "View panel" button opens it. Use it only for panels that never leave the person's machine. The smallest real gate is `password`.
 - **3.3** Secrets never go in the schema. Settings ending in `_env` name an environment variable (`url_env: DATABASE_URL`), never the value.
 - **3.4** `json-files` writes through a small server by default. `via` picks another way: `file-system-access`, `github` (needs `repo`), `download`, or `local-storage` (mockups only).
 

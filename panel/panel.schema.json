@@ -4,11 +4,11 @@
   "title": "Panel schema, version 1",
   "description": "The contract describing what a project manages. Shape only: references, recipe settings, defaults, and style are checked by the validator (see schema-guide.md).",
   "type": "object",
-  "required": ["panel", "name", "auth", "data"],
+  "required": ["panel", "name", "data"],
   "properties": {
     "panel": { "const": 1, "description": "Schema version. Must be the first line." },
     "name": { "$ref": "#/$defs/text" },
-    "auth": { "$ref": "#/$defs/adapter" },
+    "auth": { "$ref": "#/$defs/adapter", "description": "Who can open the panel. Absent means none." },
     "data": { "$ref": "#/$defs/adapter" },
     "files": { "$ref": "#/$defs/adapter" },
     "types": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/type" } },

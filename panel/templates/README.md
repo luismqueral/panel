@@ -93,7 +93,7 @@ If a schema needs something no template can hold, write a proposal (what is need
 | Container | Holds |
 | --- | --- |
 | `layout` → `nav` | `nav` |
-| `nav` → `account` | `account`, or nothing when `auth` is `none` |
+| `nav` → `account` | `account`, for every auth recipe (`none` reads `local`) |
 | `layout` → `header` | `header` |
 | `layout` → `screen` | One of `screen-home`, `screen-collection`, `screen-item`, `screen-singleton`, or `error` for system errors |
 | `layout` → `savebar` | `savebar` on item and singleton screens, nothing elsewhere |

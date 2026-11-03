@@ -443,3 +443,12 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Tests:** 3 new behavior tests (67 in all). Rescored against them, the experiment-2 runs would fail V8, and runs 1 to 4 also V4/V5. A third experiment would confirm the current skill.
 - **Requested by:** the person ("keep going and wrap this up").
 - **Tag:** philosophy-dependent (the publish meaning and the conflict copy)
+
+## D-061 Two lowest gates: "View panel" when no auth is set up, then a shared password
+
+- **Choice:** `auth` is now optional in the schema; absent means `none`. `none` no longer skips the login screen. It shows one primary button, "View panel", remembered for the browser tab in `sessionStorage`, and the account menu shows `local` with "Log out". It is not protection, and the server still accepts every request from this computer and stays bound to `127.0.0.1`. Test mode (`?test`) uses the same button, so logging out and back in works there too.
+- **New recipe, `password`:** one shared password in an environment variable (`PANEL_PASSWORD`, or the one `password_env` names), never in the schema. The server compares SHA-256 digests in constant time, needs at least 12 characters to start, and answers the new `rate-limited` code (429) after 10 wrong tries from one address in 15 minutes. A right password sets the same signed session cookie as `google-login`, for the user `editor`. The browser only passes the password on.
+- **Tradeoffs:** changing the password does not end existing sessions; changing `SESSION_SECRET` does. Behind a proxy the try limit is shared by everyone. The "View panel" label shortens the requested "Click to view Panel" to an action, like every other button.
+- **Tests:** 4 unit and 7 browser tests for `password`, 3 browser tests for `none` (one for a config with no `auth`), 1 behavior test for test mode (68 in all), and 4 schema fixtures. Breaking the password check fails 2 of the browser tests.
+- **Requested by:** the person ("if auth isnt set up, lets default to having \"Click to view Panel\" … the second line of defense is a simple password").
+- **Tag:** philosophy-dependent (the copy, and that `none` now shows a login screen)

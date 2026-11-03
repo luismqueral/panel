@@ -6,6 +6,7 @@ import { readFile } from "node:fs/promises";
 import { join, normalize, extname } from "node:path";
 import { STATUS, fail } from "./errors.mjs";
 import { isAllowed } from "./google.mjs";
+import { USER as PASSWORD_USER } from "./password.mjs";
 import { MAX_UPLOAD } from "./local-disk.mjs";
 
 // Only these kinds are served from the panel folder; anything else (notes, reports) is a 404.
@@ -13,6 +14,7 @@ const STATIC = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", 
 const MAX_JSON = 1024 * 1024;
 
 // auth: { recipe: "google-login", allow, verify(credential) → { email, hd }, sessions, clientId }
+//    or { recipe: "password", check(password, address), sessions }
 //    or { recipe: "none" }
 export function createPanelServer({ root, config, data, files, auth }) {
   async function body(req, limit) {
@@ -39,7 +41,9 @@ export function createPanelServer({ root, config, data, files, auth }) {
     if (auth.recipe === "none") return "local";
     const session = auth.sessions.read(req.headers.cookie);
     if (!session) throw fail("unauthorized", "sign in first");
-    if (!isAllowed({ email: session.user, hd: session.hd }, auth.allow)) throw fail("forbidden", "this account isn't allowed");
+    if (auth.recipe === "password") {
+      if (session.user !== PASSWORD_USER) throw fail("unauthorized", "sign in first");
+    } else if (!isAllowed({ email: session.user, hd: session.hd }, auth.allow)) throw fail("forbidden", "this account isn't allowed");
     if (session.renew) res.setHeader("set-cookie", auth.sessions.issue(session.user, { secure, hd: session.hd }));
     return session.user;
   }
@@ -58,6 +62,12 @@ export function createPanelServer({ root, config, data, files, auth }) {
         if (!isAllowed(who, auth.allow)) throw fail("forbidden", "this account isn't allowed");
         res.setHeader("set-cookie", auth.sessions.issue(who.email, { secure, hd: who.hd }));
         return { user: who.email };
+      }
+      if (method === "POST" && auth.recipe === "password") {
+        const { password } = (await json(req)) ?? {};
+        auth.check(password, req.socket.remoteAddress);
+        res.setHeader("set-cookie", auth.sessions.issue(PASSWORD_USER, { secure }));
+        return { user: PASSWORD_USER };
       }
       if (method === "DELETE") {
         if (auth.recipe !== "none") res.setHeader("set-cookie", auth.sessions.clear({ secure }));

@@ -447,6 +447,17 @@ test.describe("field controls", () => {
   });
 });
 
+test.describe("test mode", () => {
+  test("log out shows View panel, which signs back in", async ({ page }) => {
+    await open(page, "#/post");
+    await page.locator('[data-action="logout"]').click();
+    await expect(page.locator('[data-template="screen-login"]')).toBeVisible();
+    await page.getByRole("button", { name: "View panel" }).click();
+    await expect(screen(page)).toHaveAttribute("data-state", "ready");
+    await expect(page.locator('[data-template="screen-collection"]')).toBeVisible();
+  });
+});
+
 test.describe("screen states", () => {
   test("collections show loading, then ready", async ({ page }) => {
     await open(page, "#/");
