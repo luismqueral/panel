@@ -468,3 +468,12 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Not changed yet:** the gaps both runs raised: the last status is always positive, there is no repeating-rows field, types can't opt out of Delete, types without statuses have no save rule, and the playground's screen list assumes one type with a publish confirm.
 - **Requested by:** the person ("lets have each test start with the schema and a prompt").
 - **Tag:** process
+
+## D-064 Experiment output lives outside this repository
+
+- **Choice:** Runs and results moved to a sibling folder, `../panel-evals/` (override with `PANEL_EVALS_DIR`; `evals/harness/paths.mjs`). It is its own git repo with no remote. This repository keeps the harness: prompts, tests, fixtures, scorer, trace and screenshot tools. `/evals/runs/` and `/evals/results/` are ignored here.
+- **Why:** This repository is public. Run output is large (about 20 MB), carries browser-profile leftovers, and future experiments describe internal systems. Those experiments' prompts and fixtures go in `../panel-evals/private/`, not `evals/harness/`.
+- **Not changed:** history. Earlier runs stay in past commits.
+- **Check:** rescoring `blog-vanilla-3` from the new folder runs every run. It now differs from the saved results only where D-061 changed shipped files and added the "View panel" test after those runs were built.
+- **Requested by:** the person ("i dont want them to be a part of this repo (the output), but i think the infra is important to maintain here").
+- **Tag:** process

@@ -68,7 +68,7 @@ Each step says what to do, why, how we know it is done, and what it costs. Steps
 
 - **Do:** add a mode to `evals/harness/score.mjs` that scores one folder (`/app`) and writes JSON: conforms (0 or 1), tests passed, fidelity, unmodified files, dependencies, missing files, and the allow-list check.
 - **Why:** today it scores a folder of five runs. Harbor checks one trial at a time and reads a file called `reward.json`.
-- **Done when:** scoring a copy of `evals/runs/blog-vanilla-3/run-1` gives the same numbers as `results.md`.
+- **Done when:** scoring a copy of `../panel-evals/runs/blog-vanilla-3/run-1` gives the same numbers as `results.md`.
 - **Cost:** none.
 
 ### Step 3: Write the task

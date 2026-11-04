@@ -1,6 +1,6 @@
 # Run prompt
 
-Given to each fresh session. Replace `{{RUN}}` with the run folder, for example `evals/runs/blog-vanilla/run-1`.
+Given to each fresh session. Replace `{{RUN}}` with the run folder, for example `../panel-evals/runs/blog-vanilla/run-1` (see `paths.mjs`).
 
 ---
 
@@ -17,7 +17,7 @@ So the mode is New panel, and the remaining steps are Build and Conformance. Ski
 
 Rules for this run:
 
-- Read only files in `panel/` (the skill), the two files above, and your own output. Do not read `evals/` (other than the intake file), `tools/`, `docs/`, `DECISIONS.md`, or any other run's folder. They hold the answers.
+- Read only files in `panel/` (the skill), the two files above, and your own output. Do not read `evals/` (other than the intake file), `tools/`, `docs/`, `DECISIONS.md`, or anything in `../panel-evals/` but your own folder. They hold the answers.
 - You may run `node tools/validate.mjs {{RUN}}/panel.yaml`, which the skill names. Run nothing else in `tools/` and no test suite: you are "elsewhere", so walk the conformance rules by hand.
 - You may use the shell to copy files, and Node or a browser to try your build.
 - Do not run git. Do not install packages. Write only inside `{{RUN}}/`.

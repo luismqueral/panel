@@ -1,6 +1,6 @@
 # Run prompt: recipe site, from a person's request
 
-Given to each fresh session. Replace `{{RUN}}` with the run folder, for example `evals/runs/recipes-1/run-1`. Unlike `prompt.md`, the session gets no schema or intake record: it designs the schema from the request, then builds the panel from that schema.
+Given to each fresh session. Replace `{{RUN}}` with the run folder, for example `../panel-evals/runs/recipes-1/run-1` (see `paths.mjs`). Unlike `prompt.md`, the session gets no schema or intake record: it designs the schema from the request, then builds the panel from that schema.
 
 ---
 
@@ -29,7 +29,7 @@ Run every step of the New panel mode: Intake, Schema, Preview, Build, and Confor
 
 Rules for this run:
 
-- Read only files in `panel/` (the skill) and your own output. Do not read `evals/`, `tools/`, `docs/`, `DECISIONS.md`, or any run's folder but your own. They hold the answers.
+- Read only files in `panel/` (the skill) and your own output. Do not read `evals/`, `tools/`, `docs/`, `DECISIONS.md`, or anything in `../panel-evals/` but your own folder. They hold the answers.
 - You may run `node tools/validate.mjs`, which the skill names. Run nothing else in `tools/` and no test suite: you are "elsewhere", so walk the conformance rules by hand.
 - You may use the shell to copy files, and Node or a browser to try your build. Use free ports you have checked, and stop only the processes you started.
 - Do not run git. Do not install packages. Write only inside `{{RUN}}/`.

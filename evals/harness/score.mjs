@@ -1,27 +1,27 @@
 // Scores an experiment: every run folder under it is checked for conformance, template
 // fidelity, unmodified shipped files, and consistency with the other runs.
-// Usage: node evals/harness/score.mjs evals/runs/<experiment> [--out evals/results/<experiment>]
+// Usage: node evals/harness/score.mjs <evals dir>/runs/<experiment> [--out <evals dir>/results/<experiment>]
+// The evals dir defaults to ../panel-evals (see paths.mjs).
 
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
 import { parse as parseYaml } from "yaml";
 import { serve } from "../../tools/lib/serve.mjs";
+import { evalsDir, root } from "./paths.mjs";
 import { loadTemplates } from "../../tools/lib/templates.mjs";
 
-const root = fileURLToPath(new URL("../..", import.meta.url));
 const args = process.argv.slice(2);
 const experiment = args[0] && resolve(args[0]);
 if (!experiment || !existsSync(experiment)) {
-  console.error("Usage: node evals/harness/score.mjs evals/runs/<experiment> [--out <folder>]");
+  console.error(`Usage: node evals/harness/score.mjs ${evalsDir}/runs/<experiment> [--out <folder>]`);
   process.exit(2);
 }
 const outIndex = args.indexOf("--out");
-const out = resolve(outIndex > -1 ? args[outIndex + 1] : join(root, "evals/results", basename(experiment)));
+const out = resolve(outIndex > -1 ? args[outIndex + 1] : join(evalsDir, "results", basename(experiment)));
 mkdirSync(out, { recursive: true });
 
 const seedFile = join(root, "evals/behavior/seed.json");

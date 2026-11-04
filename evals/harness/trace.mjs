@@ -7,7 +7,8 @@
 // thinking, tokens, or per-step times.
 
 import { readFileSync, writeFileSync, watchFile } from "node:fs";
-import { relative, resolve } from "node:path";
+import { basename, dirname, relative, resolve } from "node:path";
+import { evalsDir, root } from "./paths.mjs";
 
 const args = process.argv.slice(2);
 const option = (name) => {
@@ -22,30 +23,36 @@ if (!transcript || !run) {
   process.exit(1);
 }
 
-const root = resolve(new URL("../..", import.meta.url).pathname);
-const runDir = relative(root, resolve(root, run));
-const allowed = new Set(args.flatMap((a, i) => (a === "--allow" ? [relative(root, resolve(root, args[i + 1]))] : [])));
-allowed.add("tools/validate.mjs");
+const runPath = resolve(root, run);
+const inside = (path, dir) => path === dir || path.startsWith(`${dir}/`);
+const allowed = new Set(args.flatMap((a, i) => (a === "--allow" ? [resolve(root, args[i + 1])] : [])));
+allowed.add(resolve(root, "tools/validate.mjs"));
 
 // What a run may read: the skill, its own folder, and the validator the skill names.
+// Everything else in the evals folder (other runs, results, private prompts) holds answers.
 function classify(path) {
   if (!path) return "other";
-  const rel = relative(root, resolve(root, path));
+  const abs = resolve(root, path);
+  if (inside(abs, runPath)) return "own";
+  if (allowed.has(abs)) return "allowed";
+  if (inside(abs, evalsDir)) return "forbidden";
+  const rel = relative(root, abs);
   if (rel.startsWith("..")) return "outside";
-  if (rel === runDir || rel.startsWith(`${runDir}/`)) return "own";
   if (rel.startsWith("panel/")) return "skill";
-  if (allowed.has(rel)) return "allowed";
   if (/^(evals|tools|docs)\//.test(rel) || rel === "DECISIONS.md") return "forbidden";
   return "other";
 }
 
-const FORBIDDEN_IN_COMMAND = /(?:^|[\s"'=/])(evals\/(?!runs\/)[\w./-]*|evals\/runs\/[\w./-]+|tools\/(?!validate\.mjs)[\w./-]+|docs\/[\w./-]*|DECISIONS\.md)/g;
+// Command text names paths loosely, so match the repo's forbidden folders and the evals folder by name.
+const evalsName = basename(evalsDir).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const FORBIDDEN_IN_COMMAND = new RegExp(String.raw`(?:^|[\s"'=/])(${evalsName}(?:\/[\w./-]*)?|evals\/[\w./-]*|tools\/(?!validate\.mjs)[\w./-]+|docs\/[\w./-]*|DECISIONS\.md)`, "g");
+const runToken = relative(dirname(evalsDir), runPath);
 
 function forbiddenInCommand(command) {
   const hits = [];
   for (const match of command.matchAll(FORBIDDEN_IN_COMMAND)) {
-    const token = match[1];
-    if (token === runDir || token.startsWith(`${runDir}/`) || allowed.has(token)) continue;
+    const token = match[1].replace(/\/$/, "");
+    if (inside(token, runToken) || allowed.has(resolve(root, token))) continue;
     hits.push(token);
   }
   return hits;
@@ -110,7 +117,7 @@ function render() {
 
   const skillReads = [...new Set(reads.filter((r) => r.where === "skill").map((r) => r.path))];
   const lines = [];
-  lines.push(`# Trace: ${runDir}`, "");
+  lines.push(`# Trace: ${relative(dirname(evalsDir), runPath)}`, "");
   lines.push(`Source: ${code(relative(root, resolve(transcript)))}. Status: ${ended ?? "still running"}. Built ${new Date().toISOString()}.`, "");
   lines.push("## Summary", "");
   lines.push(`| Measure | Value |`, `| --- | --- |`);
