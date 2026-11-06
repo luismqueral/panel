@@ -485,3 +485,11 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Check:** three new tests in `evals/recipes/password.test.mjs`: visitors are limited separately, only the proxy's address counts, and without the option a faked header changes nothing.
 - **Requested by:** the person ("okay lets fix these two").
 - **Tag:** recipes
+
+## D-066 The postgres recipe is verified, by hand
+
+- **Choice:** `postgres` moves to `verified` in `recipes/index.json`, and the recipe says how. Its `values` column is now quoted.
+- **Why:** The first real build found the bug. `values` is a reserved word in SQL, so the recipe's `create table` as written should fail. That build then ran the recipe's whole checklist against a real Postgres: migration, create, edit, publish, reload, delete, refusals with 400, the database stopped mid-save, and singletons on a scratch database.
+- **Limit:** Every other verified recipe is covered by `npm run test:recipes` (D-052). This one isn't, because that suite has no database, and the adapter code lives in the build, not in `recipes/server/`. A later change to the recipe won't be caught automatically.
+- **Requested by:** the person ("yes to those").
+- **Tag:** recipes

@@ -1,6 +1,6 @@
 # Recipe: postgres
 
-Status: unverified. Written against `contracts.md`; the verification below has not been run. Say so to the person, and run it before calling the panel done.
+Status: verified by hand, on one real deployment (D-066). `npm run test:recipes` doesn't cover it, because it needs a running database, so run the checklist below on your own build too.
 
 ## 1. When to use it
 
@@ -20,14 +20,14 @@ create table if not exists panel_items (
   type        text not null,
   id          text not null,
   status      text,
-  values      jsonb not null,
+  "values"    jsonb not null,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now(),
   primary key (type, id)
 );
 create table if not exists panel_singletons (
   id          text primary key,
-  values      jsonb not null,
+  "values"    jsonb not null,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
@@ -36,7 +36,7 @@ create table if not exists panel_singletons (
 ## 4. Steps
 
 1. Write `server/postgres.mjs` exporting `createPostgres({ url, schema, config })` with the same functions and checks as `recipes/server/json-files.mjs`: schema types only, schema field names only, valid statuses, ids from `randomBytes(5).toString("hex")`.
-2. Use parameterized queries only (`$1`, `$2`). Map rows to items: `created_at` → `createdAt` as ISO strings.
+2. Use parameterized queries only (`$1`, `$2`). Quote the `"values"` column in every statement. Map rows to items: `created_at` → `createdAt` as ISO strings.
 3. `update` is one `update ... where type = $1 and id = $2 returning *`; no row → `not-found`.
 4. Map connection errors to `unavailable`.
 5. Run the `create table` statements once, from a `migrate` script the person runs; never on every start.
@@ -53,6 +53,7 @@ create table if not exists panel_singletons (
 
 ## 6. Pitfalls
 
+- Leaving `values` unquoted. It is a reserved word in SQL, so the `create table` and every statement that names it fail.
 - Building SQL with string concatenation.
 - Logging the connection string.
 - One table per type, generated from the schema: every schema change becomes a migration. The `jsonb` column avoids it.

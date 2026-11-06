@@ -86,7 +86,7 @@ The schema validator, `tools/validate.mjs`, lives in this repository rather than
 | Kind | Verified | Written, not yet verified |
 | --- | --- | --- |
 | Login | `none` (one "View panel" button, for local use), `password` (one shared password), `google-login` | `email-link` |
-| Data | `json-files` | `postgres`, `supabase` |
+| Data | `json-files`, `postgres` (by hand; see its recipe) | `supabase` |
 | Files | `local-disk` | `s3`, `r2` |
 
 A recipe is a plugin you read instead of install: instructions the agent follows, plus tested code it copies. If no recipe fits, the agent stops and says so rather than improvising one.

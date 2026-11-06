@@ -144,7 +144,7 @@
     },
     "postgres": {
       "kind": "data",
-      "status": "unverified",
+      "status": "verified",
       "summary": "A Postgres database reached by a connection string in an environment variable.",
       "settings": {
         "type": "object",
