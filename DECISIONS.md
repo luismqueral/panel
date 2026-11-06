@@ -477,3 +477,11 @@ Each entry: the question, the choice, why, and what reversing it would take. Tag
 - **Check:** rescoring `blog-vanilla-3` from the new folder runs every run. It now differs from the saved results only where D-061 changed shipped files and added the "View panel" test after those runs were built.
 - **Requested by:** the person ("i dont want them to be a part of this repo (the output), but i think the infra is important to maintain here").
 - **Tag:** process
+
+## D-065 The project server can trust a proxy for the limit on wrong passwords
+
+- **Choice:** `createPanelServer` takes `trustProxy`, off by default. When it's on, the limit on wrong passwords counts the last address in `X-Forwarded-For`, the one the proxy added. `password.md` says when it's safe to turn on.
+- **Why:** Behind a proxy, every visitor shares the proxy's address, so anyone could lock out the real editor with ten wrong guesses. A real deployment behind Caddy raised it. Reading the header by default would let a client send a new address with every guess, so it's opt-in.
+- **Check:** three new tests in `evals/recipes/password.test.mjs`: visitors are limited separately, only the proxy's address counts, and without the option a faked header changes nothing.
+- **Requested by:** the person ("okay lets fix these two").
+- **Tag:** recipes

@@ -74,4 +74,4 @@ The panel is not done until every box is ticked.
 - Checking the password in the browser. The server checks it; the browser only passes it on.
 - Sending the password over plain HTTP on a network.
 - Forgetting `x-panel: 1` on writes, or accepting writes without it.
-- Behind a proxy, every request comes from the proxy's address, so the limit on wrong tries applies to everyone at once. That is safe; it can mean waiting 15 minutes after someone else's typos.
+- Behind a proxy, every request comes from the proxy's address, so by default the limit on wrong tries applies to everyone at once. If a proxy that sets `X-Forwarded-For` is the only way to reach the server, pass `trustProxy: true` to `createPanelServer` so each visitor has their own limit. Never set it when the server can be reached directly: a client could then send a new address with every guess.

@@ -16,7 +16,11 @@ const MAX_JSON = 1024 * 1024;
 // auth: { recipe: "google-login", allow, verify(credential) → { email, hd }, sessions, clientId }
 //    or { recipe: "password", check(password, address), sessions }
 //    or { recipe: "none" }
-export function createPanelServer({ root, config, data, files, auth }) {
+// trustProxy: true only when a proxy that sets X-Forwarded-For is the only way to reach this server.
+export function createPanelServer({ root, config, data, files, auth, trustProxy = false }) {
+  // The proxy adds the address it saw at the end of the header. Anything before that came from the client.
+  const addressOf = (req) => (trustProxy && String(req.headers["x-forwarded-for"] ?? "").split(",").pop().trim()) || req.socket.remoteAddress;
+
   async function body(req, limit) {
     const chunks = [];
     let size = 0;
@@ -65,7 +69,7 @@ export function createPanelServer({ root, config, data, files, auth }) {
       }
       if (method === "POST" && auth.recipe === "password") {
         const { password } = (await json(req)) ?? {};
-        auth.check(password, req.socket.remoteAddress);
+        auth.check(password, addressOf(req));
         res.setHeader("set-cookie", auth.sessions.issue(PASSWORD_USER, { secure }));
         return { user: PASSWORD_USER };
       }

@@ -45,3 +45,40 @@ test("a right password resets the count", () => {
   for (let i = 0; i < 9; i++) assert.equal(code(() => check("nope", "a")), "unauthorized");
   assert.equal(code(() => check(PASSWORD, "a")), null);
 });
+
+// The limit on wrong tries, through the server, with and without a trusted proxy.
+async function serve(trustProxy) {
+  const { createPanelServer } = await import("../../panel/recipes/server/server.mjs");
+  const { createSessions } = await import("../../panel/recipes/server/session.mjs");
+  const auth = { recipe: "password", check: createPasswordCheck(PASSWORD), sessions: createSessions("s".repeat(32)) };
+  const server = createPanelServer({ root: ".", config: { types: [], singletons: [] }, data: {}, auth, trustProxy });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const signIn = async (password, forwarded) => (await fetch(`http://127.0.0.1:${server.address().port}/api/session`, {
+    method: "POST",
+    headers: { "x-panel": "1", "content-type": "application/json", ...(forwarded ? { "x-forwarded-for": forwarded } : {}) },
+    body: JSON.stringify({ password }),
+  })).status;
+  return { server, signIn };
+}
+
+test("with trustProxy, one visitor's wrong tries don't lock out another", async () => {
+  const { server, signIn } = await serve(true);
+  for (let i = 0; i < 10; i++) assert.equal(await signIn("wrong-password-here", "203.0.113.1"), 401);
+  assert.equal(await signIn(PASSWORD, "203.0.113.1"), 429);
+  assert.equal(await signIn(PASSWORD, "203.0.113.2"), 200);
+  server.close();
+});
+
+test("with trustProxy, only the address the proxy added counts", async () => {
+  const { server, signIn } = await serve(true);
+  for (let i = 0; i < 10; i++) assert.equal(await signIn("wrong-password-here", `198.51.100.${i}, 203.0.113.1`), 401);
+  assert.equal(await signIn(PASSWORD, "198.51.100.99, 203.0.113.1"), 429);
+  server.close();
+});
+
+test("without trustProxy, a faked header can't get around the limit", async () => {
+  const { server, signIn } = await serve(false);
+  for (let i = 0; i < 10; i++) assert.equal(await signIn("wrong-password-here", `198.51.100.${i}`), 401);
+  assert.equal(await signIn(PASSWORD, "198.51.100.99"), 429);
+  server.close();
+});
